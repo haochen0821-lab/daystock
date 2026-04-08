@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Journal{% endblock %}
+{% block title %}日誌{% endblock %}
 
 {% block content %}
 <style>
@@ -342,74 +342,74 @@
             </div>
             <h2 id="calendarTitle">--</h2>
             <div class="calendar-nav">
-                <button class="cal-btn cal-btn-today" id="todayBtn">Today</button>
+                <button class="cal-btn cal-btn-today" id="todayBtn" data-i18n="journal.today">今天</button>
                 <button class="cal-btn" id="nextMonth" title="Next month">&#9654;</button>
             </div>
         </div>
         <div class="calendar-weekdays">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
     </div>
 
     <!-- Right: Editor -->
     <div class="editor-panel" id="editorPanel">
-        <div class="editor-empty" id="editorEmpty">Select a date to write</div>
+        <div class="editor-empty" id="editorEmpty" data-i18n="journal.select_date">選擇日期開始撰寫</div>
         <div id="editorForm" style="display:none;">
             <div class="editor-date" id="editorDate">--</div>
 
             <div class="editor-section">
-                <label>Mood</label>
+                <label data-i18n="journal.mood">心情</label>
                 <div class="mood-selector" id="moodSelector">
                     <button type="button" class="mood-btn" data-value="very_good" style="--mood-color:#00ff88;">
                         <span class="mood-emoji">&#x1F604;</span>
-                        <span class="mood-label">Very Good</span>
+                        <span class="mood-label" data-i18n="journal.mood_very_good">非常好</span>
                     </button>
                     <button type="button" class="mood-btn" data-value="good" style="--mood-color:#00d4ff;">
                         <span class="mood-emoji">&#x1F642;</span>
-                        <span class="mood-label">Nice</span>
+                        <span class="mood-label" data-i18n="journal.mood_nice">不錯</span>
                     </button>
                     <button type="button" class="mood-btn" data-value="neutral" style="--mood-color:#ffb800;">
                         <span class="mood-emoji">&#x1F610;</span>
-                        <span class="mood-label">Neutral</span>
+                        <span class="mood-label" data-i18n="journal.mood_neutral">普通</span>
                     </button>
                     <button type="button" class="mood-btn" data-value="bad" style="--mood-color:#ff8c42;">
                         <span class="mood-emoji">&#x1F615;</span>
-                        <span class="mood-label">Bad</span>
+                        <span class="mood-label" data-i18n="journal.mood_bad">不好</span>
                     </button>
                     <button type="button" class="mood-btn" data-value="terrible" style="--mood-color:#ff4a6e;">
                         <span class="mood-emoji">&#x1F62B;</span>
-                        <span class="mood-label">Terrible</span>
+                        <span class="mood-label" data-i18n="journal.mood_terrible">很差</span>
                     </button>
                 </div>
             </div>
 
             <div class="editor-section">
-                <label>Market View</label>
+                <label data-i18n="journal.market_view">盤勢看法</label>
                 <div class="market-selector" id="marketSelector">
                     <button type="button" class="market-btn" data-value="bullish">
                         <span class="market-icon">&#x1F402;</span>
-                        <span>Bullish</span>
+                        <span data-i18n="journal.bullish">看多</span>
                     </button>
                     <button type="button" class="market-btn" data-value="neutral">
                         <span class="market-icon">&#x2696;</span>
-                        <span>Neutral</span>
+                        <span data-i18n="journal.neutral">中立</span>
                     </button>
                     <button type="button" class="market-btn" data-value="bearish">
                         <span class="market-icon">&#x1F43B;</span>
-                        <span>Bearish</span>
+                        <span data-i18n="journal.bearish">看空</span>
                     </button>
                 </div>
             </div>
 
             <div class="editor-section">
-                <label>Content</label>
-                <textarea class="journal-textarea" id="journalContent" placeholder="Write your trading thoughts..."></textarea>
+                <label data-i18n="journal.content">內容</label>
+                <textarea class="journal-textarea" id="journalContent" placeholder="寫下你的交易想法..."></textarea>
             </div>
 
             <div class="editor-actions">
-                <button class="btn btn-primary" id="saveBtn">Save</button>
-                <button class="btn btn-danger" id="deleteBtn" style="display:none;">Delete</button>
+                <button class="btn btn-primary" id="saveBtn" data-i18n="journal.save">儲存</button>
+                <button class="btn btn-danger" id="deleteBtn" style="display:none;" data-i18n="journal.delete">刪除</button>
             </div>
         </div>
     </div>
@@ -434,8 +434,8 @@
     };
 
     var MONTH_NAMES = [
-        'January','February','March','April','May','June',
-        'July','August','September','October','November','December'
+        '一月','二月','三月','四月','五月','六月',
+        '七月','八月','九月','十月','十一月','十二月'
     ];
 
     // ===== DOM refs =====
@@ -505,12 +505,12 @@
         var content = journalContent.value.trim();
 
         if (!mood && !market && !content) {
-            alert('Please fill in at least one field.');
+            alert('請至少填寫一個欄位。');
             return;
         }
 
         saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
+        saveBtn.textContent = '儲存中...';
 
         fetch('/api/journal', {
             method: 'POST',
@@ -525,7 +525,7 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.error) {
-                alert('Error: ' + data.error);
+                alert('錯誤：' + data.error);
             } else {
                 currentJournalId = data.id || currentJournalId;
                 deleteBtn.style.display = '';
@@ -536,21 +536,21 @@
             }
         })
         .catch(function() {
-            alert('Failed to save journal.');
+            alert('儲存日誌失敗。');
         })
         .finally(function() {
             saveBtn.disabled = false;
-            saveBtn.textContent = 'Save';
+            saveBtn.textContent = '儲存';
         });
     });
 
     // ===== Delete =====
     deleteBtn.addEventListener('click', function() {
         if (!currentJournalId) return;
-        if (!confirm('Delete this journal entry?')) return;
+        if (!confirm('確定刪除此日誌？')) return;
 
         deleteBtn.disabled = true;
-        deleteBtn.textContent = 'Deleting...';
+        deleteBtn.textContent = '刪除中...';
 
         fetch('/api/journal/' + currentJournalId, {
             method: 'DELETE'
@@ -558,7 +558,7 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.error) {
-                alert('Error: ' + data.error);
+                alert('錯誤：' + data.error);
             } else {
                 delete journalMap[selectedDate];
                 currentJournalId = null;
@@ -570,11 +570,11 @@
             }
         })
         .catch(function() {
-            alert('Failed to delete journal.');
+            alert('刪除日誌失敗。');
         })
         .finally(function() {
             deleteBtn.disabled = false;
-            deleteBtn.textContent = 'Delete';
+            deleteBtn.textContent = '刪除';
         });
     });
 
@@ -730,8 +730,8 @@
     function formatDisplayDate(dateStr) {
         var parts = dateStr.split('-');
         var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-        var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-        return days[d.getDay()] + ', ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+        var days = ['日','一','二','三','四','五','六'];
+        return d.getFullYear() + '年 ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getDate() + '日 (週' + days[d.getDay()] + ')';
     }
 
 })();

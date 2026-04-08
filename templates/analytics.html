@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Analytics{% endblock %}
+{% block title %}分析{% endblock %}
 
 {% block content %}
 <style>
@@ -135,10 +135,10 @@
                 <div><label>模式</label><select id="cmpMode"><option value="fixed_shares">固定股數</option><option value="fixed_amount">固定金額</option><option value="dca">定期定額</option></select></div>
             </div>
             <div style="text-align:center;margin-top:10px;">
-                <button class="btn-run" onclick="runCompare()">🚀 比較分析</button>
+                <button class="btn-run" onclick="runCompare()" data-i18n="analytics.compare">🚀 比較分析</button>
             </div>
         </div>
-        <div class="loading-box" id="tab4-loading" style="display:none;"><div class="spinner"></div><br>分析中...</div>
+        <div class="loading-box" id="tab4-loading" style="display:none;"><div class="spinner"></div><br><span data-i18n="analytics.analyzing">分析中...</span></div>
         <div id="tab4-content" style="display:none;">
             <div class="chart-box"><canvas id="chartCompare"></canvas></div>
             <div class="section-title">排名</div>
@@ -480,7 +480,7 @@ async function runCompare() {
         document.getElementById('tab4-content').style.display = 'block';
         renderCompare(data);
     } catch(e) {
-        document.getElementById('tab4-loading').innerHTML = '<div style="color:#f87171;">載入失敗</div>';
+        document.getElementById('tab4-loading').innerHTML = '<div style="color:#f87171;">載入市場資料失敗</div>';
     }
 }
 

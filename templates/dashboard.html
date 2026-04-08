@@ -1,14 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}總覽{% endblock %}
 
 {% block content %}
 <div style="max-width:1280px;margin:0 auto;padding:16px;">
 
     <!-- Section 1: Market Barometer -->
     <div style="margin-bottom:20px;">
-        <h3 style="color:#8fa4c4;margin-bottom:10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Market Barometer</h3>
+        <h3 data-i18n="dash.market_barometer" style="color:#8fa4c4;margin-bottom:10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">市場氣象台</h3>
         <div id="market-bar" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;">
-            <div style="color:#556;font-size:13px;padding:16px;">Loading...</div>
+            <div style="color:#556;font-size:13px;padding:16px;" data-i18n="dash.loading">載入中...</div>
         </div>
     </div>
 
@@ -16,13 +16,13 @@
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
         <!-- Word of the Day -->
         <div id="word-of-day-card" style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:18px;min-height:100px;">
-            <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">Word of the Day</h4>
-            <div id="word-of-day-content" style="color:#94a3b8;font-size:13px;">Loading...</div>
+            <h4 data-i18n="dash.word_of_day" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">今日一詞</h4>
+            <div id="word-of-day-content" style="color:#94a3b8;font-size:13px;" data-i18n="dash.loading">載入中...</div>
         </div>
         <!-- US Stock Anniversary Countdown -->
         <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:18px;min-height:100px;">
-            <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">1-Year Anniversary Countdown</h4>
-            <div id="anniversary-list" style="color:#94a3b8;font-size:13px;">Loading...</div>
+            <h4 data-i18n="dash.anniversary" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">週年倒數提醒</h4>
+            <div id="anniversary-list" style="color:#94a3b8;font-size:13px;" data-i18n="dash.loading">載入中...</div>
         </div>
     </div>
 
@@ -32,20 +32,20 @@
     <!-- Section 5: Stats Cards -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="stats-cards">
         <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Market Value</div>
+            <div data-i18n="dash.total_market_value" style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">總市值</div>
             <div id="stat-market-value" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
         </div>
         <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Cost</div>
+            <div data-i18n="dash.total_cost" style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">總成本</div>
             <div id="stat-total-cost" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
         </div>
         <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Unrealized P&L</div>
+            <div data-i18n="dash.unrealized_pl" style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">未實現損益</div>
             <div id="stat-pnl" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
             <div id="stat-pnl-pct" style="font-size:12px;margin-top:2px;">--</div>
         </div>
         <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Holdings Count</div>
+            <div data-i18n="dash.holdings_count" style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">持股數量</div>
             <div id="stat-holdings" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
         </div>
     </div>
@@ -53,13 +53,13 @@
     <!-- Section 6: Charts -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
         <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">Market Value Allocation</h4>
+            <h4 data-i18n="dash.allocation" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">市值分配</h4>
             <div style="position:relative;height:280px;display:flex;align-items:center;justify-content:center;">
                 <canvas id="chart-allocation"></canvas>
             </div>
         </div>
         <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">P&L % Ranked</h4>
+            <h4 data-i18n="dash.pl_ranked" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">損益排行 %</h4>
             <div style="position:relative;height:280px;">
                 <canvas id="chart-pnl"></canvas>
             </div>
@@ -68,23 +68,23 @@
 
     <!-- Section 7: Holdings Detail Table -->
     <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;overflow-x:auto;">
-        <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">Holdings Detail</h4>
+        <h4 data-i18n="dash.holdings_detail" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">持股明細</h4>
         <table style="width:100%;border-collapse:collapse;font-size:13px;" id="holdings-table">
             <thead>
                 <tr style="border-bottom:1px solid #1e2d4a;">
-                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Symbol</th>
-                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Market</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Shares</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Avg Cost</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Current Price</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Market Value</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">P&L (Net)</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">P&L%</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Div Yield</th>
+                    <th data-i18n="dash.symbol" style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">代號</th>
+                    <th data-i18n="dash.market" style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">市場</th>
+                    <th data-i18n="dash.shares" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">股數</th>
+                    <th data-i18n="dash.avg_cost" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">均價</th>
+                    <th data-i18n="dash.current_price" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">現價</th>
+                    <th data-i18n="dash.market_value" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">市值</th>
+                    <th data-i18n="dash.pl_net" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">損益</th>
+                    <th data-i18n="dash.pl_pct" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">損益%</th>
+                    <th data-i18n="dash.div_yield" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">殖利率</th>
                 </tr>
             </thead>
             <tbody id="holdings-body">
-                <tr><td colspan="9" style="padding:20px;color:#556;text-align:center;">Loading...</td></tr>
+                <tr><td colspan="9" style="padding:20px;color:#556;text-align:center;" data-i18n="dash.loading">載入中...</td></tr>
             </tbody>
         </table>
     </div>
@@ -119,6 +119,22 @@
         '#3b82f6','#22c55e','#ef4444','#06b6d4','#a855f7',
         '#10b981','#f97316','#64748b','#84cc16','#e879f9'
     ];
+
+    /* i18n helper for JS-generated strings */
+    const i18nStrings = {
+        'dash.no_market_data': '暫無市場資料',
+        'dash.fail_market': '載入市場資料失敗',
+        'dash.no_word': '今日暫無詞彙',
+        'dash.fail_load': '載入失敗',
+        'dash.no_holdings_track': '暫無持股可追蹤',
+        'dash.no_holdings': '無持股',
+        'dash.concentration_warn': '集中度警告',
+        'dash.loading': '載入中...',
+        'dash.pl_pct_label': '損益 %'
+    };
+    function t(key) {
+        return i18nStrings[key] || key;
+    }
 
     function fmt(n, decimals) {
         if (n == null) return '--';
@@ -159,11 +175,11 @@
                 bar.appendChild(card);
             });
             if (bar.children.length === 0) {
-                bar.innerHTML = '<div style="color:#556;font-size:13px;padding:16px;">No market data available</div>';
+                bar.innerHTML = '<div style="color:#556;font-size:13px;padding:16px;" data-i18n="dash.no_market_data">' + t('dash.no_market_data') + '</div>';
             }
         })
         .catch(() => {
-            document.getElementById('market-bar').innerHTML = '<div style="color:#ef4444;font-size:13px;padding:16px;">Failed to load market data</div>';
+            document.getElementById('market-bar').innerHTML = '<div style="color:#ef4444;font-size:13px;padding:16px;" data-i18n="dash.fail_market">' + t('dash.fail_market') + '</div>';
         });
 
     // ---- 2. Word of the Day ----
@@ -173,16 +189,20 @@
             const el = document.getElementById('word-of-day-content');
             if (data && data.title) {
                 const link = data.id ? `/academy/${data.id}` : '#';
+                el.removeAttribute('data-i18n');
                 el.innerHTML = `
                     <a href="${link}" style="color:#a5b4fc;text-decoration:none;font-weight:600;font-size:15px;">${data.title}</a>
                     <div style="color:#94a3b8;font-size:12px;margin-top:6px;line-height:1.5;">${data.summary || ''}</div>
                 `;
             } else {
-                el.textContent = 'No word available today';
+                el.setAttribute('data-i18n', 'dash.no_word');
+                el.textContent = t('dash.no_word');
             }
         })
         .catch(() => {
-            document.getElementById('word-of-day-content').textContent = 'Failed to load';
+            const el = document.getElementById('word-of-day-content');
+            el.setAttribute('data-i18n', 'dash.fail_load');
+            el.textContent = t('dash.fail_load');
         });
 
     // ---- 3. US Stock Anniversary Countdown ----
@@ -192,9 +212,11 @@
             const el = document.getElementById('anniversary-list');
             const items = data.items || data;
             if (!Array.isArray(items) || items.length === 0) {
-                el.textContent = 'No holdings to track';
+                el.setAttribute('data-i18n', 'dash.no_holdings_track');
+                el.textContent = t('dash.no_holdings_track');
                 return;
             }
+            el.removeAttribute('data-i18n');
             el.innerHTML = '';
             items.forEach(item => {
                 const days = item.days_remaining != null ? item.days_remaining : item.days;
@@ -217,7 +239,9 @@
             });
         })
         .catch(() => {
-            document.getElementById('anniversary-list').textContent = 'Failed to load';
+            const el = document.getElementById('anniversary-list');
+            el.setAttribute('data-i18n', 'dash.fail_load');
+            el.textContent = t('dash.fail_load');
         });
 
     // ---- 4. Position Concentration Alert ----
@@ -228,7 +252,7 @@
             const alerts = data.alerts || data;
             if (Array.isArray(alerts) && alerts.length > 0) {
                 const msgs = alerts.map(a => `${a.symbol}: ${(a.weight || a.percentage || 0).toFixed(1)}% of portfolio (threshold: ${(a.threshold || 0).toFixed(0)}%)`);
-                el.innerHTML = '&#9888; Concentration Warning: ' + msgs.join(' | ');
+                el.innerHTML = '&#9888; <span data-i18n="dash.concentration_warn">' + t('dash.concentration_warn') + '</span>: ' + msgs.join(' | ');
                 el.style.display = 'block';
             }
         })
@@ -261,7 +285,7 @@
             renderTable(holdings);
         })
         .catch(() => {
-            document.getElementById('stat-market-value').textContent = 'Error';
+            document.getElementById('stat-market-value').textContent = t('dash.fail_load');
         });
 
     // ---- Charts ----
@@ -306,7 +330,7 @@
             data: {
                 labels: barLabels,
                 datasets: [{
-                    label: 'P&L %',
+                    label: t('dash.pl_pct_label'),
                     data: barValues,
                     backgroundColor: barColors,
                     borderRadius: 4
@@ -337,7 +361,7 @@
     function renderTable(holdings) {
         const tbody = document.getElementById('holdings-body');
         if (!holdings.length) {
-            tbody.innerHTML = '<tr><td colspan="9" style="padding:20px;color:#556;text-align:center;">No holdings</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="padding:20px;color:#556;text-align:center;" data-i18n="dash.no_holdings">' + t('dash.no_holdings') + '</td></tr>';
             return;
         }
         tbody.innerHTML = '';

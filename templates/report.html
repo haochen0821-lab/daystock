@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Report{% endblock %}
+{% block title %}報表{% endblock %}
 
 {% block content %}
 <style>
@@ -285,54 +285,55 @@
 </style>
 
 <div class="report-header">
-    <h1>Realized P&amp;L Report</h1>
-    <p>FIFO-matched trade analysis across multiple dimensions</p>
+    <h1 data-i18n="report.title">報表</h1>
+    <p data-i18n="report.realized_pl">已實現損益報表</p>
+    <p data-i18n="report.desc" style="color: var(--muted); font-size: 13px;">以先進先出法配對交易，跨多維度分析</p>
 </div>
 
 <!-- View Tabs -->
 <div class="report-tabs">
-    <button class="report-tab active" data-view="details" onclick="switchView('details')">Trade Details</button>
-    <button class="report-tab" data-view="year" onclick="switchView('year')">By Year</button>
-    <button class="report-tab" data-view="account" onclick="switchView('account')">By Account</button>
-    <button class="report-tab" data-view="reason" onclick="switchView('reason')">By Reason Tag</button>
+    <button class="report-tab active" data-view="details" data-i18n="report.trade_details" onclick="switchView('details')">交易明細</button>
+    <button class="report-tab" data-view="year" data-i18n="report.by_year" onclick="switchView('year')">依年度</button>
+    <button class="report-tab" data-view="account" data-i18n="report.by_account" onclick="switchView('account')">依帳戶</button>
+    <button class="report-tab" data-view="reason" data-i18n="report.by_reason" onclick="switchView('reason')">依理由標籤</button>
 </div>
 
 <!-- Filter Bar -->
 <div class="filter-bar">
     <div class="filter-group">
-        <label>Year</label>
-        <select id="filter-year"><option value="">All</option></select>
+        <label data-i18n="report.year">年度</label>
+        <select id="filter-year"><option value="" data-i18n="report.all">全部</option></select>
     </div>
     <div class="filter-group">
-        <label>Market</label>
+        <label data-i18n="report.market">市場</label>
         <select id="filter-market">
-            <option value="">All</option>
+            <option value="" data-i18n="report.all">全部</option>
             <option value="TW">TW</option>
             <option value="US">US</option>
         </select>
     </div>
     <div class="filter-group">
-        <label>Account</label>
-        <select id="filter-account"><option value="">All</option></select>
+        <label data-i18n="report.account">帳戶</label>
+        <select id="filter-account"><option value="" data-i18n="report.all">全部</option></select>
     </div>
     <div class="filter-group">
-        <label>Reason Tag</label>
-        <select id="filter-reason"><option value="">All</option></select>
+        <label data-i18n="report.reason_tag">理由標籤</label>
+        <select id="filter-reason"><option value="" data-i18n="report.all">全部</option></select>
     </div>
     <div class="filter-group">
-        <label>Profit / Loss</label>
+        <label data-i18n="report.profit_loss">損益</label>
         <select id="filter-pnl">
-            <option value="">All</option>
-            <option value="profit">Profit Only</option>
-            <option value="loss">Loss Only</option>
+            <option value="" data-i18n="report.all">全部</option>
+            <option value="profit" data-i18n="report.profit_only">僅獲利</option>
+            <option value="loss" data-i18n="report.loss_only">僅虧損</option>
         </select>
     </div>
-    <button class="btn-apply" onclick="applyFilters()">Apply</button>
+    <button class="btn-apply" data-i18n="report.apply" onclick="applyFilters()">套用</button>
 </div>
 
 <!-- Subtotal Bar -->
 <div class="subtotal-bar" id="subtotal-bar" style="display:none;">
-    <span class="subtotal-label">Filtered P&amp;L:</span>
+    <span class="subtotal-label" data-i18n="report.filtered_pl">篩選損益：</span>
     <span class="subtotal-value" id="subtotal-value">--</span>
     <span class="subtotal-count" id="subtotal-count"></span>
 </div>
@@ -343,25 +344,25 @@
         <table class="trade-table">
             <thead>
                 <tr>
-                    <th>Symbol</th>
-                    <th>Buy Date</th>
-                    <th>Sell Date</th>
-                    <th>Shares</th>
-                    <th>Buy Price</th>
-                    <th>Sell Price</th>
-                    <th>Fees</th>
-                    <th>Realized P&amp;L</th>
-                    <th>Return%</th>
-                    <th>Hold Days</th>
-                    <th>Reason</th>
-                    <th>Account</th>
+                    <th data-i18n="report.th_symbol">代號</th>
+                    <th data-i18n="report.th_buy_date">買入日</th>
+                    <th data-i18n="report.th_sell_date">賣出日</th>
+                    <th data-i18n="report.th_shares">股數</th>
+                    <th data-i18n="report.th_buy_price">買入價</th>
+                    <th data-i18n="report.th_sell_price">賣出價</th>
+                    <th data-i18n="report.th_fees">費用</th>
+                    <th data-i18n="report.th_realized_pl">已實現損益</th>
+                    <th data-i18n="report.th_return_pct">報酬%</th>
+                    <th data-i18n="report.th_hold_days">持有天數</th>
+                    <th data-i18n="report.th_reason">理由</th>
+                    <th data-i18n="report.th_account">帳戶</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody id="details-body"></tbody>
         </table>
     </div>
-    <div class="no-data" id="details-empty" style="display:none;">No realized trades found.</div>
+    <div class="no-data" id="details-empty" data-i18n="report.no_trades" style="display:none;">查無已實現交易。</div>
 </div>
 
 <!-- View: By Year -->
@@ -370,43 +371,43 @@
     <div class="chart-wrap">
         <canvas id="yearChart"></canvas>
     </div>
-    <div class="no-data" id="year-empty" style="display:none;">No data available.</div>
+    <div class="no-data" id="year-empty" data-i18n="report.no_data" style="display:none;">暫無資料。</div>
 </div>
 
 <!-- View: By Account -->
 <div class="view-panel" id="view-account">
     <div class="summary-grid" id="account-cards"></div>
-    <div class="no-data" id="account-empty" style="display:none;">No data available.</div>
+    <div class="no-data" id="account-empty" data-i18n="report.no_data" style="display:none;">暫無資料。</div>
 </div>
 
 <!-- View: By Reason -->
 <div class="view-panel" id="view-reason">
     <div class="summary-grid" id="reason-cards"></div>
-    <div class="no-data" id="reason-empty" style="display:none;">No data available.</div>
+    <div class="no-data" id="reason-empty" data-i18n="report.no_data" style="display:none;">暫無資料。</div>
 </div>
 
 <!-- Tax Reminder -->
 <div class="tax-reminder">
-    <h3>&#x26A0; Year-End Tax Filing Reminder</h3>
+    <h3 data-i18n="report.tax_reminder">&#x26A0; 年度報稅提醒</h3>
     <div class="tax-section">
-        <h4>Taiwan (TW) Stock Dividend Tax</h4>
+        <h4 data-i18n="report.tw_dividend_tax">台股股利稅</h4>
         <ul>
-            <li><strong>Option A - Combined Filing:</strong> Stock dividends are combined with personal income and taxed at the progressive rate (5%~40%). A deductible credit of 8.5% of dividend income applies (max NT$80,000).</li>
-            <li><strong>Option B - Separate Taxation (28%):</strong> Stock dividends are taxed separately at a flat 28% rate, not combined with other income. Suitable for high-income taxpayers.</li>
-            <li>Compare both options and choose the one that results in lower tax liability.</li>
+            <li data-i18n="report.tw_tax_option_a"><strong>方案 A — 合併計稅：</strong>股利併入個人綜合所得，依累進稅率（5%~40%）課稅。可享有股利所得 8.5% 的抵減稅額（上限 NT$80,000）。</li>
+            <li data-i18n="report.tw_tax_option_b"><strong>方案 B — 分開計稅（28%）：</strong>股利單獨以 28% 稅率課稅，不併入其他所得。適合高所得納稅人。</li>
+            <li data-i18n="report.tw_tax_compare">請比較兩種方案，選擇稅負較低者。</li>
         </ul>
     </div>
     <div class="tax-section">
-        <h4>United States (US) Capital Gains Tax</h4>
+        <h4 data-i18n="report.us_capital_gains">美股資本利得稅</h4>
         <ul>
-            <li><strong>Short-Term Capital Gains:</strong> Assets held for 1 year or less. Taxed as ordinary income (10%~37% depending on bracket). Check "Hold Days" column for trades under 365 days.</li>
-            <li><strong>Long-Term Capital Gains:</strong> Assets held for more than 1 year. Preferential tax rates of 0%, 15%, or 20% depending on taxable income.</li>
-            <li>Wash sale rule: Cannot claim a loss if you repurchase the same or substantially identical security within 30 days before or after the sale.</li>
-            <li>Consider tax-loss harvesting before year-end to offset gains.</li>
+            <li data-i18n="report.us_short_term"><strong>短期資本利得：</strong>持有 1 年以內的資產，視為一般所得課稅（依級距 10%~37%）。請查看「持有天數」欄位，找出未滿 365 天的交易。</li>
+            <li data-i18n="report.us_long_term"><strong>長期資本利得：</strong>持有超過 1 年的資產，享有 0%、15% 或 20% 的優惠稅率，依應稅所得而定。</li>
+            <li data-i18n="report.us_wash_sale">洗售規則（Wash Sale Rule）：若在賣出前後 30 天內重新買入相同或實質相同的證券，將不得認列虧損。</li>
+            <li data-i18n="report.us_tax_harvest">可考慮在年底前進行稅損收割，以抵銷資本利得。</li>
         </ul>
     </div>
     <div class="tax-section">
-        <p style="color: var(--warning); font-size: 11px;">* This is a general reminder only. Please consult a qualified tax professional for your specific situation.</p>
+        <p style="color: var(--warning); font-size: 11px;" data-i18n="report.tax_disclaimer">* 以上僅為一般提醒，請諮詢合格稅務專業人士以了解您的具體情況。</p>
     </div>
 </div>
 
@@ -414,23 +415,23 @@
 <div class="modal-overlay" id="modal-edit-trade">
     <div class="modal">
         <div class="modal-header">
-            <h3>Edit Trade</h3>
+            <h3 data-i18n="report.edit_trade">編輯交易</h3>
             <button class="modal-close" onclick="closeModal('modal-edit-trade')">&times;</button>
         </div>
         <div class="edit-modal-body">
             <input type="hidden" id="edit-trade-id">
             <div class="form-group">
-                <label>Account</label>
-                <input type="text" id="edit-account" placeholder="Account name">
+                <label data-i18n="report.th_account">帳戶</label>
+                <input type="text" id="edit-account" placeholder="帳戶名稱">
             </div>
             <div class="form-group">
-                <label>Reason Tag</label>
-                <input type="text" id="edit-reason" placeholder="e.g. momentum, value, earnings">
+                <label data-i18n="report.reason_tag">理由標籤</label>
+                <input type="text" id="edit-reason" placeholder="例如：動能、價值、財報">
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeModal('modal-edit-trade')">Cancel</button>
-            <button class="btn btn-primary" onclick="saveTradeEdit()">Save</button>
+            <button class="btn btn-secondary" data-i18n="report.cancel" onclick="closeModal('modal-edit-trade')">取消</button>
+            <button class="btn btn-primary" data-i18n="report.save" onclick="saveTradeEdit()">儲存</button>
         </div>
     </div>
 </div>
@@ -530,7 +531,7 @@
         bar.style.display = 'flex';
         valEl.textContent = (total >= 0 ? '+' : '') + fmt(total);
         valEl.className = 'subtotal-value ' + pnlClass(total);
-        cntEl.textContent = filteredTrades.length + ' trade(s)';
+        cntEl.textContent = filteredTrades.length + ' 筆交易';
     }
 
     // --- Populate filter dropdowns ---
@@ -546,19 +547,19 @@
         });
 
         var yearSel = document.getElementById('filter-year');
-        yearSel.innerHTML = '<option value="">All</option>';
+        yearSel.innerHTML = '<option value="">全部</option>';
         Object.keys(years).sort().reverse().forEach(function(y) {
             yearSel.innerHTML += '<option value="' + y + '">' + y + '</option>';
         });
 
         var accSel = document.getElementById('filter-account');
-        accSel.innerHTML = '<option value="">All</option>';
+        accSel.innerHTML = '<option value="">全部</option>';
         Object.keys(accounts).sort().forEach(function(a) {
             accSel.innerHTML += '<option value="' + escHtml(a) + '">' + escHtml(a) + '</option>';
         });
 
         var reaSel = document.getElementById('filter-reason');
-        reaSel.innerHTML = '<option value="">All</option>';
+        reaSel.innerHTML = '<option value="">全部</option>';
         Object.keys(reasons).sort().forEach(function(r) {
             reaSel.innerHTML += '<option value="' + escHtml(r) + '">' + escHtml(r) + '</option>';
         });
@@ -600,7 +601,7 @@
                 + '<td>' + (t.hold_days != null ? t.hold_days : '--') + '</td>'
                 + '<td>' + escHtml(t.reason_tag || '--') + '</td>'
                 + '<td>' + escHtml(t.account || '--') + '</td>'
-                + '<td><button class="btn-edit" onclick="openEditTrade(' + t.id + ',\'' + escHtml(t.account || '') + '\',\'' + escHtml(t.reason_tag || '') + '\')">Edit</button></td>'
+                + '<td><button class="btn-edit" onclick="openEditTrade(' + t.id + ',\'' + escHtml(t.account || '') + '\',\'' + escHtml(t.reason_tag || '') + '\')" data-i18n="report.edit">編輯</button></td>'
                 + '</tr>';
         });
         tbody.innerHTML = html;
@@ -613,7 +614,7 @@
         var groups = {};
 
         filteredTrades.forEach(function(t) {
-            var y = t.sell_date ? t.sell_date.substring(0, 4) : 'Unknown';
+            var y = t.sell_date ? t.sell_date.substring(0, 4) : '未知';
             if (!groups[y]) groups[y] = { total: 0, count: 0 };
             groups[y].total += (t.realized_pnl || 0);
             groups[y].count++;
@@ -635,7 +636,7 @@
             html += '<div class="summary-card">'
                 + '<div class="sc-label">' + escHtml(y) + '</div>'
                 + '<div class="sc-value ' + pc + '">' + (g.total >= 0 ? '+' : '') + fmt(g.total) + '</div>'
-                + '<div class="sc-count">' + g.count + ' trade(s)</div>'
+                + '<div class="sc-count">' + g.count + ' 筆交易</div>'
                 + '</div>';
         });
         container.innerHTML = html;
@@ -653,7 +654,7 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Realized P&L',
+                    label: '已實現損益',
                     data: values,
                     backgroundColor: colors,
                     borderRadius: 6,
@@ -667,7 +668,7 @@
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: function(ctx) { return 'P&L: ' + fmt(ctx.raw); }
+                            label: function(ctx) { return '損益: ' + fmt(ctx.raw); }
                         }
                     }
                 },
@@ -696,7 +697,7 @@
         var groups = {};
 
         filteredTrades.forEach(function(t) {
-            var a = t.account || 'Unassigned';
+            var a = t.account || '未指定';
             if (!groups[a]) groups[a] = { total: 0, count: 0 };
             groups[a].total += (t.realized_pnl || 0);
             groups[a].count++;
@@ -717,7 +718,7 @@
             html += '<div class="summary-card">'
                 + '<div class="sc-label">' + escHtml(a) + '</div>'
                 + '<div class="sc-value ' + pc + '">' + (g.total >= 0 ? '+' : '') + fmt(g.total) + '</div>'
-                + '<div class="sc-count">' + g.count + ' trade(s)</div>'
+                + '<div class="sc-count">' + g.count + ' 筆交易</div>'
                 + '</div>';
         });
         container.innerHTML = html;
@@ -730,7 +731,7 @@
         var groups = {};
 
         filteredTrades.forEach(function(t) {
-            var r = t.reason_tag || 'Untagged';
+            var r = t.reason_tag || '未標記';
             if (!groups[r]) groups[r] = { total: 0, count: 0 };
             groups[r].total += (t.realized_pnl || 0);
             groups[r].count++;
@@ -751,7 +752,7 @@
             html += '<div class="summary-card">'
                 + '<div class="sc-label">' + escHtml(r) + '</div>'
                 + '<div class="sc-value ' + pc + '">' + (g.total >= 0 ? '+' : '') + fmt(g.total) + '</div>'
-                + '<div class="sc-count">' + g.count + ' trade(s)</div>'
+                + '<div class="sc-count">' + g.count + ' 筆交易</div>'
                 + '</div>';
         });
         container.innerHTML = html;
@@ -778,11 +779,11 @@
                     return;
                 }
                 closeModal('modal-edit-trade');
-                toast('Trade updated');
+                toast('交易已更新');
                 loadData();
             })
             .catch(function() {
-                toast('Failed to update trade', 'error');
+                toast('更新交易失敗', 'error');
             });
     };
 
@@ -822,8 +823,8 @@
                 renderCurrentView();
             })
             .catch(function(err) {
-                console.error('Failed to load report data:', err);
-                toast('Failed to load report data', 'error');
+                console.error('載入報表資料失敗:', err);
+                toast('載入報表資料失敗', 'error');
             });
     }
 

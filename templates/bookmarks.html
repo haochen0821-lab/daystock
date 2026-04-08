@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Bookmarks{% endblock %}
+{% block title %}書籤{% endblock %}
 
 {% block content %}
 <style>
@@ -420,7 +420,7 @@
 </style>
 
 <div class="bk-container">
-    <h1 class="bk-page-title">My Bookmarks</h1>
+    <h1 class="bk-page-title" data-i18n="bm.title">我的書籤</h1>
 
     <div class="bk-layout">
         <!-- Left Panel: Folders -->
@@ -434,7 +434,7 @@
                 <!-- Rendered by JS -->
             </div>
             <div class="bk-empty" id="bk-empty" style="display:none;">
-                No bookmarks found. Browse the Academy to add some!
+                <span data-i18n="bm.empty">尚無書籤。前往學堂新增吧！</span>
             </div>
         </div>
     </div>
@@ -444,13 +444,13 @@
 <div class="bk-note-modal-overlay" id="bk-note-overlay">
     <div class="bk-note-modal">
         <div class="bk-note-modal-header">
-            <h3 id="bk-note-modal-title">Write Note</h3>
+            <h3 id="bk-note-modal-title" data-i18n="bm.write_note">撰寫筆記</h3>
             <button class="bk-note-modal-close" onclick="closeNoteModal()">&times;</button>
         </div>
-        <textarea class="bk-note-textarea" id="bk-note-textarea" placeholder="Write your note here..."></textarea>
+        <textarea class="bk-note-textarea" id="bk-note-textarea" placeholder="在這裡寫筆記..."></textarea>
         <div class="bk-note-modal-footer">
-            <button class="btn btn-secondary btn-sm" onclick="closeNoteModal()">Cancel</button>
-            <button class="btn btn-primary btn-sm" onclick="saveNote()">Save</button>
+            <button class="btn btn-secondary btn-sm" onclick="closeNoteModal()" data-i18n="bm.cancel">取消</button>
+            <button class="btn btn-primary btn-sm" onclick="saveNote()" data-i18n="bm.save">儲存</button>
         </div>
     </div>
 </div>
@@ -513,7 +513,7 @@
 
     function deleteFolder(folderId, e) {
         e.stopPropagation();
-        if (!confirm('Delete this folder? All bookmarks inside will be removed.')) return;
+        if (!confirm('確定刪除此資料夾？內部所有書籤將被移除。')) return;
 
         fetch('/api/bookmarks/folders/' + folderId, {
             method: 'DELETE'
@@ -549,7 +549,7 @@
     }
 
     function removeBookmark(bookmarkId) {
-        if (!confirm('Remove this bookmark?')) return;
+        if (!confirm('確定移除此書籤？')) return;
 
         fetch('/api/bookmarks/' + bookmarkId, {
             method: 'DELETE'
@@ -594,7 +594,7 @@
         let html = '';
 
         // "All" button
-        html += '<div class="bk-folder-all' + (selectedFolderId === null ? ' selected' : '') + '" onclick="selectFolder(null)" title="All Bookmarks">ALL</div>';
+        html += '<div class="bk-folder-all' + (selectedFolderId === null ? ' selected' : '') + '" onclick="selectFolder(null)" title="全部書籤" data-i18n="bm.all">全部</div>';
         html += '<div class="bk-folders-divider"></div>';
 
         // Render each color
@@ -607,7 +607,7 @@
                 html += '<div class="bk-folder-circle' + (isSelected ? ' selected' : '') + '" '
                     + 'style="background:' + c.hex + ';" '
                     + 'onclick="selectFolder(' + folder.id + ')" '
-                    + 'title="' + count + ' bookmark(s)">'
+                    + 'title="' + count + ' 個書籤">'
                     + '<span class="bk-folder-count">' + count + '</span>'
                     + '<button class="bk-folder-delete" onclick="deleteFolderBtn(' + folder.id + ',event)">&times;</button>'
                     + '</div>';
@@ -616,7 +616,7 @@
                 html += '<div class="bk-folder-circle unused" '
                     + 'style="background:' + c.hex + ';" '
                     + 'onclick="createFolderBtn(\'' + c.name + '\')" '
-                    + 'title="Create folder">'
+                    + 'title="新增資料夾">'
                     + '<span class="bk-folder-plus">+</span>'
                     + '</div>';
             }
@@ -641,7 +641,7 @@
             const folderColor = getFolderColor(bk.folder_id);
             const hasNote = bk.note && bk.note.trim().length > 0;
             const notePreview = hasNote ? escapeHtml(bk.note.substring(0, 240)) : '';
-            const noteBtnLabel = hasNote ? '\uD83D\uDCAD Edit Note' : '\uD83D\uDCAD Write Note';
+            const noteBtnLabel = hasNote ? '\uD83D\uDCAD 編輯筆記' : '\uD83D\uDCAD 撰寫筆記';
 
             let html = '<div class="bk-card">';
             html += '<div class="bk-card-top">';
@@ -653,7 +653,7 @@
 
             // Body
             html += '<div class="bk-card-body">';
-            html += '<a class="bk-card-title" href="/academy/' + bk.article_id + '">' + escapeHtml(bk.title || bk.article_title || 'Untitled') + '</a>';
+            html += '<a class="bk-card-title" href="/academy/' + bk.article_id + '">' + escapeHtml(bk.title || bk.article_title || '無標題') + '</a>';
 
             if (bk.summary || bk.article_summary) {
                 html += '<div class="bk-card-summary">' + escapeHtml(bk.summary || bk.article_summary) + '</div>';
@@ -664,7 +664,7 @@
                 html += '<span class="bk-category-badge">' + escapeHtml(bk.category || bk.article_category) + '</span>';
             }
             if (hasNote) {
-                html += '<span class="bk-note-badge">\uD83D\uDCAD Has Note</span>';
+                html += '<span class="bk-note-badge" data-i18n="bm.has_note">\uD83D\uDCAD 已有筆記</span>';
             }
             html += '</div>'; // .bk-card-meta
             html += '</div>'; // .bk-card-body
@@ -672,7 +672,7 @@
             // Actions
             html += '<div class="bk-card-actions">';
             html += '<button class="bk-btn-note" onclick="openNoteModal(' + bk.id + ', ' + escapeAttr(JSON.stringify(bk.note || '')) + ')">' + noteBtnLabel + '</button>';
-            html += '<button class="bk-btn-remove" onclick="removeBookmarkBtn(' + bk.id + ')" title="Remove">&times;</button>';
+            html += '<button class="bk-btn-remove" onclick="removeBookmarkBtn(' + bk.id + ')" title="移除">&times;</button>';
             html += '</div>'; // .bk-card-actions
 
             html += '</div>'; // .bk-card-top
@@ -711,7 +711,7 @@
     window.openNoteModal = function(bookmarkId, note) {
         editingBookmarkId = bookmarkId;
         document.getElementById('bk-note-textarea').value = note || '';
-        document.getElementById('bk-note-modal-title').textContent = note ? 'Edit Note' : 'Write Note';
+        document.getElementById('bk-note-modal-title').textContent = note ? '編輯筆記' : '撰寫筆記';
         document.getElementById('bk-note-overlay').classList.add('active');
         document.getElementById('bk-note-textarea').focus();
     };

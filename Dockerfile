@@ -9,6 +9,6 @@ COPY . .
 
 RUN chmod +x entrypoint.sh
 
-EXPOSE 5201
+EXPOSE 6000
 
 ENTRYPOINT ["./entrypoint.sh"]

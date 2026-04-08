@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Watchlist{% endblock %}
+{% block title %}自選股{% endblock %}
 
 {% block content %}
 <style>
@@ -270,16 +270,16 @@
 </style>
 
 <div class="wl-container">
-    <h1 class="wl-page-title">Watchlist</h1>
+    <h1 class="wl-page-title" data-i18n="watch.title">自選股</h1>
 
     <!-- Add Stock Bar -->
     <div class="wl-add-bar">
-        <input type="text" id="wl-symbol-input" placeholder="Enter symbol (e.g. 2330, AAPL)" autocomplete="off">
+        <input type="text" id="wl-symbol-input" placeholder="輸入代號（如 2330、AAPL）" autocomplete="off">
         <select id="wl-market-select">
             <option value="TW">TW</option>
             <option value="US">US</option>
         </select>
-        <button class="wl-add-btn" onclick="addStock()">Add</button>
+        <button class="wl-add-btn" onclick="addStock()" data-i18n="watch.add">加入</button>
     </div>
 
     <!-- Stock Cards Grid -->
@@ -288,7 +288,7 @@
     </div>
 
     <div class="wl-empty" id="wl-empty" style="display:none;">
-        No stocks in your watchlist yet. Add one above to get started.
+        <span data-i18n="watch.empty">自選股清單尚無資料，請在上方加入股票。</span>
     </div>
 
     <!-- Chart Area -->
@@ -296,8 +296,8 @@
         <div class="wl-chart-toolbar">
             <span class="wl-chart-title" id="wl-chart-title"></span>
             <div class="wl-btn-group" id="wl-chart-type-group">
-                <button class="active" data-type="kline" onclick="switchChartType('kline')">K Line</button>
-                <button data-type="return" onclick="switchChartType('return')">Return Line</button>
+                <button class="active" data-type="kline" onclick="switchChartType('kline')" data-i18n="watch.k_line">K線圖</button>
+                <button data-type="return" onclick="switchChartType('return')" data-i18n="watch.return_line">報酬曲線</button>
             </div>
             <div class="wl-btn-group" id="wl-period-group">
                 <button data-period="1M" onclick="switchPeriod('1M')">1M</button>
@@ -374,7 +374,7 @@
 
     function removeStock(symbol, market, e) {
         e.stopPropagation();
-        if (!confirm('Remove ' + symbol + ' from watchlist?')) return;
+        if (!confirm('確定從自選股移除 ' + symbol + '？')) return;
 
         fetch('/api/watchlist', {
             method: 'DELETE',
@@ -414,11 +414,11 @@
                      onclick="selectCard('${sym}','${mkt}')">
                     <div class="wl-card-header">
                         <span class="wl-card-symbol">${sym}</span>
-                        <button class="wl-card-remove" onclick="removeStockBtn('${sym}','${mkt}',event)" title="Remove">&times;</button>
+                        <button class="wl-card-remove" onclick="removeStockBtn('${sym}','${mkt}',event)" title="移除">&times;</button>
                     </div>
                     <span class="wl-badge ${badgeClass}">${mkt}</span>
                     <div id="quote-${sym}-${mkt}">
-                        <div class="wl-card-loading">Loading...</div>
+                        <div class="wl-card-loading">載入中...</div>
                     </div>
                 </div>
             `;
@@ -442,7 +442,7 @@
             })
             .catch(() => {
                 const el = document.getElementById(`quote-${symbol}-${market}`);
-                if (el) el.innerHTML = '<div class="wl-card-loading">Failed to load</div>';
+                if (el) el.innerHTML = '<div class="wl-card-loading">載入失敗</div>';
             });
     }
 
@@ -589,7 +589,7 @@
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Wick (H-L)',
+                        label: '影線 (高-低)',
                         data: wickData,
                         backgroundColor: wickColors,
                         borderColor: wickColors,
@@ -599,7 +599,7 @@
                         order: 2
                     },
                     {
-                        label: 'Body (O-C)',
+                        label: '實體 (開-收)',
                         data: bodyData,
                         backgroundColor: barColors,
                         borderColor: barBorders,
@@ -634,10 +634,10 @@
                                 const d = history[idx];
                                 if (item.datasetIndex === 1) {
                                     return [
-                                        `Open: ${d.open}`,
-                                        `High: ${d.high}`,
-                                        `Low: ${d.low}`,
-                                        `Close: ${d.close}`
+                                        `開盤: ${d.open}`,
+                                        `最高: ${d.high}`,
+                                        `最低: ${d.low}`,
+                                        `收盤: ${d.close}`
                                     ];
                                 }
                                 return null;
@@ -690,7 +690,7 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Cumulative Return %',
+                    label: '累積報酬 %',
                     data: returns,
                     borderColor: '#00d4ff',
                     backgroundColor: gradient,
@@ -726,7 +726,7 @@
                         borderWidth: 1,
                         callbacks: {
                             label: function(item) {
-                                return `Return: ${item.raw}%`;
+                                return `報酬: ${item.raw}%`;
                             }
                         }
                     }

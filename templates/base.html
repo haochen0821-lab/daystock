@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Daystock 股票紀錄系統 — {% block title %}{% endblock %}</title>
+    <title>Daystock — {% block title %}{% endblock %}</title>
 
     <!-- PWA Meta -->
     <link rel="manifest" href="/static/manifest.json">
@@ -42,6 +42,93 @@
             --warning: #ffb800;
             --sidebar-w: 220px;
             --topbar-h: 56px;
+        }
+
+        /* ===== Light Theme ===== */
+        body.theme-light {
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #1a202c;
+            --muted: #718096;
+            --primary: #0077cc;
+            --secondary: #00a854;
+            --danger: #e53e3e;
+            --warning: #d69e2e;
+        }
+
+        body.theme-light .sidebar {
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+        }
+
+        body.theme-light .topbar {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        body.theme-light .nav-item:hover {
+            background: rgba(0, 119, 204, 0.06);
+        }
+
+        body.theme-light .nav-item.active {
+            background: rgba(0, 119, 204, 0.08);
+            border-left-color: var(--primary);
+        }
+
+        body.theme-light .btn-primary:hover {
+            background: #0088ee;
+            box-shadow: 0 0 20px rgba(0, 119, 204, 0.2);
+        }
+
+        body.theme-light input[type="text"],
+        body.theme-light input[type="number"],
+        body.theme-light input[type="date"],
+        body.theme-light input[type="email"],
+        body.theme-light input[type="password"],
+        body.theme-light input[type="search"],
+        body.theme-light input[type="url"],
+        body.theme-light select,
+        body.theme-light textarea {
+            background: #f7fafc;
+        }
+
+        body.theme-light .flash-success {
+            background: rgba(0, 168, 84, 0.08);
+            border-color: rgba(0, 168, 84, 0.3);
+            color: var(--secondary);
+        }
+
+        body.theme-light .flash-error {
+            background: rgba(229, 62, 62, 0.08);
+            border-color: rgba(229, 62, 62, 0.3);
+            color: var(--danger);
+        }
+
+        body.theme-light .flash-warning {
+            background: rgba(214, 158, 46, 0.08);
+            border-color: rgba(214, 158, 46, 0.3);
+            color: var(--warning);
+        }
+
+        body.theme-light .flash-info {
+            background: rgba(0, 119, 204, 0.08);
+            border-color: rgba(0, 119, 204, 0.3);
+            color: var(--primary);
+        }
+
+        body.theme-light tr:hover td {
+            background: rgba(0, 119, 204, 0.03);
+        }
+
+        body.theme-light .modal {
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.15);
+        }
+
+        body.theme-light .sidebar-brand {
+            color: var(--primary);
+        }
+
+        body.theme-light .nav-item.logout:hover {
+            background: rgba(229, 62, 62, 0.06);
         }
 
         html, body {
@@ -653,69 +740,69 @@
             <nav class="sidebar-nav">
                 <a href="/dashboard" class="nav-item {% if request.path == '/dashboard' %}active{% endif %}">
                     <span class="nav-icon">&#x25A3;</span>
-                    <span>Dashboard</span>
+                    <span data-i18n="nav.dashboard">總覽</span>
                 </a>
                 <a href="/trades" class="nav-item {% if request.path.startswith('/trades') %}active{% endif %}">
                     <span class="nav-icon">&#x21C5;</span>
-                    <span>Trades</span>
+                    <span data-i18n="nav.trades">交易紀錄</span>
                 </a>
                 <a href="/watchlist" class="nav-item {% if request.path.startswith('/watchlist') %}active{% endif %}">
                     <span class="nav-icon">&#x2606;</span>
-                    <span>Watchlist</span>
+                    <span data-i18n="nav.watchlist">自選股</span>
                 </a>
                 <a href="/analytics" class="nav-item {% if request.path.startswith('/analytics') %}active{% endif %}">
                     <span class="nav-icon">&#x2237;</span>
-                    <span>Analytics</span>
+                    <span data-i18n="nav.analytics">分析</span>
                 </a>
                 <a href="/simulation" class="nav-item {% if request.path.startswith('/simulation') %}active{% endif %}">
                     <span class="nav-icon">&#x29D6;</span>
-                    <span>Simulation</span>
+                    <span data-i18n="nav.simulation">模擬</span>
                 </a>
                 <a href="/report" class="nav-item {% if request.path.startswith('/report') %}active{% endif %}">
                     <span class="nav-icon">&#x2263;</span>
-                    <span>Report</span>
+                    <span data-i18n="nav.report">報表</span>
                 </a>
 
                 <div class="nav-divider"></div>
 
                 <a href="/dividends" class="nav-item {% if request.path.startswith('/dividends') %}active{% endif %}">
                     <span class="nav-icon">&#x25CE;</span>
-                    <span>Dividends</span>
+                    <span data-i18n="nav.dividends">股利</span>
                 </a>
                 <a href="/academy" class="nav-item {% if request.path.startswith('/academy') %}active{% endif %}">
                     <span class="nav-icon">&#x1F393;</span>
-                    <span>Academy</span>
+                    <span data-i18n="nav.academy">學堂</span>
                 </a>
                 <a href="/bookmarks" class="nav-item {% if request.path.startswith('/bookmarks') %}active{% endif %}">
                     <span class="nav-icon">&#x2691;</span>
-                    <span>Bookmarks</span>
+                    <span data-i18n="nav.bookmarks">書籤</span>
                 </a>
                 <a href="/portfolios" class="nav-item {% if request.path.startswith('/portfolios') %}active{% endif %}">
                     <span class="nav-icon">&#x25A4;</span>
-                    <span>Portfolios</span>
+                    <span data-i18n="nav.portfolios">投資組合</span>
                 </a>
                 <a href="/journal" class="nav-item {% if request.path.startswith('/journal') %}active{% endif %}">
                     <span class="nav-icon">&#x270E;</span>
-                    <span>Journal</span>
+                    <span data-i18n="nav.journal">日誌</span>
                 </a>
 
                 <div class="nav-divider"></div>
 
                 <a href="/settings" class="nav-item {% if request.path.startswith('/settings') %}active{% endif %}">
                     <span class="nav-icon">&#x2699;</span>
-                    <span>Settings</span>
+                    <span data-i18n="nav.settings">設定</span>
                 </a>
                 {% if current_user.role in ['admin', 'superadmin'] %}
                 <a href="/admin" class="nav-item {% if request.path.startswith('/admin') %}active{% endif %}">
                     <span class="nav-icon">&#x2630;</span>
-                    <span>Admin</span>
+                    <span data-i18n="nav.admin">管理</span>
                 </a>
                 {% endif %}
             </nav>
             <div class="sidebar-footer">
                 <a href="/logout" class="nav-item logout">
                     <span class="nav-icon">&#x23FB;</span>
-                    <span>Logout</span>
+                    <span data-i18n="nav.logout">登出</span>
                 </a>
             </div>
         </aside>
@@ -729,6 +816,8 @@
                     <span class="topbar-title">Daystock</span>
                 </div>
                 <div class="topbar-right">
+                    <button id="langToggle" onclick="toggleLang()" style="background:none;border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;">EN</button>
+                    <button id="themeToggle" onclick="toggleTheme()" style="background:none;border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:6px;font-size:16px;cursor:pointer;line-height:1;">☾</button>
                     <div class="topbar-user">
                         <div class="user-avatar">{{ current_user.username[0]|upper }}</div>
                         <span class="user-name">{{ current_user.username }}</span>
@@ -788,6 +877,8 @@
         }
     });
     </script>
+
+    <script src="/static/js/i18n.js"></script>
 
     <!-- Service Worker -->
     <script>

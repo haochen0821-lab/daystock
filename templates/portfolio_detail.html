@@ -418,21 +418,21 @@
 </style>
 
 <div class="pd-container">
-    <a href="/portfolios" class="pd-back-btn">&larr; Back to Portfolios</a>
+    <a href="/portfolios" class="pd-back-btn" data-i18n="port.back">&larr; 返回投資組合</a>
 
     <div class="pd-page-header">
         <div class="pd-title-area">
             <h1 class="pd-page-title">{{ portfolio.name }}</h1>
             <div class="pd-tag-dots" id="pd-header-tags"></div>
         </div>
-        <button class="btn btn-primary" onclick="openAddMemberModal()">+ Add Member</button>
+        <button class="btn btn-primary" onclick="openAddMemberModal()" data-i18n="port.add_member">+ 加入成員</button>
     </div>
 
     <!-- Tabs -->
     <div class="pd-tabs">
-        <button class="pd-tab active" data-tab="overview" onclick="switchTab('overview')">&#x1F4CA; Overview</button>
-        <button class="pd-tab" data-tab="trend" onclick="switchTab('trend')">&#x1F4C8; Trend Compare</button>
-        <button class="pd-tab" data-tab="news" onclick="switchTab('news')">&#x1F4F0; News</button>
+        <button class="pd-tab active" data-tab="overview" onclick="switchTab('overview')" data-i18n="port.overview">&#x1F4CA; 總覽</button>
+        <button class="pd-tab" data-tab="trend" onclick="switchTab('trend')" data-i18n="port.trend">&#x1F4C8; 趨勢比較</button>
+        <button class="pd-tab" data-tab="news" onclick="switchTab('news')" data-i18n="port.news">&#x1F4F0; 新聞</button>
     </div>
 
     <!-- Tab 1: Overview -->
@@ -440,21 +440,21 @@
         <table class="pd-member-table" id="pd-member-table">
             <thead>
                 <tr>
-                    <th>Symbol</th>
-                    <th>Market</th>
-                    <th>Price</th>
-                    <th>Change %</th>
+                    <th data-i18n="port.symbol">代號</th>
+                    <th data-i18n="port.market">市場</th>
+                    <th data-i18n="port.price">價格</th>
+                    <th data-i18n="port.change_pct">漲跌%</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody id="pd-member-tbody">
-                <tr><td colspan="5" style="text-align:center;color:#5a6a8a;padding:30px;">Loading...</td></tr>
+                <tr><td colspan="5" style="text-align:center;color:#5a6a8a;padding:30px;" data-i18n="port.loading">載入中...</td></tr>
             </tbody>
         </table>
 
         <div class="pd-chart-row mt-3">
             <div class="pd-chart-box">
-                <h3>Market Value Allocation</h3>
+                <h3 data-i18n="port.market_value_alloc">市值分配</h3>
                 <div class="pd-pie-wrap">
                     <canvas id="pd-pie-chart"></canvas>
                 </div>
@@ -480,18 +480,18 @@
     <!-- Tab 3: News -->
     <div class="pd-tab-panel" id="panel-news">
         <div class="pd-news-banner">
-            &#x1F4A1; Want to see how news-driven trades perform? Check the
-            <a href="/analytics#reason-winrate">Analytics Reason Winrate</a> tab.
+            &#x1F4A1; 想看新聞驅動交易的表現嗎？前往
+            <a href="/analytics#reason-winrate">分析 - 原因勝率</a>頁面查看。
         </div>
 
         <div class="pd-news-filter">
             <select id="pd-news-filter-select" onchange="filterNews()">
-                <option value="all">All Symbols</option>
+                <option value="all" data-i18n="port.all_symbols">全部代號</option>
             </select>
         </div>
 
         <div class="pd-news-list" id="pd-news-list">
-            <div class="pd-empty-msg">Loading news...</div>
+            <div class="pd-empty-msg" data-i18n="port.loading_news">載入新聞...</div>
         </div>
     </div>
 </div>
@@ -500,14 +500,14 @@
 <div class="modal-overlay" id="addMemberModal">
     <div class="modal">
         <div class="modal-header">
-            <h3>Add Member from Watchlist</h3>
+            <h3 data-i18n="port.add_from_wl">從自選股加入成員</h3>
             <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
         </div>
         <div id="pd-wl-list" style="max-height:400px;overflow-y:auto;">
-            <div style="text-align:center;color:#5a6a8a;padding:30px;">Loading watchlist...</div>
+            <div style="text-align:center;color:#5a6a8a;padding:30px;" data-i18n="port.loading_wl">載入自選股...</div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeModal('addMemberModal')">Close</button>
+            <button class="btn btn-secondary" onclick="closeModal('addMemberModal')" data-i18n="port.close">關閉</button>
         </div>
     </div>
 </div>
@@ -568,14 +568,14 @@
             .catch(function(err) {
                 console.error('Load quotes error:', err);
                 document.getElementById('pd-member-tbody').innerHTML =
-                    '<tr><td colspan="5" class="pd-empty-msg">Failed to load quotes.</td></tr>';
+                    '<tr><td colspan="5" class="pd-empty-msg">載入報價失敗。</td></tr>';
             });
     }
 
     function renderMemberTable() {
         var tbody = document.getElementById('pd-member-tbody');
         if (!members.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="pd-empty-msg">No members yet. Add stocks from your watchlist.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="pd-empty-msg">尚無成員，從自選股加入吧。</td></tr>';
             return;
         }
 
@@ -594,7 +594,7 @@
                 '<td><span class="pd-market-badge ' + mktCls + '">' + escHtml(m.market || '') + '</span></td>' +
                 '<td class="font-num">' + price + '</td>' +
                 '<td class="' + cls + ' font-num">' + arrow + pctStr + '</td>' +
-                '<td><button class="pd-remove-btn" onclick="removeMember(\'' + escAttr(m.symbol) + '\', \'' + escAttr(m.market || '') + '\')" title="Remove">&times;</button></td>' +
+                '<td><button class="pd-remove-btn" onclick="removeMember(\'' + escAttr(m.symbol) + '\', \'' + escAttr(m.market || '') + '\')" title="移除">&times;</button></td>' +
                 '</tr>';
         }).join('');
     }
@@ -654,14 +654,14 @@
 
     function loadWatchlistForAdd() {
         var container = document.getElementById('pd-wl-list');
-        container.innerHTML = '<div style="text-align:center;color:#5a6a8a;padding:30px;">Loading watchlist...</div>';
+        container.innerHTML = '<div style="text-align:center;color:#5a6a8a;padding:30px;">載入自選股...</div>';
 
         fetch('/api/watchlist')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var wl = data.watchlist || data || [];
                 if (!wl.length) {
-                    container.innerHTML = '<div style="text-align:center;color:#5a6a8a;padding:30px;">Your watchlist is empty. Add stocks to your watchlist first.</div>';
+                    container.innerHTML = '<div style="text-align:center;color:#5a6a8a;padding:30px;">自選股為空，請先新增股票。</div>';
                     return;
                 }
 
@@ -681,20 +681,20 @@
                         '<button class="pd-wl-add-btn ' + (isAdded ? 'added' : 'available') + '"' +
                             (isAdded ? ' disabled' : '') +
                             ' onclick="addMember(\'' + escAttr(item.symbol) + '\', \'' + escAttr(item.market) + '\', this)">' +
-                            (isAdded ? '\u2713 Already Added' : 'Add') +
+                            (isAdded ? '\u2713 已加入' : '加入') +
                         '</button>' +
                     '</div>';
                 }).join('');
             })
             .catch(function(err) {
                 console.error('Load watchlist error:', err);
-                container.innerHTML = '<div style="text-align:center;color:#ff4a6e;padding:30px;">Failed to load watchlist.</div>';
+                container.innerHTML = '<div style="text-align:center;color:#ff4a6e;padding:30px;">載入自選股失敗。</div>';
             });
     }
 
     window.addMember = function(symbol, market, btn) {
         btn.disabled = true;
-        btn.textContent = 'Adding...';
+        btn.textContent = '加入中...';
 
         fetch('/api/portfolios/' + PORTFOLIO_ID + '/members', {
             method: 'POST',
@@ -706,23 +706,23 @@
             if (data.error) {
                 alert(data.error);
                 btn.disabled = false;
-                btn.textContent = 'Add';
+                btn.textContent = '加入';
                 return;
             }
             btn.className = 'pd-wl-add-btn added';
-            btn.textContent = '\u2713 Already Added';
+            btn.textContent = '\u2713 已加入';
             loadQuotes();
         })
         .catch(function(err) {
             console.error('Add member error:', err);
             btn.disabled = false;
-            btn.textContent = 'Add';
+            btn.textContent = '加入';
         });
     };
 
     // ========== Remove Member ==========
     window.removeMember = function(symbol, market) {
-        if (!confirm('Remove ' + symbol + ' from this portfolio?')) return;
+        if (!confirm('確定從此投資組合移除 ' + symbol + '？')) return;
 
         fetch('/api/portfolios/' + PORTFOLIO_ID + '/members', {
             method: 'DELETE',
@@ -853,7 +853,7 @@
     // ========== News ==========
     function loadNews() {
         var list = document.getElementById('pd-news-list');
-        list.innerHTML = '<div class="pd-empty-msg">Loading news...</div>';
+        list.innerHTML = '<div class="pd-empty-msg">載入新聞...</div>';
 
         fetch('/api/portfolios/' + PORTFOLIO_ID + '/news')
             .then(function(r) { return r.json(); })
@@ -864,7 +864,7 @@
             })
             .catch(function(err) {
                 console.error('Load news error:', err);
-                list.innerHTML = '<div class="pd-empty-msg">Failed to load news.</div>';
+                list.innerHTML = '<div class="pd-empty-msg">載入新聞失敗。</div>';
             });
     }
 
@@ -873,7 +873,7 @@
         var symbolSet = {};
         allNews.forEach(function(n) { if (n.symbol) symbolSet[n.symbol] = true; });
         var symbols = Object.keys(symbolSet);
-        select.innerHTML = '<option value="all">All Symbols</option>' +
+        select.innerHTML = '<option value="all">全部代號</option>' +
             symbols.map(function(s) { return '<option value="' + escAttr(s) + '">' + escHtml(s) + '</option>'; }).join('');
     }
 
@@ -889,12 +889,12 @@
     function renderNews(news) {
         var list = document.getElementById('pd-news-list');
         if (!news.length) {
-            list.innerHTML = '<div class="pd-empty-msg">No news found.</div>';
+            list.innerHTML = '<div class="pd-empty-msg">查無新聞。</div>';
             return;
         }
 
         list.innerHTML = news.map(function(n) {
-            var title = escHtml(n.title || 'Untitled');
+            var title = escHtml(n.title || '無標題');
             var link = n.link || '#';
             var publisher = escHtml(n.publisher || '');
             var date = escHtml(n.date || n.published || '');
@@ -910,7 +910,7 @@
                     (date ? '<span>' + date + '</span>' : '') +
                 '</div>' +
                 '<button class="pd-news-trade-btn" onclick="recordNewsTrade(\'' + escAttr(n.symbol || '') + '\', \'' + escAttr(n.title || '') + '\')">' +
-                    '&#x1F3F7; Record as News Trade' +
+                    '🏷 記錄為新聞交易' +
                 '</button>' +
             '</div>';
         }).join('');

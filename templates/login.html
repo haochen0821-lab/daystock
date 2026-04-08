@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -184,6 +184,52 @@
             color: #00ff88;
         }
 
+        body.theme-light {
+            background: #f5f7fa;
+            color: #1a202c;
+        }
+        body.theme-light .bg-grid {
+            background-image:
+                linear-gradient(rgba(226,232,240,0.5) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(226,232,240,0.5) 1px, transparent 1px);
+        }
+        body.theme-light .card {
+            background: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+        }
+        body.theme-light .form-group label {
+            color: #718096;
+        }
+        body.theme-light .form-group input {
+            background: #f7fafc;
+            border-color: #e2e8f0;
+            color: #1a202c;
+        }
+        body.theme-light .form-group input::placeholder {
+            color: #a0aec0;
+        }
+        body.theme-light .form-group input:focus {
+            border-color: #0077cc;
+            box-shadow: 0 0 0 3px rgba(0,119,204,0.12);
+        }
+        body.theme-light .footer-link {
+            color: #718096;
+        }
+        body.theme-light .footer-link a {
+            color: #0077cc;
+        }
+        body.theme-light .ticker-wrap {
+            background: rgba(255,255,255,0.95);
+            border-top-color: #e2e8f0;
+        }
+        body.theme-light .ticker-symbol {
+            color: #1a202c;
+        }
+        body.theme-light .logo p {
+            color: #718096;
+        }
+
         /* Ticker */
         .ticker-wrap {
             position: fixed;
@@ -239,7 +285,12 @@
         <div class="logo">
             <div class="logo-icon">&#x1F4C8;</div>
             <h1>Daystock</h1>
-            <p>smart trading terminal</p>
+            <p data-i18n="login.subtitle">智慧交易終端</p>
+        </div>
+
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px;">
+            <button id="langToggle" onclick="toggleLang()" style="background:none;border:1px solid #1e2d4a;color:#4a5a7a;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;">EN</button>
+            <button id="themeToggle" onclick="toggleTheme()" style="background:none;border:1px solid #1e2d4a;color:#4a5a7a;padding:4px 10px;border-radius:6px;font-size:16px;cursor:pointer;line-height:1;">☾</button>
         </div>
 
         <div class="error-msg" id="errorMsg">
@@ -248,17 +299,17 @@
 
         <form id="loginForm" autocomplete="on">
             <div class="form-group">
-                <label>Username</label>
-                <input type="text" name="username" id="username" placeholder="Enter username" required autofocus autocomplete="username">
+                <label data-i18n="login.username">帳號</label>
+                <input type="text" name="username" id="username" data-i18n-ph="login.username" placeholder="請輸入帳號" required autofocus autocomplete="username">
             </div>
             <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="password" id="password" placeholder="Enter password" required autocomplete="current-password">
+                <label data-i18n="login.password">密碼</label>
+                <input type="password" name="password" id="password" data-i18n-ph="login.password" placeholder="請輸入密碼" required autocomplete="current-password">
             </div>
-            <button type="submit" class="btn-submit" id="submitBtn">Sign In</button>
+            <button type="submit" class="btn-submit" id="submitBtn" data-i18n="login.sign_in">登入</button>
         </form>
 
-        <p class="footer-link">No account? <a href="/register">Create one</a></p>
+        <p class="footer-link"><span data-i18n="login.no_account">還沒有帳號？</span> <a href="/register" data-i18n="login.create_one">建立帳號</a></p>
     </div>
 
     <!-- Ticker -->
@@ -314,7 +365,7 @@
             const btn = document.getElementById('submitBtn');
             errEl.classList.remove('show');
             btn.disabled = true;
-            btn.textContent = 'Signing in...';
+            btn.textContent = (localStorage.getItem('ds-lang')==='en') ? 'Signing in...' : '登入中...';
 
             try {
                 const res = await fetch('/login', {
@@ -333,11 +384,11 @@
                     errEl.classList.add('show');
                 }
             } catch (err) {
-                errEl.textContent = 'Network error. Please try again.';
+                errEl.textContent = (localStorage.getItem('ds-lang')==='en') ? 'Network error. Please try again.' : '網路錯誤，請重試。';
                 errEl.classList.add('show');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Sign In';
+                btn.textContent = (localStorage.getItem('ds-lang')==='en') ? 'Sign In' : '登入';
             }
         });
         // Register Service Worker
@@ -345,5 +396,6 @@
             navigator.serviceWorker.register('/static/sw.js');
         }
     </script>
+    <script src="/static/js/i18n.js"></script>
 </body>
 </html>

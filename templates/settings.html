@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Settings{% endblock %}
+{% block title %}設定{% endblock %}
 
 {% block content %}
 <div style="max-width: 720px; margin: 0 auto;">
@@ -7,7 +7,7 @@
     <!-- Profile Info Card -->
     <div class="card mb-3" id="profileCard">
         <div class="card-header">
-            <h3>&#x1F464; Profile Info</h3>
+            <h3 data-i18n="set.profile">&#x1F464; 個人資訊</h3>
         </div>
         <div style="display: flex; align-items: center; gap: 20px;">
             <div id="profileAvatar" style="
@@ -33,12 +33,12 @@
     <!-- Trading Preferences Card -->
     <div class="card mb-3" id="prefsCard">
         <div class="card-header">
-            <h3>&#x2699; Trading Preferences</h3>
+            <h3 data-i18n="set.trading_pref">&#x2699; 交易偏好</h3>
         </div>
 
         <!-- Default Market -->
         <div class="form-group">
-            <label>Default Market</label>
+            <label data-i18n="set.default_market">預設市場</label>
             <div style="display: flex; gap: 0;">
                 <button type="button" id="marketTW" onclick="setMarket('TW')" style="
                     flex: 1; padding: 10px; border: 1px solid var(--border);
@@ -57,7 +57,7 @@
 
         <!-- Commission Discount Slider -->
         <div class="form-group">
-            <label>Commission Discount</label>
+            <label data-i18n="set.commission_discount">手續費折扣</label>
             <input type="range" id="commissionSlider" min="0.1" max="1.0" step="0.1" value="0.6"
                 oninput="updateCommissionLabel(this.value)" style="
                 width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
@@ -69,14 +69,14 @@
                 <span id="commissionLabel" style="
                     color: var(--primary); font-size: 14px; font-weight: 600;
                     font-family: 'Syne', sans-serif;
-                ">0.6 = 六折 = 60% of standard rate</span>
+                ">0.6 = 六折 = 標準費率的 60%</span>
                 <span style="color: var(--muted); font-size: 12px;">無折扣</span>
             </div>
         </div>
 
         <!-- Concentration Threshold Slider -->
         <div class="form-group">
-            <label>Concentration Threshold (%)</label>
+            <label data-i18n="set.concentration">集中度門檻 (%)</label>
             <input type="range" id="concentrationSlider" min="10" max="80" step="5" value="30"
                 oninput="updateConcentrationLabel(this.value)" style="
                 width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
@@ -88,14 +88,14 @@
                 <span id="concentrationLabel" style="
                     color: var(--warning); font-size: 14px; font-weight: 600;
                     font-family: 'Syne', sans-serif;
-                ">30% — Alert when a single stock exceeds 30% of portfolio</span>
+                ">30% — 單一持股超過投資組合 30% 時發出警示</span>
                 <span style="color: var(--muted); font-size: 12px;">80%</span>
             </div>
         </div>
 
         <!-- Anniversary Countdown Toggle -->
         <div class="form-group">
-            <label>Anniversary Countdown (US Stock Tax Reminder)</label>
+            <label data-i18n="set.anniversary">週年倒數（美股稅務提醒）</label>
             <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
                 <div id="anniversaryToggle" onclick="toggleAnniversary()" style="
                     width: 48px; height: 26px; border-radius: 13px;
@@ -114,8 +114,8 @@
 
         <!-- Save Button -->
         <div style="margin-top: 20px; text-align: right;">
-            <button class="btn btn-primary" onclick="savePreferences()">
-                &#x2714; Save Preferences
+            <button class="btn btn-primary" data-i18n="set.save_pref" onclick="savePreferences()">
+                &#x2714; 儲存偏好
             </button>
         </div>
         <div id="prefsMsg" style="margin-top: 12px; font-size: 13px; display: none;"></div>
@@ -124,25 +124,25 @@
     <!-- Change Password Card -->
     <div class="card mb-3">
         <div class="card-header">
-            <h3>&#x1F512; Change Password</h3>
+            <h3 data-i18n="set.change_pw">&#x1F512; 修改密碼</h3>
         </div>
         <div class="form-group">
-            <label for="currentPassword">Current Password</label>
-            <input type="password" id="currentPassword" placeholder="Enter current password">
+            <label for="currentPassword" data-i18n="set.current_pw">目前密碼</label>
+            <input type="password" id="currentPassword" placeholder="輸入目前密碼">
         </div>
         <div class="form-group">
-            <label for="newPassword">New Password</label>
-            <input type="password" id="newPassword" placeholder="Min 8 characters" oninput="checkPasswordStrength()">
+            <label for="newPassword" data-i18n="set.new_pw">新密碼</label>
+            <input type="password" id="newPassword" placeholder="至少 8 個字元" oninput="checkPasswordStrength()">
         </div>
         <div class="form-group">
-            <label for="confirmPassword">Confirm New Password</label>
-            <input type="password" id="confirmPassword" placeholder="Repeat new password" oninput="checkPasswordMatch()">
+            <label for="confirmPassword" data-i18n="set.confirm_pw">確認新密碼</label>
+            <input type="password" id="confirmPassword" placeholder="再次輸入新密碼" oninput="checkPasswordMatch()">
         </div>
 
         <!-- Password Strength Bar -->
         <div style="margin-bottom: 16px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                <span style="color: var(--muted); font-size: 12px;">Password Strength</span>
+                <span style="color: var(--muted); font-size: 12px;" data-i18n="set.pw_strength">密碼強度</span>
                 <span id="strengthText" style="font-size: 12px; color: var(--muted);">-</span>
             </div>
             <div style="width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
@@ -158,8 +158,8 @@
 
         <!-- Submit -->
         <div style="text-align: right;">
-            <button class="btn btn-primary" onclick="changePassword()">
-                &#x1F512; Change Password
+            <button class="btn btn-primary" data-i18n="set.change_pw_btn" onclick="changePassword()">
+                &#x1F512; 修改密碼
             </button>
         </div>
         <div id="pwdMsg" style="margin-top: 12px; font-size: 13px; display: none;"></div>
@@ -246,7 +246,7 @@
                 renderAnniversaryToggle();
             }
         })
-        .catch(function(e) { console.error('Failed to load settings', e); });
+        .catch(function(e) { console.error('載入設定失敗', e); });
 
     // ===== Market Toggle =====
     window.setMarket = function(m) {
@@ -278,9 +278,9 @@
         var pct = Math.round(val * 100);
         var label;
         if (fold === 10) {
-            label = '1.0 = 無折扣 = 100% of standard rate';
+            label = '1.0 = 無折扣 = 標準費率的 100%';
         } else {
-            label = val.toFixed(1) + ' = ' + (zhNumbers[fold]||fold) + '折 = ' + pct + '% of standard rate';
+            label = val.toFixed(1) + ' = ' + (zhNumbers[fold]||fold) + '折 = 標準費率的 ' + pct + '%';
         }
         document.getElementById('commissionLabel').textContent = label;
     };
@@ -289,7 +289,7 @@
     window.updateConcentrationLabel = function(val) {
         val = parseInt(val);
         document.getElementById('concentrationLabel').textContent =
-            val + '% \u2014 Alert when a single stock exceeds ' + val + '% of portfolio';
+            val + '% \u2014 單一持股超過投資組合 ' + val + '% 時發出警示';
     };
 
     // ===== Anniversary Toggle =====
@@ -336,10 +336,10 @@
             msg.style.display = 'block';
             if (res.ok) {
                 msg.style.color = 'var(--secondary)';
-                msg.textContent = '\u2714 Preferences saved successfully.';
+                msg.textContent = '\u2714 偏好設定已儲存。';
             } else {
                 msg.style.color = 'var(--danger)';
-                msg.textContent = '\u2718 ' + (res.data.error || 'Failed to save.');
+                msg.textContent = '\u2718 ' + (res.data.error || '儲存失敗。');
             }
             setTimeout(function() { msg.style.display = 'none'; }, 4000);
         })
@@ -347,7 +347,7 @@
             var msg = document.getElementById('prefsMsg');
             msg.style.display = 'block';
             msg.style.color = 'var(--danger)';
-            msg.textContent = '\u2718 Network error.';
+            msg.textContent = '\u2718 網路錯誤。';
             setTimeout(function() { msg.style.display = 'none'; }, 4000);
         });
     };
@@ -364,7 +364,7 @@
         var bar = document.getElementById('strengthBar');
         var txt = document.getElementById('strengthText');
         var colors = ['', '#ff4a6e', '#ff8c00', '#ffcc00', '#00ff88'];
-        var labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+        var labels = ['', '弱', '普通', '良好', '很強'];
 
         bar.style.width = (score * 25) + '%';
         bar.style.background = colors[score] || 'transparent';
@@ -387,10 +387,10 @@
         matchMsg.style.display = 'block';
         if (pw === confirm) {
             matchMsg.style.color = 'var(--secondary)';
-            matchMsg.textContent = '\u2714 Passwords match';
+            matchMsg.textContent = '\u2714 密碼相符';
         } else {
             matchMsg.style.color = 'var(--danger)';
-            matchMsg.textContent = '\u2718 Passwords do not match';
+            matchMsg.textContent = '\u2718 密碼不相符';
         }
     };
 
@@ -405,19 +405,19 @@
         if (!current || !newPw || !confirm) {
             msg.style.display = 'block';
             msg.style.color = 'var(--danger)';
-            msg.textContent = '\u2718 Please fill in all password fields.';
+            msg.textContent = '\u2718 請填寫所有密碼欄位。';
             return;
         }
         if (newPw.length < 8) {
             msg.style.display = 'block';
             msg.style.color = 'var(--danger)';
-            msg.textContent = '\u2718 New password must be at least 8 characters.';
+            msg.textContent = '\u2718 新密碼至少需要 8 個字元。';
             return;
         }
         if (newPw !== confirm) {
             msg.style.display = 'block';
             msg.style.color = 'var(--danger)';
-            msg.textContent = '\u2718 New passwords do not match.';
+            msg.textContent = '\u2718 新密碼不一致。';
             return;
         }
 
@@ -434,7 +434,7 @@
             msg.style.display = 'block';
             if (res.ok) {
                 msg.style.color = 'var(--secondary)';
-                msg.textContent = '\u2714 Password changed successfully.';
+                msg.textContent = '\u2714 密碼修改成功。';
                 document.getElementById('currentPassword').value = '';
                 document.getElementById('newPassword').value = '';
                 document.getElementById('confirmPassword').value = '';
@@ -444,14 +444,14 @@
                 document.getElementById('matchMsg').style.display = 'none';
             } else {
                 msg.style.color = 'var(--danger)';
-                msg.textContent = '\u2718 ' + (res.data.error || 'Failed to change password.');
+                msg.textContent = '\u2718 ' + (res.data.error || '修改密碼失敗。');
             }
             setTimeout(function() { msg.style.display = 'none'; }, 5000);
         })
         .catch(function() {
             msg.style.display = 'block';
             msg.style.color = 'var(--danger)';
-            msg.textContent = '\u2718 Network error.';
+            msg.textContent = '\u2718 網路錯誤。';
             setTimeout(function() { msg.style.display = 'none'; }, 4000);
         });
     };

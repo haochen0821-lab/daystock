@@ -12,4 +12,4 @@ with app.app_context():
     init_db()
 "
 
-exec gunicorn --bind 0.0.0.0:5600 --workers 2 --timeout 120 app:app
+exec gunicorn --bind 0.0.0.0:6000 --workers 2 --timeout 120 app:app

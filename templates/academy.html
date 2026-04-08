@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Academy{% endblock %}
+{% block title %}學堂{% endblock %}
 
 {% block content %}
 <style>
@@ -188,7 +188,7 @@
     <!-- Admin quick link -->
     {% if current_user.role in ['admin', 'superadmin'] %}
     <div class="manage-link">
-        <a href="/academy/manage" class="btn btn-secondary btn-sm">&#x2699; Manage</a>
+        <a href="/academy/manage" class="btn btn-secondary btn-sm" data-i18n="acad.manage">✚ 管理</a>
     </div>
     {% endif %}
 

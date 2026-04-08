@@ -5,7 +5,7 @@ services:
     build: .
     container_name: daystock
     ports:
-      - "5600:5600"
+      - "6000:6000"
     volumes:
       - ./data:/data
     restart: unless-stopped
