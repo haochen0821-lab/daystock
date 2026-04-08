@@ -677,9 +677,9 @@ def api_add_trade():
     price = float(data.get('price', 0))
     shares = float(data.get('shares', 0))
     trade_date_str = data.get('trade_date', '')
-    account = data.get('account', '').strip()
-    reason_tag = data.get('reason_tag', '')
-    note = data.get('note', '').strip()
+    account = (data.get('account') or '').strip()
+    reason_tag = data.get('reason_tag') or ''
+    note = (data.get('note') or '').strip()
     broker_fee = float(data.get('broker_fee', 0))
 
     if not symbol or price <= 0 or shares <= 0 or not trade_date_str:
