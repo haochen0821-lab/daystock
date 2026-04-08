@@ -640,7 +640,10 @@ def api_stock_quote():
 def api_stock_history():
     symbol = request.args.get('symbol', '')
     market = request.args.get('market', 'US')
-    period = request.args.get('period', '1y')
+    period_raw = request.args.get('period', '1y')
+    # Map frontend shorthand to yfinance period format
+    period_map = {'1M': '1mo', '3M': '3mo', '6M': '6mo', '1Y': '1y', '5Y': '5y'}
+    period = period_map.get(period_raw, period_raw)
     if not symbol:
         return jsonify({'error': 'Symbol required'}), 400
     data = get_history(symbol, market, period)
@@ -2409,7 +2412,9 @@ def api_portfolio_history(pid):
     import yfinance as yf
     p = Portfolio.query.filter_by(id=pid, user_id=current_user.id).first_or_404()
     members = PortfolioMember.query.filter_by(portfolio_id=p.id).all()
-    period = request.args.get('period', '6mo')
+    period_raw = request.args.get('period', '6mo')
+    _pm = {'1M': '1mo', '3M': '3mo', '6M': '6mo', '1Y': '1y', '5Y': '5y'}
+    period = _pm.get(period_raw, period_raw)
 
     result = []
     for m in members:
