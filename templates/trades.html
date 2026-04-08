@@ -47,7 +47,7 @@
 
     <!-- Add Trade Button -->
     <div style="margin-bottom:20px;">
-        <button onclick="openModal('modal-add-trade')" style="padding:10px 22px;background:var(--primary);color:var(--bg);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;" data-i18n="trades.add_trade">+ 新增交易</button>
+        <button onclick="openAddTradeModal()" style="padding:10px 22px;background:var(--primary);color:var(--bg);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;" data-i18n="trades.add_trade">+ 新增交易</button>
     </div>
 
     <!-- Trades Table -->
@@ -110,7 +110,18 @@
 
         <div class="form-group">
             <label data-i18n="trades.symbol">代號</label>
-            <input type="text" id="trade-symbol" placeholder="例：AAPL、2330" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+            <input type="text" id="trade-symbol" placeholder="例：AAPL、2330" style="text-transform:uppercase;" list="symbol-suggestions" oninput="this.value=this.value.toUpperCase()" onblur="onSymbolBlur()">
+            <datalist id="symbol-suggestions"></datalist>
+        </div>
+
+        <!-- Holdings Info Bar (sell mode) -->
+        <div id="holdings-info-bar" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px;">
+                <span style="color:var(--muted);" data-i18n="trades.holdings_info">持股資訊</span>
+                <span style="color:var(--text);font-weight:600;" id="holdings-shares-display"></span>
+                <span style="color:var(--text);font-weight:600;" id="holdings-avg-display"></span>
+                <span style="color:var(--muted);" id="holdings-market-display"></span>
+            </div>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -156,6 +167,35 @@
         <div class="form-group" id="broker-fee-group" style="display:none;">
             <label data-i18n="trades.broker_fee">券商手續費 (USD)</label>
             <input type="number" id="trade-broker-fee" placeholder="0.00" step="any" min="0" oninput="debounceFeePreview()">
+        </div>
+
+        <!-- Profit Calculator (sell mode) -->
+        <div id="profit-calculator" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;">
+            <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;" data-i18n="trades.profit_calc">收益計算</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;margin-bottom:10px;">
+                <div>
+                    <span style="color:var(--muted);" data-i18n="trades.avg_cost">持股均價</span>
+                    <div id="calc-avg-cost" style="color:var(--text);font-weight:600;margin-top:2px;">--</div>
+                </div>
+                <div>
+                    <span style="color:var(--muted);" data-i18n="trades.remaining_shares">持有股數</span>
+                    <div id="calc-remaining" style="color:var(--text);font-weight:600;margin-top:2px;">--</div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:8px;">
+                <label style="font-size:12px;color:var(--muted);" data-i18n="trades.expected_profit">預期收益</label>
+                <input type="number" id="calc-expected-profit" placeholder="輸入預期收益金額" step="any" style="font-size:13px;">
+            </div>
+            <div id="calc-result" style="display:none;padding:8px 0;font-size:13px;">
+                <div style="display:flex;justify-content:space-between;padding:4px 0;">
+                    <span style="color:var(--muted);" data-i18n="trades.estimated_profit">預估損益</span>
+                    <span id="calc-profit-display" style="font-weight:600;">--</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:4px 0;">
+                    <span style="color:var(--muted);" data-i18n="trades.profit_rate">報酬率</span>
+                    <span id="calc-rate-display" style="font-weight:600;">--</span>
+                </div>
+            </div>
         </div>
 
         <!-- Live Fee Preview -->
@@ -280,6 +320,184 @@
         el.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--surface);border:1px solid ' + borderColor + ';color:' + textColor + ';padding:10px 20px;border-radius:8px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,0.4);font-family:DM Mono,monospace;';
         document.body.appendChild(el);
         setTimeout(function() { el.remove(); }, 2500);
+    }
+
+    // ---- Holdings cache for smart sell ----
+    var holdingsCache = null;
+    var profitCalcUpdating = false;
+
+    // ---- Load watchlist symbols for autocomplete ----
+    function loadSymbolSuggestions() {
+        fetch('/api/watchlist')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var dl = document.getElementById('symbol-suggestions');
+                dl.innerHTML = '';
+                var seen = {};
+                for (var i = 0; i < data.length; i++) {
+                    var sym = data[i].symbol;
+                    if (!seen[sym]) {
+                        seen[sym] = true;
+                        var opt = document.createElement('option');
+                        opt.value = sym;
+                        opt.textContent = sym + ' (' + data[i].market + ')';
+                        dl.appendChild(opt);
+                    }
+                }
+            })
+            .catch(function() {});
+    }
+
+    // ---- Fetch holdings for a symbol ----
+    function fetchHoldings(symbol) {
+        if (!symbol) {
+            hideHoldingsInfo();
+            return;
+        }
+        fetch('/api/holdings/' + encodeURIComponent(symbol))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                holdingsCache = data;
+                var tradeType = getSelectedRadio('trade-type');
+                if (tradeType === 'sell' && data.remaining_shares > 0) {
+                    showHoldingsInfo(data);
+                } else if (tradeType === 'sell') {
+                    showHoldingsInfo(data);
+                } else {
+                    hideHoldingsInfo();
+                }
+            })
+            .catch(function() {
+                holdingsCache = null;
+                hideHoldingsInfo();
+            });
+    }
+
+    function showHoldingsInfo(data) {
+        var bar = document.getElementById('holdings-info-bar');
+        document.getElementById('holdings-shares-display').textContent = '持有 ' + fmt(data.remaining_shares) + ' 股';
+        document.getElementById('holdings-avg-display').textContent = '均價 $' + fmt(data.avg_cost);
+        document.getElementById('holdings-market-display').textContent = '市場: ' + data.market;
+        bar.style.display = 'block';
+
+        // Auto-fill market radio
+        var marketRadios = document.getElementsByName('trade-market');
+        for (var i = 0; i < marketRadios.length; i++) {
+            if (marketRadios[i].value === data.market) {
+                marketRadios[i].checked = true;
+                onMarketChange();
+            }
+        }
+
+        // Auto-fill shares if empty or unchanged
+        var sharesInput = document.getElementById('trade-shares');
+        if (!sharesInput.value || parseFloat(sharesInput.value) === 0) {
+            sharesInput.value = data.remaining_shares;
+            debounceFeePreview();
+        }
+
+        // Show profit calculator
+        showProfitCalculator(data);
+    }
+
+    function hideHoldingsInfo() {
+        document.getElementById('holdings-info-bar').style.display = 'none';
+        document.getElementById('profit-calculator').style.display = 'none';
+    }
+
+    function showProfitCalculator(data) {
+        var calc = document.getElementById('profit-calculator');
+        calc.style.display = 'block';
+        document.getElementById('calc-avg-cost').textContent = '$' + fmt(data.avg_cost);
+        document.getElementById('calc-remaining').textContent = fmt(data.remaining_shares) + ' 股';
+        updateProfitCalc();
+    }
+
+    function updateProfitCalc() {
+        if (!holdingsCache || profitCalcUpdating) return;
+        var price = parseFloat(document.getElementById('trade-price').value);
+        var shares = parseFloat(document.getElementById('trade-shares').value);
+        var avgCost = holdingsCache.avg_cost;
+        var resultDiv = document.getElementById('calc-result');
+
+        if (price > 0 && shares > 0 && avgCost > 0) {
+            var profit = (price - avgCost) * shares;
+            var rate = ((price - avgCost) / avgCost) * 100;
+            var profitColor = profit >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+            document.getElementById('calc-profit-display').textContent = (profit >= 0 ? '+' : '') + fmt(profit);
+            document.getElementById('calc-profit-display').style.color = profitColor;
+            document.getElementById('calc-rate-display').textContent = (rate >= 0 ? '+' : '') + rate.toFixed(2) + '%';
+            document.getElementById('calc-rate-display').style.color = profitColor;
+            resultDiv.style.display = 'block';
+
+            // Sync expected profit field (unless it triggered this update)
+            var profitInput = document.getElementById('calc-expected-profit');
+            if (document.activeElement !== profitInput) {
+                profitInput.value = profit.toFixed(2);
+            }
+        } else {
+            resultDiv.style.display = 'none';
+        }
+    }
+
+    function onExpectedProfitInput() {
+        if (!holdingsCache) return;
+        var expectedProfit = parseFloat(document.getElementById('calc-expected-profit').value);
+        var shares = parseFloat(document.getElementById('trade-shares').value);
+        var avgCost = holdingsCache.avg_cost;
+
+        if (!isNaN(expectedProfit) && shares > 0 && avgCost > 0) {
+            var targetPrice = avgCost + (expectedProfit / shares);
+            profitCalcUpdating = true;
+            document.getElementById('trade-price').value = targetPrice.toFixed(2);
+            profitCalcUpdating = false;
+            debounceFeePreview();
+            // Update display
+            var profit = expectedProfit;
+            var rate = ((targetPrice - avgCost) / avgCost) * 100;
+            var profitColor = profit >= 0 ? 'var(--secondary)' : 'var(--danger)';
+            document.getElementById('calc-profit-display').textContent = (profit >= 0 ? '+' : '') + fmt(profit);
+            document.getElementById('calc-profit-display').style.color = profitColor;
+            document.getElementById('calc-rate-display').textContent = (rate >= 0 ? '+' : '') + rate.toFixed(2) + '%';
+            document.getElementById('calc-rate-display').style.color = profitColor;
+            document.getElementById('calc-result').style.display = 'block';
+        }
+    }
+
+    // ---- Open Add Trade Modal ----
+    window.openAddTradeModal = function() {
+        // Auto-fill today's date if empty
+        var dateInput = document.getElementById('trade-date');
+        if (!dateInput.value) {
+            dateInput.value = todayStr();
+        }
+        openModal('modal-add-trade');
+    };
+
+    // ---- Symbol blur handler ----
+    window.onSymbolBlur = function() {
+        var tradeType = getSelectedRadio('trade-type');
+        var symbol = document.getElementById('trade-symbol').value.trim().toUpperCase();
+        if (tradeType === 'sell' && symbol) {
+            fetchHoldings(symbol);
+        }
+    };
+
+    // ---- Trade type change handler ----
+    function onTradeTypeChange() {
+        var tradeType = getSelectedRadio('trade-type');
+        if (tradeType === 'sell') {
+            var symbol = document.getElementById('trade-symbol').value.trim().toUpperCase();
+            if (symbol) {
+                fetchHoldings(symbol);
+            }
+        } else {
+            holdingsCache = null;
+            hideHoldingsInfo();
+            document.getElementById('calc-expected-profit').value = '';
+        }
+        debounceFeePreview();
     }
 
     // ---- Init ----
@@ -416,11 +634,13 @@
 
         var market = getSelectedRadio('trade-market');
         var tradeType = getSelectedRadio('trade-type');
+        var symbol = document.getElementById('trade-symbol').value.trim().toUpperCase();
         var body = {
             market: market,
             trade_type: tradeType,
             price: price,
-            shares: shares
+            shares: shares,
+            symbol: symbol
         };
 
         var brokerFee = parseFloat(document.getElementById('trade-broker-fee').value);
@@ -543,6 +763,11 @@
         var typeRadios = document.getElementsByName('trade-type');
         typeRadios[0].checked = true; // buy
         document.getElementById('broker-fee-group').style.display = 'none';
+        // Reset smart sell elements
+        holdingsCache = null;
+        hideHoldingsInfo();
+        document.getElementById('calc-expected-profit').value = '';
+        document.getElementById('calc-result').style.display = 'none';
     }
 
     // ---- Edit Trade ----
@@ -610,6 +835,32 @@
     // ---- Init ----
     document.addEventListener('DOMContentLoaded', function() {
         loadTrades();
+        loadSymbolSuggestions();
+
+        // Trade type radio change listeners
+        var typeRadios = document.getElementsByName('trade-type');
+        for (var i = 0; i < typeRadios.length; i++) {
+            typeRadios[i].addEventListener('change', onTradeTypeChange);
+        }
+
+        // Price input triggers profit calc update
+        document.getElementById('trade-price').addEventListener('input', function() {
+            var tradeType = getSelectedRadio('trade-type');
+            if (tradeType === 'sell' && holdingsCache) {
+                updateProfitCalc();
+            }
+        });
+
+        // Shares input triggers profit calc update
+        document.getElementById('trade-shares').addEventListener('input', function() {
+            var tradeType = getSelectedRadio('trade-type');
+            if (tradeType === 'sell' && holdingsCache) {
+                updateProfitCalc();
+            }
+        });
+
+        // Expected profit input
+        document.getElementById('calc-expected-profit').addEventListener('input', onExpectedProfitInput);
     });
 
     // Escape key closes modals

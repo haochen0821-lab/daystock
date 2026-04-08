@@ -207,6 +207,139 @@
         background: transparent;
     }
 
+    .btn-delete {
+        padding: 5px 12px;
+        border: 1px solid rgba(255, 74, 110, 0.3);
+        border-radius: 6px;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: transparent;
+        color: var(--danger);
+    }
+    .btn-delete:hover {
+        background: rgba(255, 74, 110, 0.15);
+    }
+    body.theme-light .btn-delete {
+        border-color: rgba(229, 62, 62, 0.3);
+    }
+    body.theme-light .btn-delete:hover {
+        background: rgba(229, 62, 62, 0.1);
+    }
+
+    .btn-create-user {
+        padding: 8px 16px;
+        background: var(--primary);
+        color: var(--bg);
+        border: none;
+        border-radius: 8px;
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+        white-space: nowrap;
+    }
+    .btn-create-user:hover {
+        opacity: 0.85;
+    }
+    .search-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .search-row .search-bar {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    /* Create User Modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9000;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-overlay.active {
+        display: flex;
+    }
+    .modal-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        width: 90%;
+        max-width: 420px;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+    }
+    .modal-box h3 {
+        margin: 0 0 20px 0;
+        font-size: 18px;
+        color: var(--text);
+    }
+    .modal-field {
+        margin-bottom: 14px;
+    }
+    .modal-field label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 4px;
+    }
+    .modal-field input,
+    .modal-field select {
+        width: 100%;
+        padding: 10px 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        box-sizing: border-box;
+    }
+    .modal-field input:focus,
+    .modal-field select:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+    .modal-btn {
+        padding: 8px 20px;
+        border-radius: 8px;
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        transition: all 0.2s ease;
+    }
+    .modal-btn-cancel {
+        background: transparent;
+        color: var(--muted);
+    }
+    .modal-btn-cancel:hover {
+        background: var(--bg);
+    }
+    .modal-btn-submit {
+        background: var(--primary);
+        color: var(--bg);
+        border-color: var(--primary);
+    }
+    .modal-btn-submit:hover {
+        opacity: 0.85;
+    }
+
     .empty-state {
         text-align: center;
         padding: 40px 20px;
@@ -319,9 +452,43 @@
     </div>
 </div>
 
-<!-- Search Bar -->
-<div class="search-bar">
-    <input type="text" id="searchInput" placeholder="搜尋帳號或信箱..." data-i18n-placeholder="admin.search_placeholder" oninput="filterUsers()">
+<!-- Search Bar + Create Button -->
+<div class="search-row">
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="搜尋帳號或信箱..." data-i18n-placeholder="admin.search_placeholder" oninput="filterUsers()">
+    </div>
+    <button class="btn-create-user" onclick="openCreateUser()" data-i18n="admin.create_user">&#x2795; 新增用戶</button>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal-overlay" id="createUserModal">
+    <div class="modal-box">
+        <h3 data-i18n="admin.create_user_title">新增用戶</h3>
+        <div class="modal-field">
+            <label data-i18n="admin.field_username">帳號</label>
+            <input type="text" id="newUsername" autocomplete="off">
+        </div>
+        <div class="modal-field">
+            <label data-i18n="admin.field_email">信箱</label>
+            <input type="email" id="newEmail" autocomplete="off">
+        </div>
+        <div class="modal-field">
+            <label data-i18n="admin.field_password">密碼（至少 8 字元）</label>
+            <input type="password" id="newPassword" autocomplete="new-password">
+        </div>
+        <div class="modal-field">
+            <label data-i18n="admin.field_role">角色</label>
+            <select id="newRole">
+                <option value="member">member</option>
+                <option value="admin">admin</option>
+                <option value="superadmin">superadmin</option>
+            </select>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="closeCreateUser()" data-i18n="admin.cancel">取消</button>
+            <button class="modal-btn modal-btn-submit" onclick="submitCreateUser()" data-i18n="admin.create">建立</button>
+        </div>
+    </div>
 </div>
 
 <!-- Users Table -->
@@ -426,6 +593,11 @@ function renderUsers(users) {
             actionsHtml += '<button class="btn-toggle btn-toggle-enable" data-i18n="admin.enable" onclick="toggleUser(' + u.id + ')"' + toggleDisabled + '>啟用</button>';
         }
 
+        // Delete button - superadmin only, not self
+        if (CURRENT_USER_ROLE === 'superadmin' && !isSelf) {
+            actionsHtml += '<button class="btn-delete" data-i18n="admin.delete" onclick="deleteUser(' + u.id + ', \'' + escHtml(u.username).replace(/'/g, "\\'") + '\')">刪除</button>';
+        }
+
         actionsHtml += '</div>';
 
         html += '<tr>' +
@@ -495,6 +667,65 @@ async function toggleUser(userId) {
         loadUsers();
     } catch (e) {
         toast('切換狀態失敗', 'error');
+    }
+}
+
+function openCreateUser() {
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newEmail').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('newRole').value = 'member';
+    document.getElementById('createUserModal').classList.add('active');
+}
+
+function closeCreateUser() {
+    document.getElementById('createUserModal').classList.remove('active');
+}
+
+async function submitCreateUser() {
+    var username = document.getElementById('newUsername').value.trim();
+    var email = document.getElementById('newEmail').value.trim();
+    var password = document.getElementById('newPassword').value;
+    var role = document.getElementById('newRole').value;
+
+    if (!username || !email || password.length < 8) {
+        toast('請填寫帳號、信箱，密碼至少 8 字元', 'error');
+        return;
+    }
+
+    try {
+        var data = await apiCall('/api/admin/users', 'POST', {
+            username: username,
+            email: email,
+            password: password,
+            role: role
+        });
+        if (data.error) {
+            toast(data.error, 'error');
+            return;
+        }
+        toast(data.message || '用戶建立成功');
+        closeCreateUser();
+        loadUsers();
+    } catch (e) {
+        toast('建立用戶失敗', 'error');
+    }
+}
+
+async function deleteUser(userId, username) {
+    if (!confirm('確定要刪除用戶「' + username + '」？此操作無法復原。')) {
+        return;
+    }
+    try {
+        var data = await apiCall('/api/admin/users/' + userId, 'DELETE');
+        if (data.error) {
+            toast(data.error, 'error');
+            return;
+        }
+        toast(data.message || '用戶已刪除');
+        loadUsers();
+    } catch (e) {
+        toast('刪除用戶失敗', 'error');
     }
 }
 

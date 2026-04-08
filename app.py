@@ -753,6 +753,35 @@ def api_delete_trade(trade_id):
     return jsonify({'success': True})
 
 
+@app.route('/api/holdings/<symbol>')
+@login_required
+def api_get_holding(symbol):
+    """Return current holding info for a symbol (for smart sell form)."""
+    symbol = symbol.strip().upper()
+    # Get all buy and sell trades for this symbol
+    buys = Trade.query.filter_by(user_id=current_user.id, symbol=symbol, trade_type='buy').all()
+    sells = Trade.query.filter_by(user_id=current_user.id, symbol=symbol, trade_type='sell').all()
+
+    total_buy_shares = sum(t.shares for t in buys)
+    total_buy_cost = sum(t.price * t.shares for t in buys)
+    total_sell_shares = sum(t.shares for t in sells)
+
+    remaining_shares = total_buy_shares - total_sell_shares
+    avg_cost = (total_buy_cost / total_buy_shares) if total_buy_shares > 0 else 0
+
+    # Get market from most recent buy
+    market = buys[-1].market if buys else 'TW'
+
+    return jsonify({
+        'symbol': symbol,
+        'market': market,
+        'remaining_shares': remaining_shares,
+        'avg_cost': round(avg_cost, 4),
+        'total_buy_shares': total_buy_shares,
+        'total_sell_shares': total_sell_shares,
+    })
+
+
 @app.route('/api/fees/preview', methods=['POST'])
 @login_required
 def api_fees_preview():
@@ -2450,6 +2479,48 @@ def api_admin_toggle_user(uid):
     user.status = 'disabled' if user.status == 'active' else 'active'
     db.session.commit()
     return jsonify({'success': True, 'status': user.status})
+
+
+@app.route('/api/admin/users', methods=['POST'])
+@login_required
+def api_admin_create_user():
+    if current_user.role not in ('admin', 'superadmin'):
+        return jsonify({'error': '需要管理員權限'}), 403
+    data = request.get_json()
+    username = (data.get('username') or '').strip()
+    email = (data.get('email') or '').strip()
+    password = data.get('password') or ''
+    role = data.get('role', 'member')
+
+    if not username or not email or len(password) < 8:
+        return jsonify({'error': '請填寫帳號、信箱，密碼至少 8 字元'}), 400
+
+    if User.query.filter((User.username == username) | (User.email == email)).first():
+        return jsonify({'error': '帳號或信箱已被使用'}), 400
+
+    user = User(
+        username=username,
+        email=email,
+        password_hash=generate_password_hash(password),
+        role=role,
+        status='active'
+    )
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({'success': True, 'message': '用戶建立成功'})
+
+
+@app.route('/api/admin/users/<int:uid>', methods=['DELETE'])
+@login_required
+def api_admin_delete_user(uid):
+    if current_user.role != 'superadmin':
+        return jsonify({'error': '需要超級管理員權限'}), 403
+    if uid == current_user.id:
+        return jsonify({'error': '無法刪除自己'}), 400
+    user = User.query.get_or_404(uid)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'success': True, 'message': '用戶已刪除'})
 
 
 # ══════════════════════════════════════════════════════════
