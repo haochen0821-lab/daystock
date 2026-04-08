@@ -1,0 +1,11 @@
+instance/
+data/
+*.db
+*.pyc
+__pycache__/
+.env
+*.egg-info/
+dist/
+build/
+.vscode/
+.browser_opened

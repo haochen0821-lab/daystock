@@ -1,0 +1,622 @@
+{% extends "base.html" %}
+{% block title %}Trades{% endblock %}
+
+{% block content %}
+<div style="max-width:1280px;margin:0 auto;padding:16px;">
+
+    <!-- Top Stats Cards -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;" id="stats-cards">
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Commission</div>
+            <div id="stat-commission" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        </div>
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Tax</div>
+            <div id="stat-tax" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        </div>
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Fees</div>
+            <div id="stat-fees" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:14px 18px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+            <label style="margin:0;color:#64748b;font-size:12px;white-space:nowrap;">Market</label>
+            <select id="filter-market" style="width:auto;min-width:80px;padding:7px 10px;background:#0a0f1e;border:1px solid #1e2d4a;border-radius:6px;color:#e8eef7;font-size:13px;">
+                <option value="">All</option>
+                <option value="TW">TW</option>
+                <option value="US">US</option>
+            </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+            <label style="margin:0;color:#64748b;font-size:12px;white-space:nowrap;">Type</label>
+            <select id="filter-type" style="width:auto;min-width:80px;padding:7px 10px;background:#0a0f1e;border:1px solid #1e2d4a;border-radius:6px;color:#e8eef7;font-size:13px;">
+                <option value="">All</option>
+                <option value="buy">Buy</option>
+                <option value="sell">Sell</option>
+            </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+            <label style="margin:0;color:#64748b;font-size:12px;white-space:nowrap;">Symbol</label>
+            <input type="text" id="filter-symbol" placeholder="e.g. AAPL" style="width:auto;min-width:100px;padding:7px 10px;background:#0a0f1e;border:1px solid #1e2d4a;border-radius:6px;color:#e8eef7;font-size:13px;">
+        </div>
+        <button onclick="loadTrades()" style="padding:8px 18px;background:#00d4ff;color:#0a0f1e;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;">Filter</button>
+    </div>
+
+    <!-- Add Trade Button -->
+    <div style="margin-bottom:20px;">
+        <button onclick="openModal('modal-add-trade')" style="padding:10px 22px;background:#00d4ff;color:#0a0f1e;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;">+ Add Trade</button>
+    </div>
+
+    <!-- Trades Table -->
+    <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;overflow-x:auto;">
+        <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">Trade History</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;" id="trades-table">
+            <thead>
+                <tr style="border-bottom:1px solid #1e2d4a;">
+                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Date</th>
+                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Symbol</th>
+                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Market</th>
+                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Type</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Price</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Shares</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;cursor:pointer;" title="Click for fee detail">Fees</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Net Amount</th>
+                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Reason</th>
+                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Account</th>
+                    <th style="text-align:center;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="trades-tbody">
+                <tr><td colspan="11" style="text-align:center;padding:40px;color:#4a5a7a;">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Trade Modal -->
+<div class="modal-overlay" id="modal-add-trade">
+    <div class="modal" style="max-width:560px;">
+        <div class="modal-header">
+            <h3>Add Trade</h3>
+            <button class="modal-close" onclick="closeModal('modal-add-trade')">&times;</button>
+        </div>
+
+        <div class="form-group">
+            <label>Market</label>
+            <div style="display:flex;gap:16px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#e8eef7;font-size:13px;">
+                    <input type="radio" name="trade-market" value="TW" checked onchange="onMarketChange()"> TW
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#e8eef7;font-size:13px;">
+                    <input type="radio" name="trade-market" value="US" onchange="onMarketChange()"> US
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Trade Type</label>
+            <div style="display:flex;gap:16px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#e8eef7;font-size:13px;">
+                    <input type="radio" name="trade-type" value="buy" checked> Buy
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#e8eef7;font-size:13px;">
+                    <input type="radio" name="trade-type" value="sell"> Sell
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Symbol</label>
+            <input type="text" id="trade-symbol" placeholder="e.g. AAPL, 2330" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="form-group">
+                <label>Price</label>
+                <input type="number" id="trade-price" placeholder="0.00" step="any" min="0" oninput="debounceFeePreview()">
+            </div>
+            <div class="form-group">
+                <label>Shares</label>
+                <input type="number" id="trade-shares" placeholder="0" step="any" min="0" oninput="debounceFeePreview()">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="trade-date">
+        </div>
+
+        <div class="form-group">
+            <label>Account / Broker (optional)</label>
+            <input type="text" id="trade-account" placeholder="e.g. Fubon, Firstrade">
+        </div>
+
+        <div class="form-group">
+            <label>Reason Tag</label>
+            <select id="trade-reason">
+                <option value="">-- Select --</option>
+                <option value="技術面">技術面</option>
+                <option value="基本面">基本面</option>
+                <option value="消息面">消息面</option>
+                <option value="定期定額">定期定額</option>
+                <option value="跟單">跟單</option>
+                <option value="除息操作">除息操作</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Note (optional)</label>
+            <textarea id="trade-note" rows="3" placeholder="Trade notes..."></textarea>
+        </div>
+
+        <div class="form-group" id="broker-fee-group" style="display:none;">
+            <label>Broker Fee (USD)</label>
+            <input type="number" id="trade-broker-fee" placeholder="0.00" step="any" min="0" oninput="debounceFeePreview()">
+        </div>
+
+        <!-- Live Fee Preview -->
+        <div id="fee-preview" style="display:none;background:#0a0f1e;border:1px solid #1e2d4a;border-radius:8px;padding:14px;margin-bottom:16px;">
+            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Fee Preview</div>
+            <div id="fee-preview-items" style="font-size:13px;color:#e8eef7;"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-add-trade')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitTrade()">Submit</button>
+        </div>
+    </div>
+</div>
+
+<!-- Fee Detail Modal -->
+<div class="modal-overlay" id="modal-fee-detail">
+    <div class="modal" style="max-width:440px;">
+        <div class="modal-header">
+            <h3>Fee Breakdown</h3>
+            <button class="modal-close" onclick="closeModal('modal-fee-detail')">&times;</button>
+        </div>
+        <div id="fee-detail-content" style="font-size:13px;color:#e8eef7;">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2d4a;">
+                <span style="color:#8fa4c4;">Commission</span>
+                <span id="fd-commission">--</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2d4a;">
+                <span style="color:#8fa4c4;">Transaction Tax</span>
+                <span id="fd-tax">--</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2d4a;">
+                <span style="color:#8fa4c4;">Health Premium</span>
+                <span id="fd-health">--</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2d4a;">
+                <span style="color:#8fa4c4;">SEC Fee</span>
+                <span id="fd-sec">--</span>
+            </div>
+            <div id="fd-health-badge" style="display:none;margin-top:10px;">
+                <span style="display:inline-block;padding:3px 10px;background:#92400e;color:#fbbf24;border-radius:12px;font-size:12px;font-weight:600;">健保</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-fee-detail')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Trade Modal -->
+<div class="modal-overlay" id="modal-edit-trade">
+    <div class="modal" style="max-width:440px;">
+        <div class="modal-header">
+            <h3>Edit Trade</h3>
+            <button class="modal-close" onclick="closeModal('modal-edit-trade')">&times;</button>
+        </div>
+        <input type="hidden" id="edit-trade-id">
+        <div class="form-group">
+            <label>Account / Broker</label>
+            <input type="text" id="edit-trade-account" placeholder="e.g. Fubon, Firstrade">
+        </div>
+        <div class="form-group">
+            <label>Reason Tag</label>
+            <select id="edit-trade-reason">
+                <option value="">-- Select --</option>
+                <option value="技術面">技術面</option>
+                <option value="基本面">基本面</option>
+                <option value="消息面">消息面</option>
+                <option value="定期定額">定期定額</option>
+                <option value="跟單">跟單</option>
+                <option value="除息操作">除息操作</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-edit-trade')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitEditTrade()">Save</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var allTrades = [];
+    var feePreviewTimer = null;
+
+    // ---- Helpers ----
+    function fmt(num) {
+        if (num == null || isNaN(num)) return '--';
+        return Number(num).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        var d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    function todayStr() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+
+    function getSelectedRadio(name) {
+        var radios = document.getElementsByName(name);
+        for (var i = 0; i < radios.length; i++) {
+            if (radios[i].checked) return radios[i].value;
+        }
+        return '';
+    }
+
+    function toast(msg, type) {
+        type = type || 'success';
+        var el = document.createElement('div');
+        el.textContent = msg;
+        var borderColor = type === 'success' ? '#00ff88' : '#ff4a6e';
+        var textColor = type === 'success' ? '#00ff88' : '#ff4a6e';
+        el.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:#0f1629;border:1px solid ' + borderColor + ';color:' + textColor + ';padding:10px 20px;border-radius:8px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,0.4);font-family:DM Mono,monospace;';
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 2500);
+    }
+
+    // ---- Init ----
+    document.getElementById('trade-date').value = todayStr();
+
+    // ---- Load Trades ----
+    window.loadTrades = function() {
+        var params = [];
+        var market = document.getElementById('filter-market').value;
+        var type = document.getElementById('filter-type').value;
+        var symbol = document.getElementById('filter-symbol').value.trim().toUpperCase();
+        if (market) params.push('market=' + encodeURIComponent(market));
+        if (type) params.push('trade_type=' + encodeURIComponent(type));
+        if (symbol) params.push('symbol=' + encodeURIComponent(symbol));
+        var qs = params.length ? '?' + params.join('&') : '';
+
+        fetch('/api/trades' + qs)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                allTrades = Array.isArray(data) ? data : (data.trades || []);
+                renderStats();
+                renderTable();
+            })
+            .catch(function(err) {
+                console.error('Failed to load trades:', err);
+                document.getElementById('trades-tbody').innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:#ff4a6e;">Failed to load trades</td></tr>';
+            });
+    };
+
+    function renderStats() {
+        var totalCommission = 0, totalTax = 0, totalFees = 0;
+        for (var i = 0; i < allTrades.length; i++) {
+            var t = allTrades[i];
+            totalCommission += Number(t.commission || 0);
+            totalTax += Number(t.transaction_tax || 0);
+            totalFees += Number(t.total_fee || t.commission || 0) + Number(t.transaction_tax || 0);
+        }
+        document.getElementById('stat-commission').textContent = fmt(totalCommission);
+        document.getElementById('stat-tax').textContent = fmt(totalTax);
+        document.getElementById('stat-fees').textContent = fmt(totalFees);
+    }
+
+    function renderTable() {
+        var tbody = document.getElementById('trades-tbody');
+        if (!allTrades.length) {
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:#4a5a7a;">No trades found</td></tr>';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < allTrades.length; i++) {
+            var t = allTrades[i];
+            var isBuy = (t.trade_type === 'buy');
+            var typeBadge = isBuy
+                ? '<span style="display:inline-block;padding:2px 10px;background:rgba(0,255,136,0.15);color:#00ff88;border-radius:12px;font-size:11px;font-weight:600;">BUY</span>'
+                : '<span style="display:inline-block;padding:2px 10px;background:rgba(255,74,110,0.15);color:#ff4a6e;border-radius:12px;font-size:11px;font-weight:600;">SELL</span>';
+
+            var fees = Number(t.total_fee || 0);
+            var price = Number(t.price || 0);
+            var shares = Number(t.shares || 0);
+            var gross = price * shares;
+            var netAmount = isBuy ? (gross + fees) : (gross - fees);
+
+            var healthBadge = '';
+            if (t.health_premium_triggered) {
+                healthBadge = ' <span style="display:inline-block;padding:1px 6px;background:#92400e;color:#fbbf24;border-radius:8px;font-size:10px;font-weight:600;">健保</span>';
+            }
+
+            var reasonTag = t.reason_tag ? escHtml(t.reason_tag) : '<span style="color:#4a5a7a;">--</span>';
+            var account = t.account ? escHtml(t.account) : '<span style="color:#4a5a7a;">--</span>';
+
+            html += '<tr style="border-bottom:1px solid #1e2d4a;">'
+                + '<td style="padding:10px 8px;color:#e8eef7;">' + escHtml(t.date || '') + '</td>'
+                + '<td style="padding:10px 8px;color:#00d4ff;font-weight:600;">' + escHtml(t.symbol || '') + '</td>'
+                + '<td style="padding:10px 8px;color:#8fa4c4;">' + escHtml(t.market || '') + '</td>'
+                + '<td style="padding:10px 8px;">' + typeBadge + healthBadge + '</td>'
+                + '<td style="padding:10px 8px;text-align:right;color:#e8eef7;">' + fmt(price) + '</td>'
+                + '<td style="padding:10px 8px;text-align:right;color:#e8eef7;">' + fmt(shares) + '</td>'
+                + '<td style="padding:10px 8px;text-align:right;color:#ffb800;cursor:pointer;text-decoration:underline dotted;" onclick="showFeeDetail(' + i + ')">' + fmt(fees) + '</td>'
+                + '<td style="padding:10px 8px;text-align:right;font-weight:600;color:' + (isBuy ? '#ff4a6e' : '#00ff88') + ';">' + fmt(netAmount) + '</td>'
+                + '<td style="padding:10px 8px;color:#8fa4c4;">' + reasonTag + '</td>'
+                + '<td style="padding:10px 8px;color:#8fa4c4;">' + account + '</td>'
+                + '<td style="padding:10px 8px;text-align:center;white-space:nowrap;">'
+                    + '<button onclick="openEditTrade(' + i + ')" style="background:none;border:1px solid #1e2d4a;color:#00d4ff;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;margin-right:4px;font-family:DM Mono,monospace;">Edit</button>'
+                    + '<button onclick="deleteTrade(' + t.id + ')" style="background:none;border:1px solid #1e2d4a;color:#ff4a6e;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:DM Mono,monospace;">Delete</button>'
+                + '</td>'
+                + '</tr>';
+        }
+        tbody.innerHTML = html;
+    }
+
+    // ---- Fee Detail Modal ----
+    window.showFeeDetail = function(idx) {
+        var t = allTrades[idx];
+        if (!t) return;
+        document.getElementById('fd-commission').textContent = fmt(t.commission || 0);
+        document.getElementById('fd-tax').textContent = fmt(t.transaction_tax || 0);
+        document.getElementById('fd-health').textContent = fmt(t.health_premium || 0);
+        document.getElementById('fd-sec').textContent = fmt(t.sec_fee || 0);
+        var badge = document.getElementById('fd-health-badge');
+        if (t.health_premium_triggered) {
+            badge.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+        }
+        openModal('modal-fee-detail');
+    };
+
+    // ---- Market Change (show/hide broker fee) ----
+    window.onMarketChange = function() {
+        var market = getSelectedRadio('trade-market');
+        var brokerFeeGroup = document.getElementById('broker-fee-group');
+        if (market === 'US') {
+            brokerFeeGroup.style.display = 'block';
+        } else {
+            brokerFeeGroup.style.display = 'none';
+            document.getElementById('trade-broker-fee').value = '';
+        }
+        debounceFeePreview();
+    };
+
+    // ---- Live Fee Preview (debounced) ----
+    window.debounceFeePreview = function() {
+        if (feePreviewTimer) clearTimeout(feePreviewTimer);
+        feePreviewTimer = setTimeout(fetchFeePreview, 400);
+    };
+
+    function fetchFeePreview() {
+        var price = parseFloat(document.getElementById('trade-price').value);
+        var shares = parseFloat(document.getElementById('trade-shares').value);
+        if (!price || !shares || price <= 0 || shares <= 0) {
+            document.getElementById('fee-preview').style.display = 'none';
+            return;
+        }
+
+        var market = getSelectedRadio('trade-market');
+        var tradeType = getSelectedRadio('trade-type');
+        var body = {
+            market: market,
+            trade_type: tradeType,
+            price: price,
+            shares: shares
+        };
+
+        var brokerFee = parseFloat(document.getElementById('trade-broker-fee').value);
+        if (market === 'US' && brokerFee > 0) {
+            body.broker_fee = brokerFee;
+        }
+
+        fetch('/api/fees/preview', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var container = document.getElementById('fee-preview');
+            var items = document.getElementById('fee-preview-items');
+            var html = '';
+
+            if (data.commission != null) {
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;">Commission</span><span>' + fmt(data.commission) + '</span></div>';
+            }
+            if (data.transaction_tax != null) {
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;">Transaction Tax</span><span>' + fmt(data.transaction_tax) + '</span></div>';
+            }
+            if (data.health_premium != null) {
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;">Health Premium</span><span>' + fmt(data.health_premium) + '</span></div>';
+            }
+            if (data.sec_fee != null) {
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;">SEC Fee</span><span>' + fmt(data.sec_fee) + '</span></div>';
+            }
+            if (data.broker_fee != null) {
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;">Broker Fee</span><span>' + fmt(data.broker_fee) + '</span></div>';
+            }
+            if (data.total_fee != null) {
+                html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid #1e2d4a;margin-top:4px;font-weight:600;"><span style="color:#ffb800;">Total Fees</span><span style="color:#ffb800;">' + fmt(data.total_fee) + '</span></div>';
+            }
+            if (data.net_amount != null) {
+                var netColor = tradeType === 'buy' ? '#ff4a6e' : '#00ff88';
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600;"><span style="color:' + netColor + ';">Net Amount</span><span style="color:' + netColor + ';">' + fmt(data.net_amount) + '</span></div>';
+            }
+
+            items.innerHTML = html;
+            container.style.display = html ? 'block' : 'none';
+        })
+        .catch(function() {
+            document.getElementById('fee-preview').style.display = 'none';
+        });
+    }
+
+    // ---- Submit Trade ----
+    window.submitTrade = function() {
+        var symbol = document.getElementById('trade-symbol').value.trim().toUpperCase();
+        var price = parseFloat(document.getElementById('trade-price').value);
+        var shares = parseFloat(document.getElementById('trade-shares').value);
+        var date = document.getElementById('trade-date').value;
+        var market = getSelectedRadio('trade-market');
+        var tradeType = getSelectedRadio('trade-type');
+
+        if (!symbol) { toast('Please enter a symbol', 'error'); return; }
+        if (!price || price <= 0) { toast('Please enter a valid price', 'error'); return; }
+        if (!shares || shares <= 0) { toast('Please enter valid shares', 'error'); return; }
+        if (!date) { toast('Please select a date', 'error'); return; }
+
+        var body = {
+            symbol: symbol,
+            market: market,
+            trade_type: tradeType,
+            price: price,
+            shares: shares,
+            date: date,
+            account: document.getElementById('trade-account').value.trim() || null,
+            reason_tag: document.getElementById('trade-reason').value || null,
+            note: document.getElementById('trade-note').value.trim() || null
+        };
+
+        var brokerFee = parseFloat(document.getElementById('trade-broker-fee').value);
+        if (market === 'US' && brokerFee > 0) {
+            body.broker_fee = brokerFee;
+        }
+
+        fetch('/api/trades', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                toast(data.error, 'error');
+                return;
+            }
+            toast('Trade added successfully');
+            closeModal('modal-add-trade');
+            resetAddForm();
+            loadTrades();
+        })
+        .catch(function(err) {
+            toast('Failed to add trade', 'error');
+            console.error(err);
+        });
+    };
+
+    function resetAddForm() {
+        document.getElementById('trade-symbol').value = '';
+        document.getElementById('trade-price').value = '';
+        document.getElementById('trade-shares').value = '';
+        document.getElementById('trade-date').value = todayStr();
+        document.getElementById('trade-account').value = '';
+        document.getElementById('trade-reason').value = '';
+        document.getElementById('trade-note').value = '';
+        document.getElementById('trade-broker-fee').value = '';
+        document.getElementById('fee-preview').style.display = 'none';
+        document.getElementById('fee-preview-items').innerHTML = '';
+        // Reset radios to defaults
+        var marketRadios = document.getElementsByName('trade-market');
+        marketRadios[0].checked = true; // TW
+        var typeRadios = document.getElementsByName('trade-type');
+        typeRadios[0].checked = true; // buy
+        document.getElementById('broker-fee-group').style.display = 'none';
+    }
+
+    // ---- Edit Trade ----
+    window.openEditTrade = function(idx) {
+        var t = allTrades[idx];
+        if (!t) return;
+        document.getElementById('edit-trade-id').value = t.id;
+        document.getElementById('edit-trade-account').value = t.account || '';
+        document.getElementById('edit-trade-reason').value = t.reason_tag || '';
+        openModal('modal-edit-trade');
+    };
+
+    window.submitEditTrade = function() {
+        var id = document.getElementById('edit-trade-id').value;
+        if (!id) return;
+
+        var body = {
+            account: document.getElementById('edit-trade-account').value.trim() || null,
+            reason_tag: document.getElementById('edit-trade-reason').value || null
+        };
+
+        fetch('/api/trades/' + id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                toast(data.error, 'error');
+                return;
+            }
+            toast('Trade updated');
+            closeModal('modal-edit-trade');
+            loadTrades();
+        })
+        .catch(function(err) {
+            toast('Failed to update trade', 'error');
+            console.error(err);
+        });
+    };
+
+    // ---- Delete Trade ----
+    window.deleteTrade = function(id) {
+        if (!confirm('Are you sure you want to delete this trade? This action cannot be undone.')) return;
+        fetch('/api/trades/' + id, {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                toast(data.error, 'error');
+                return;
+            }
+            toast('Trade deleted');
+            loadTrades();
+        })
+        .catch(function(err) {
+            toast('Failed to delete trade', 'error');
+            console.error(err);
+        });
+    };
+
+    // ---- Init ----
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTrades();
+    });
+
+    // Escape key closes modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.active').forEach(function(m) {
+                m.classList.remove('active');
+            });
+        }
+    });
+})();
+</script>
+{% endblock %}

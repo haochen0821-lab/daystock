@@ -1,0 +1,739 @@
+{% extends "base.html" %}
+{% block title %}Journal{% endblock %}
+
+{% block content %}
+<style>
+    .journal-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 20px;
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+
+    /* ===== Calendar ===== */
+    .calendar-panel {
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .calendar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .calendar-header h2 {
+        font-size: 18px;
+        color: #e8eef7;
+        min-width: 180px;
+        text-align: center;
+    }
+
+    .calendar-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .cal-btn {
+        background: #1e2d4a;
+        border: none;
+        color: #e8eef7;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+
+    .cal-btn:hover {
+        background: #2a3d5e;
+    }
+
+    .cal-btn-today {
+        width: auto;
+        padding: 0 14px;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+        margin-bottom: 4px;
+    }
+
+    .calendar-weekdays span {
+        text-align: center;
+        font-size: 11px;
+        color: #4a5a7a;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 6px 0;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 2px;
+    }
+
+    .cal-cell {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+        position: relative;
+        font-size: 13px;
+        color: #8fa4c4;
+        min-height: 44px;
+    }
+
+    .cal-cell:hover {
+        background: rgba(0, 212, 255, 0.08);
+    }
+
+    .cal-cell.empty {
+        cursor: default;
+    }
+
+    .cal-cell.empty:hover {
+        background: transparent;
+    }
+
+    .cal-cell.today {
+        border: 2px solid #00d4ff;
+        color: #00d4ff;
+        font-weight: 700;
+    }
+
+    .cal-cell.selected {
+        background: rgba(0, 212, 255, 0.15);
+        color: #00d4ff;
+        font-weight: 700;
+    }
+
+    .cal-cell.other-month {
+        color: #2a3552;
+    }
+
+    .mood-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        margin-top: 3px;
+    }
+
+    /* ===== Editor ===== */
+    .editor-panel {
+        position: sticky;
+        top: 80px;
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 12px;
+        padding: 20px;
+        height: fit-content;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+
+    .editor-panel::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .editor-panel::-webkit-scrollbar-thumb {
+        background: #1e2d4a;
+        border-radius: 2px;
+    }
+
+    .editor-date {
+        font-family: 'Syne', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #00d4ff;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #1e2d4a;
+    }
+
+    .editor-empty {
+        color: #4a5a7a;
+        font-size: 14px;
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .editor-section {
+        margin-bottom: 18px;
+    }
+
+    .editor-section label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 11px;
+        color: #4a5a7a;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    /* Mood selector */
+    .mood-selector {
+        display: flex;
+        gap: 6px;
+    }
+
+    .mood-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 10px 4px;
+        background: #0a0f1e;
+        border: 2px solid #1e2d4a;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .mood-btn:hover {
+        border-color: #3a4d6a;
+        background: #111829;
+    }
+
+    .mood-btn.active {
+        border-color: var(--mood-color, #00d4ff);
+        background: rgba(0, 212, 255, 0.08);
+        box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+    }
+
+    .mood-btn .mood-emoji {
+        font-size: 22px;
+        line-height: 1;
+    }
+
+    .mood-btn .mood-label {
+        font-size: 9px;
+        color: #4a5a7a;
+        font-family: 'DM Mono', monospace;
+        white-space: nowrap;
+    }
+
+    .mood-btn.active .mood-label {
+        color: #8fa4c4;
+    }
+
+    /* Market view selector */
+    .market-selector {
+        display: flex;
+        gap: 8px;
+    }
+
+    .market-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 8px;
+        background: #0a0f1e;
+        border: 2px solid #1e2d4a;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        color: #8fa4c4;
+        transition: all 0.2s;
+    }
+
+    .market-btn:hover {
+        border-color: #3a4d6a;
+        background: #111829;
+    }
+
+    .market-btn .market-icon {
+        font-size: 18px;
+    }
+
+    .market-btn.active[data-value="bullish"] {
+        border-color: #00ff88;
+        background: rgba(0, 255, 136, 0.08);
+        color: #00ff88;
+    }
+
+    .market-btn.active[data-value="neutral"] {
+        border-color: #ffb800;
+        background: rgba(255, 184, 0, 0.08);
+        color: #ffb800;
+    }
+
+    .market-btn.active[data-value="bearish"] {
+        border-color: #ff4a6e;
+        background: rgba(255, 74, 110, 0.08);
+        color: #ff4a6e;
+    }
+
+    .journal-textarea {
+        width: 100%;
+        min-height: 160px;
+        padding: 12px 14px;
+        background: #0a0f1e;
+        border: 1px solid #1e2d4a;
+        border-radius: 8px;
+        color: #e8eef7;
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        line-height: 1.7;
+        resize: vertical;
+        transition: border-color 0.2s;
+    }
+
+    .journal-textarea:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    .editor-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 4px;
+    }
+
+    .editor-actions .btn {
+        flex: 1;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 900px) {
+        .journal-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .editor-panel {
+            position: static;
+            max-height: none;
+        }
+    }
+</style>
+
+<div class="journal-layout">
+    <!-- Left: Calendar -->
+    <div class="calendar-panel">
+        <div class="calendar-header">
+            <div class="calendar-nav">
+                <button class="cal-btn" id="prevMonth" title="Previous month">&#9664;</button>
+            </div>
+            <h2 id="calendarTitle">--</h2>
+            <div class="calendar-nav">
+                <button class="cal-btn cal-btn-today" id="todayBtn">Today</button>
+                <button class="cal-btn" id="nextMonth" title="Next month">&#9654;</button>
+            </div>
+        </div>
+        <div class="calendar-weekdays">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- Right: Editor -->
+    <div class="editor-panel" id="editorPanel">
+        <div class="editor-empty" id="editorEmpty">Select a date to write</div>
+        <div id="editorForm" style="display:none;">
+            <div class="editor-date" id="editorDate">--</div>
+
+            <div class="editor-section">
+                <label>Mood</label>
+                <div class="mood-selector" id="moodSelector">
+                    <button type="button" class="mood-btn" data-value="very_good" style="--mood-color:#00ff88;">
+                        <span class="mood-emoji">&#x1F604;</span>
+                        <span class="mood-label">Very Good</span>
+                    </button>
+                    <button type="button" class="mood-btn" data-value="good" style="--mood-color:#00d4ff;">
+                        <span class="mood-emoji">&#x1F642;</span>
+                        <span class="mood-label">Nice</span>
+                    </button>
+                    <button type="button" class="mood-btn" data-value="neutral" style="--mood-color:#ffb800;">
+                        <span class="mood-emoji">&#x1F610;</span>
+                        <span class="mood-label">Neutral</span>
+                    </button>
+                    <button type="button" class="mood-btn" data-value="bad" style="--mood-color:#ff8c42;">
+                        <span class="mood-emoji">&#x1F615;</span>
+                        <span class="mood-label">Bad</span>
+                    </button>
+                    <button type="button" class="mood-btn" data-value="terrible" style="--mood-color:#ff4a6e;">
+                        <span class="mood-emoji">&#x1F62B;</span>
+                        <span class="mood-label">Terrible</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="editor-section">
+                <label>Market View</label>
+                <div class="market-selector" id="marketSelector">
+                    <button type="button" class="market-btn" data-value="bullish">
+                        <span class="market-icon">&#x1F402;</span>
+                        <span>Bullish</span>
+                    </button>
+                    <button type="button" class="market-btn" data-value="neutral">
+                        <span class="market-icon">&#x2696;</span>
+                        <span>Neutral</span>
+                    </button>
+                    <button type="button" class="market-btn" data-value="bearish">
+                        <span class="market-icon">&#x1F43B;</span>
+                        <span>Bearish</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="editor-section">
+                <label>Content</label>
+                <textarea class="journal-textarea" id="journalContent" placeholder="Write your trading thoughts..."></textarea>
+            </div>
+
+            <div class="editor-actions">
+                <button class="btn btn-primary" id="saveBtn">Save</button>
+                <button class="btn btn-danger" id="deleteBtn" style="display:none;">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // ===== State =====
+    var currentYear, currentMonth; // 0-indexed month
+    var selectedDate = null;       // 'YYYY-MM-DD'
+    var currentJournalId = null;
+    var journalMap = {};           // 'YYYY-MM-DD' -> { mood, ... }
+
+    var MOOD_COLORS = {
+        very_good: '#00ff88',
+        good:      '#00d4ff',
+        neutral:   '#ffb800',
+        bad:       '#ff8c42',
+        terrible:  '#ff4a6e'
+    };
+
+    var MONTH_NAMES = [
+        'January','February','March','April','May','June',
+        'July','August','September','October','November','December'
+    ];
+
+    // ===== DOM refs =====
+    var calendarGrid = document.getElementById('calendarGrid');
+    var calendarTitle = document.getElementById('calendarTitle');
+    var editorEmpty = document.getElementById('editorEmpty');
+    var editorForm = document.getElementById('editorForm');
+    var editorDate = document.getElementById('editorDate');
+    var journalContent = document.getElementById('journalContent');
+    var saveBtn = document.getElementById('saveBtn');
+    var deleteBtn = document.getElementById('deleteBtn');
+    var moodSelector = document.getElementById('moodSelector');
+    var marketSelector = document.getElementById('marketSelector');
+
+    // ===== Init =====
+    var today = new Date();
+    currentYear = today.getFullYear();
+    currentMonth = today.getMonth();
+    renderCalendar();
+    fetchMonthJournals();
+
+    // ===== Navigation =====
+    document.getElementById('prevMonth').addEventListener('click', function() {
+        currentMonth--;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar();
+        fetchMonthJournals();
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', function() {
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        renderCalendar();
+        fetchMonthJournals();
+    });
+
+    document.getElementById('todayBtn').addEventListener('click', function() {
+        var t = new Date();
+        currentYear = t.getFullYear();
+        currentMonth = t.getMonth();
+        renderCalendar();
+        fetchMonthJournals();
+        selectDate(formatDate(t));
+    });
+
+    // ===== Mood buttons =====
+    moodSelector.querySelectorAll('.mood-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            moodSelector.querySelectorAll('.mood-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        });
+    });
+
+    // ===== Market buttons =====
+    marketSelector.querySelectorAll('.market-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            marketSelector.querySelectorAll('.market-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        });
+    });
+
+    // ===== Save =====
+    saveBtn.addEventListener('click', function() {
+        if (!selectedDate) return;
+        var mood = getSelectedMood();
+        var market = getSelectedMarket();
+        var content = journalContent.value.trim();
+
+        if (!mood && !market && !content) {
+            alert('Please fill in at least one field.');
+            return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        fetch('/api/journal', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                date: selectedDate,
+                mood: mood,
+                market_view: market,
+                content: content
+            })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                currentJournalId = data.id || currentJournalId;
+                deleteBtn.style.display = '';
+                // Update local map
+                journalMap[selectedDate] = { mood: mood, id: currentJournalId };
+                renderCalendar();
+                highlightSelected();
+            }
+        })
+        .catch(function() {
+            alert('Failed to save journal.');
+        })
+        .finally(function() {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save';
+        });
+    });
+
+    // ===== Delete =====
+    deleteBtn.addEventListener('click', function() {
+        if (!currentJournalId) return;
+        if (!confirm('Delete this journal entry?')) return;
+
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Deleting...';
+
+        fetch('/api/journal/' + currentJournalId, {
+            method: 'DELETE'
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                alert('Error: ' + data.error);
+            } else {
+                delete journalMap[selectedDate];
+                currentJournalId = null;
+                clearEditor();
+                editorForm.style.display = 'none';
+                editorEmpty.style.display = '';
+                selectedDate = null;
+                renderCalendar();
+            }
+        })
+        .catch(function() {
+            alert('Failed to delete journal.');
+        })
+        .finally(function() {
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = 'Delete';
+        });
+    });
+
+    // ===== Calendar rendering =====
+    function renderCalendar() {
+        calendarTitle.textContent = MONTH_NAMES[currentMonth] + ' ' + currentYear;
+        calendarGrid.innerHTML = '';
+
+        var firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0=Sun
+        var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        var todayStr = formatDate(new Date());
+
+        // Empty cells before first day
+        for (var i = 0; i < firstDay; i++) {
+            var empty = document.createElement('div');
+            empty.className = 'cal-cell empty';
+            calendarGrid.appendChild(empty);
+        }
+
+        // Day cells
+        for (var d = 1; d <= daysInMonth; d++) {
+            var dateStr = currentYear + '-' + pad(currentMonth + 1) + '-' + pad(d);
+            var cell = document.createElement('div');
+            cell.className = 'cal-cell';
+            cell.dataset.date = dateStr;
+
+            if (dateStr === todayStr) cell.classList.add('today');
+            if (dateStr === selectedDate) cell.classList.add('selected');
+
+            var dayNum = document.createElement('span');
+            dayNum.textContent = d;
+            cell.appendChild(dayNum);
+
+            // Mood dot
+            if (journalMap[dateStr] && journalMap[dateStr].mood) {
+                var dot = document.createElement('div');
+                dot.className = 'mood-dot';
+                dot.style.background = MOOD_COLORS[journalMap[dateStr].mood] || '#4a5a7a';
+                cell.appendChild(dot);
+            }
+
+            cell.addEventListener('click', (function(ds) {
+                return function() { selectDate(ds); };
+            })(dateStr));
+
+            calendarGrid.appendChild(cell);
+        }
+    }
+
+    function highlightSelected() {
+        calendarGrid.querySelectorAll('.cal-cell').forEach(function(c) {
+            c.classList.toggle('selected', c.dataset.date === selectedDate);
+        });
+    }
+
+    // ===== Select date =====
+    function selectDate(dateStr) {
+        selectedDate = dateStr;
+        highlightSelected();
+        editorEmpty.style.display = 'none';
+        editorForm.style.display = '';
+        editorDate.textContent = formatDisplayDate(dateStr);
+        clearEditor();
+        loadJournal(dateStr);
+    }
+
+    // ===== Load journal for a date =====
+    function loadJournal(dateStr) {
+        fetch('/api/journal/' + dateStr)
+            .then(function(r) {
+                if (r.status === 404) return null;
+                return r.json();
+            })
+            .then(function(data) {
+                if (!data || data.error) {
+                    currentJournalId = null;
+                    deleteBtn.style.display = 'none';
+                    return;
+                }
+                currentJournalId = data.id;
+                deleteBtn.style.display = '';
+
+                // Set mood
+                if (data.mood) {
+                    moodSelector.querySelectorAll('.mood-btn').forEach(function(b) {
+                        b.classList.toggle('active', b.dataset.value === data.mood);
+                    });
+                }
+
+                // Set market view
+                if (data.market_view) {
+                    marketSelector.querySelectorAll('.market-btn').forEach(function(b) {
+                        b.classList.toggle('active', b.dataset.value === data.market_view);
+                    });
+                }
+
+                // Set content
+                if (data.content) {
+                    journalContent.value = data.content;
+                }
+            })
+            .catch(function() {
+                currentJournalId = null;
+                deleteBtn.style.display = 'none';
+            });
+    }
+
+    // ===== Fetch month journals =====
+    function fetchMonthJournals() {
+        var monthStr = currentYear + '-' + pad(currentMonth + 1);
+        fetch('/api/journal?month=' + monthStr)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                journalMap = {};
+                var items = data.items || data;
+                if (Array.isArray(items)) {
+                    items.forEach(function(j) {
+                        journalMap[j.date] = { mood: j.mood, id: j.id };
+                    });
+                }
+                renderCalendar();
+            })
+            .catch(function() {});
+    }
+
+    // ===== Helpers =====
+    function clearEditor() {
+        moodSelector.querySelectorAll('.mood-btn').forEach(function(b) { b.classList.remove('active'); });
+        marketSelector.querySelectorAll('.market-btn').forEach(function(b) { b.classList.remove('active'); });
+        journalContent.value = '';
+        currentJournalId = null;
+        deleteBtn.style.display = 'none';
+    }
+
+    function getSelectedMood() {
+        var active = moodSelector.querySelector('.mood-btn.active');
+        return active ? active.dataset.value : null;
+    }
+
+    function getSelectedMarket() {
+        var active = marketSelector.querySelector('.market-btn.active');
+        return active ? active.dataset.value : null;
+    }
+
+    function pad(n) {
+        return n < 10 ? '0' + n : '' + n;
+    }
+
+    function formatDate(d) {
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    }
+
+    function formatDisplayDate(dateStr) {
+        var parts = dateStr.split('-');
+        var d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        return days[d.getDay()] + ', ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+
+})();
+</script>
+{% endblock %}

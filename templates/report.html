@@ -1,0 +1,843 @@
+{% extends "base.html" %}
+{% block title %}Report{% endblock %}
+
+{% block content %}
+<style>
+    /* ===== Report Page Styles ===== */
+    .report-header {
+        margin-bottom: 24px;
+    }
+    .report-header h1 {
+        font-size: 22px;
+        color: var(--text);
+        margin-bottom: 4px;
+    }
+    .report-header p {
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    /* Tabs */
+    .report-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 20px;
+    }
+    .report-tab {
+        padding: 10px 20px;
+        font-size: 13px;
+        font-family: 'DM Mono', monospace;
+        color: var(--muted);
+        cursor: pointer;
+        border: none;
+        background: none;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+    }
+    .report-tab:hover {
+        color: var(--text);
+        background: rgba(0, 212, 255, 0.04);
+    }
+    .report-tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: flex-end;
+        padding: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 16px;
+    }
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .filter-group label {
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 0;
+    }
+    .filter-group select {
+        width: auto;
+        min-width: 120px;
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+    .btn-apply {
+        padding: 7px 18px;
+        background: var(--primary);
+        color: var(--bg);
+        border: none;
+        border-radius: 8px;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        align-self: flex-end;
+    }
+    .btn-apply:hover {
+        background: #33ddff;
+        box-shadow: 0 0 16px rgba(0, 212, 255, 0.3);
+    }
+
+    /* Subtotal Bar */
+    .subtotal-bar {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        padding: 12px 16px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+    .subtotal-bar .subtotal-label {
+        color: var(--muted);
+    }
+    .subtotal-bar .subtotal-value {
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 18px;
+    }
+    .subtotal-bar .subtotal-count {
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    /* View Panels */
+    .view-panel {
+        display: none;
+    }
+    .view-panel.active {
+        display: block;
+    }
+
+    /* Trade Details Table */
+    .trade-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+    }
+    .trade-table {
+        width: 100%;
+        min-width: 1100px;
+        border-collapse: collapse;
+    }
+    .trade-table th {
+        position: sticky;
+        top: 0;
+        background: var(--surface);
+        z-index: 2;
+        padding: 10px 12px;
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+    .trade-table td {
+        padding: 9px 12px;
+        font-size: 12px;
+        border-bottom: 1px solid rgba(30, 45, 74, 0.5);
+        white-space: nowrap;
+    }
+    .trade-table tr:hover td {
+        background: rgba(0, 212, 255, 0.03);
+    }
+    .pnl-pos { color: #00ff88; }
+    .pnl-neg { color: #ff4a6e; }
+
+    .btn-edit {
+        padding: 4px 10px;
+        font-size: 11px;
+        background: var(--border);
+        color: var(--text);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: 'DM Mono', monospace;
+        transition: background 0.2s;
+    }
+    .btn-edit:hover {
+        background: var(--primary);
+        color: var(--bg);
+    }
+
+    /* Summary Cards */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+    .summary-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px;
+    }
+    .summary-card .sc-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+    }
+    .summary-card .sc-value {
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 20px;
+    }
+    .summary-card .sc-count {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+
+    /* Chart Container */
+    .chart-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 16px;
+    }
+    .chart-wrap canvas {
+        max-height: 360px;
+    }
+
+    /* Tax Reminder */
+    .tax-reminder {
+        margin-top: 32px;
+        padding: 20px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+    }
+    .tax-reminder h3 {
+        font-size: 15px;
+        color: var(--warning);
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .tax-section {
+        margin-bottom: 14px;
+    }
+    .tax-section h4 {
+        font-size: 13px;
+        color: var(--text);
+        margin-bottom: 6px;
+    }
+    .tax-section p, .tax-section li {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.7;
+    }
+    .tax-section ul {
+        padding-left: 18px;
+    }
+    .tax-section li {
+        margin-bottom: 2px;
+    }
+
+    /* Edit Modal extras */
+    .edit-modal-body .form-group {
+        margin-bottom: 14px;
+    }
+
+    /* No-data message */
+    .no-data {
+        text-align: center;
+        padding: 48px 20px;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .filter-group select {
+            width: 100%;
+        }
+        .report-tabs {
+            overflow-x: auto;
+        }
+        .subtotal-bar {
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+    }
+</style>
+
+<div class="report-header">
+    <h1>Realized P&amp;L Report</h1>
+    <p>FIFO-matched trade analysis across multiple dimensions</p>
+</div>
+
+<!-- View Tabs -->
+<div class="report-tabs">
+    <button class="report-tab active" data-view="details" onclick="switchView('details')">Trade Details</button>
+    <button class="report-tab" data-view="year" onclick="switchView('year')">By Year</button>
+    <button class="report-tab" data-view="account" onclick="switchView('account')">By Account</button>
+    <button class="report-tab" data-view="reason" onclick="switchView('reason')">By Reason Tag</button>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <div class="filter-group">
+        <label>Year</label>
+        <select id="filter-year"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+        <label>Market</label>
+        <select id="filter-market">
+            <option value="">All</option>
+            <option value="TW">TW</option>
+            <option value="US">US</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>Account</label>
+        <select id="filter-account"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+        <label>Reason Tag</label>
+        <select id="filter-reason"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+        <label>Profit / Loss</label>
+        <select id="filter-pnl">
+            <option value="">All</option>
+            <option value="profit">Profit Only</option>
+            <option value="loss">Loss Only</option>
+        </select>
+    </div>
+    <button class="btn-apply" onclick="applyFilters()">Apply</button>
+</div>
+
+<!-- Subtotal Bar -->
+<div class="subtotal-bar" id="subtotal-bar" style="display:none;">
+    <span class="subtotal-label">Filtered P&amp;L:</span>
+    <span class="subtotal-value" id="subtotal-value">--</span>
+    <span class="subtotal-count" id="subtotal-count"></span>
+</div>
+
+<!-- View: Trade Details -->
+<div class="view-panel active" id="view-details">
+    <div class="trade-table-wrap">
+        <table class="trade-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Buy Date</th>
+                    <th>Sell Date</th>
+                    <th>Shares</th>
+                    <th>Buy Price</th>
+                    <th>Sell Price</th>
+                    <th>Fees</th>
+                    <th>Realized P&amp;L</th>
+                    <th>Return%</th>
+                    <th>Hold Days</th>
+                    <th>Reason</th>
+                    <th>Account</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="details-body"></tbody>
+        </table>
+    </div>
+    <div class="no-data" id="details-empty" style="display:none;">No realized trades found.</div>
+</div>
+
+<!-- View: By Year -->
+<div class="view-panel" id="view-year">
+    <div class="summary-grid" id="year-cards"></div>
+    <div class="chart-wrap">
+        <canvas id="yearChart"></canvas>
+    </div>
+    <div class="no-data" id="year-empty" style="display:none;">No data available.</div>
+</div>
+
+<!-- View: By Account -->
+<div class="view-panel" id="view-account">
+    <div class="summary-grid" id="account-cards"></div>
+    <div class="no-data" id="account-empty" style="display:none;">No data available.</div>
+</div>
+
+<!-- View: By Reason -->
+<div class="view-panel" id="view-reason">
+    <div class="summary-grid" id="reason-cards"></div>
+    <div class="no-data" id="reason-empty" style="display:none;">No data available.</div>
+</div>
+
+<!-- Tax Reminder -->
+<div class="tax-reminder">
+    <h3>&#x26A0; Year-End Tax Filing Reminder</h3>
+    <div class="tax-section">
+        <h4>Taiwan (TW) Stock Dividend Tax</h4>
+        <ul>
+            <li><strong>Option A - Combined Filing:</strong> Stock dividends are combined with personal income and taxed at the progressive rate (5%~40%). A deductible credit of 8.5% of dividend income applies (max NT$80,000).</li>
+            <li><strong>Option B - Separate Taxation (28%):</strong> Stock dividends are taxed separately at a flat 28% rate, not combined with other income. Suitable for high-income taxpayers.</li>
+            <li>Compare both options and choose the one that results in lower tax liability.</li>
+        </ul>
+    </div>
+    <div class="tax-section">
+        <h4>United States (US) Capital Gains Tax</h4>
+        <ul>
+            <li><strong>Short-Term Capital Gains:</strong> Assets held for 1 year or less. Taxed as ordinary income (10%~37% depending on bracket). Check "Hold Days" column for trades under 365 days.</li>
+            <li><strong>Long-Term Capital Gains:</strong> Assets held for more than 1 year. Preferential tax rates of 0%, 15%, or 20% depending on taxable income.</li>
+            <li>Wash sale rule: Cannot claim a loss if you repurchase the same or substantially identical security within 30 days before or after the sale.</li>
+            <li>Consider tax-loss harvesting before year-end to offset gains.</li>
+        </ul>
+    </div>
+    <div class="tax-section">
+        <p style="color: var(--warning); font-size: 11px;">* This is a general reminder only. Please consult a qualified tax professional for your specific situation.</p>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="modal-edit-trade">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Trade</h3>
+            <button class="modal-close" onclick="closeModal('modal-edit-trade')">&times;</button>
+        </div>
+        <div class="edit-modal-body">
+            <input type="hidden" id="edit-trade-id">
+            <div class="form-group">
+                <label>Account</label>
+                <input type="text" id="edit-account" placeholder="Account name">
+            </div>
+            <div class="form-group">
+                <label>Reason Tag</label>
+                <input type="text" id="edit-reason" placeholder="e.g. momentum, value, earnings">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-edit-trade')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveTradeEdit()">Save</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    let allTrades = [];
+    let filteredTrades = [];
+    let currentView = 'details';
+    let yearChartInstance = null;
+
+    // --- API helper ---
+    async function api(url, method, body) {
+        const opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
+        if (body) opts.body = JSON.stringify(body);
+        const res = await fetch(url, opts);
+        return res.json();
+    }
+
+    // --- Toast ---
+    function toast(msg, type) {
+        const el = document.createElement('div');
+        el.textContent = msg;
+        const c = type === 'error' ? 'var(--danger)' : 'var(--secondary)';
+        el.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--surface);border:1px solid ' + c + ';color:' + c + ';padding:10px 20px;border-radius:8px;font-size:13px;font-family:DM Mono,monospace;box-shadow:0 8px 32px rgba(0,0,0,0.4);';
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 2500);
+    }
+
+    // --- Format helpers ---
+    function fmt(n) {
+        if (n == null) return '--';
+        return Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtPct(n) {
+        if (n == null) return '--';
+        return Number(n).toFixed(2) + '%';
+    }
+
+    function pnlClass(n) {
+        if (n > 0) return 'pnl-pos';
+        if (n < 0) return 'pnl-neg';
+        return '';
+    }
+
+    function escHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // --- Tab switching ---
+    window.switchView = function(view) {
+        currentView = view;
+        document.querySelectorAll('.report-tab').forEach(function(t) {
+            t.classList.toggle('active', t.getAttribute('data-view') === view);
+        });
+        document.querySelectorAll('.view-panel').forEach(function(p) {
+            p.classList.toggle('active', p.id === 'view-' + view);
+        });
+        renderCurrentView();
+    };
+
+    // --- Filters ---
+    window.applyFilters = function() {
+        var year = document.getElementById('filter-year').value;
+        var market = document.getElementById('filter-market').value;
+        var account = document.getElementById('filter-account').value;
+        var reason = document.getElementById('filter-reason').value;
+        var pnl = document.getElementById('filter-pnl').value;
+
+        filteredTrades = allTrades.filter(function(t) {
+            if (year && t.sell_date && t.sell_date.substring(0, 4) !== year) return false;
+            if (market && (t.market || '').toUpperCase() !== market) return false;
+            if (account && (t.account || '') !== account) return false;
+            if (reason && (t.reason_tag || '') !== reason) return false;
+            if (pnl === 'profit' && (t.realized_pnl || 0) <= 0) return false;
+            if (pnl === 'loss' && (t.realized_pnl || 0) >= 0) return false;
+            return true;
+        });
+
+        updateSubtotal();
+        renderCurrentView();
+    };
+
+    function updateSubtotal() {
+        var bar = document.getElementById('subtotal-bar');
+        var valEl = document.getElementById('subtotal-value');
+        var cntEl = document.getElementById('subtotal-count');
+
+        var total = 0;
+        filteredTrades.forEach(function(t) { total += (t.realized_pnl || 0); });
+
+        bar.style.display = 'flex';
+        valEl.textContent = (total >= 0 ? '+' : '') + fmt(total);
+        valEl.className = 'subtotal-value ' + pnlClass(total);
+        cntEl.textContent = filteredTrades.length + ' trade(s)';
+    }
+
+    // --- Populate filter dropdowns ---
+    function populateFilters() {
+        var years = {};
+        var accounts = {};
+        var reasons = {};
+
+        allTrades.forEach(function(t) {
+            if (t.sell_date) years[t.sell_date.substring(0, 4)] = true;
+            if (t.account) accounts[t.account] = true;
+            if (t.reason_tag) reasons[t.reason_tag] = true;
+        });
+
+        var yearSel = document.getElementById('filter-year');
+        yearSel.innerHTML = '<option value="">All</option>';
+        Object.keys(years).sort().reverse().forEach(function(y) {
+            yearSel.innerHTML += '<option value="' + y + '">' + y + '</option>';
+        });
+
+        var accSel = document.getElementById('filter-account');
+        accSel.innerHTML = '<option value="">All</option>';
+        Object.keys(accounts).sort().forEach(function(a) {
+            accSel.innerHTML += '<option value="' + escHtml(a) + '">' + escHtml(a) + '</option>';
+        });
+
+        var reaSel = document.getElementById('filter-reason');
+        reaSel.innerHTML = '<option value="">All</option>';
+        Object.keys(reasons).sort().forEach(function(r) {
+            reaSel.innerHTML += '<option value="' + escHtml(r) + '">' + escHtml(r) + '</option>';
+        });
+    }
+
+    // --- Render dispatcher ---
+    function renderCurrentView() {
+        renderDetails();
+        renderByYear();
+        renderByAccount();
+        renderByReason();
+    }
+
+    // --- Trade Details ---
+    function renderDetails() {
+        var tbody = document.getElementById('details-body');
+        var empty = document.getElementById('details-empty');
+
+        if (!filteredTrades.length) {
+            tbody.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        var html = '';
+        filteredTrades.forEach(function(t) {
+            var pc = pnlClass(t.realized_pnl);
+            html += '<tr>'
+                + '<td><strong>' + escHtml(t.symbol) + '</strong></td>'
+                + '<td>' + (t.buy_date || '--') + '</td>'
+                + '<td>' + (t.sell_date || '--') + '</td>'
+                + '<td>' + (t.shares != null ? t.shares : '--') + '</td>'
+                + '<td>' + fmt(t.buy_price) + '</td>'
+                + '<td>' + fmt(t.sell_price) + '</td>'
+                + '<td>' + fmt(t.fees) + '</td>'
+                + '<td class="' + pc + '">' + (t.realized_pnl >= 0 ? '+' : '') + fmt(t.realized_pnl) + '</td>'
+                + '<td class="' + pc + '">' + fmtPct(t.return_pct) + '</td>'
+                + '<td>' + (t.hold_days != null ? t.hold_days : '--') + '</td>'
+                + '<td>' + escHtml(t.reason_tag || '--') + '</td>'
+                + '<td>' + escHtml(t.account || '--') + '</td>'
+                + '<td><button class="btn-edit" onclick="openEditTrade(' + t.id + ',\'' + escHtml(t.account || '') + '\',\'' + escHtml(t.reason_tag || '') + '\')">Edit</button></td>'
+                + '</tr>';
+        });
+        tbody.innerHTML = html;
+    }
+
+    // --- By Year ---
+    function renderByYear() {
+        var container = document.getElementById('year-cards');
+        var empty = document.getElementById('year-empty');
+        var groups = {};
+
+        filteredTrades.forEach(function(t) {
+            var y = t.sell_date ? t.sell_date.substring(0, 4) : 'Unknown';
+            if (!groups[y]) groups[y] = { total: 0, count: 0 };
+            groups[y].total += (t.realized_pnl || 0);
+            groups[y].count++;
+        });
+
+        var keys = Object.keys(groups).sort();
+        if (!keys.length) {
+            container.innerHTML = '';
+            empty.style.display = 'block';
+            if (yearChartInstance) { yearChartInstance.destroy(); yearChartInstance = null; }
+            return;
+        }
+        empty.style.display = 'none';
+
+        var html = '';
+        keys.forEach(function(y) {
+            var g = groups[y];
+            var pc = pnlClass(g.total);
+            html += '<div class="summary-card">'
+                + '<div class="sc-label">' + escHtml(y) + '</div>'
+                + '<div class="sc-value ' + pc + '">' + (g.total >= 0 ? '+' : '') + fmt(g.total) + '</div>'
+                + '<div class="sc-count">' + g.count + ' trade(s)</div>'
+                + '</div>';
+        });
+        container.innerHTML = html;
+
+        // Bar chart
+        var canvas = document.getElementById('yearChart');
+        if (yearChartInstance) yearChartInstance.destroy();
+
+        var labels = keys;
+        var values = keys.map(function(y) { return groups[y].total; });
+        var colors = values.map(function(v) { return v >= 0 ? '#00ff88' : '#ff4a6e'; });
+
+        yearChartInstance = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Realized P&L',
+                    data: values,
+                    backgroundColor: colors,
+                    borderRadius: 6,
+                    maxBarThickness: 60
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) { return 'P&L: ' + fmt(ctx.raw); }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#4a5a7a', font: { family: 'DM Mono', size: 12 } },
+                        grid: { color: 'rgba(30,45,74,0.4)' }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#4a5a7a',
+                            font: { family: 'DM Mono', size: 11 },
+                            callback: function(v) { return v.toLocaleString(); }
+                        },
+                        grid: { color: 'rgba(30,45,74,0.4)' }
+                    }
+                }
+            }
+        });
+    }
+
+    // --- By Account ---
+    function renderByAccount() {
+        var container = document.getElementById('account-cards');
+        var empty = document.getElementById('account-empty');
+        var groups = {};
+
+        filteredTrades.forEach(function(t) {
+            var a = t.account || 'Unassigned';
+            if (!groups[a]) groups[a] = { total: 0, count: 0 };
+            groups[a].total += (t.realized_pnl || 0);
+            groups[a].count++;
+        });
+
+        var keys = Object.keys(groups).sort();
+        if (!keys.length) {
+            container.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        var html = '';
+        keys.forEach(function(a) {
+            var g = groups[a];
+            var pc = pnlClass(g.total);
+            html += '<div class="summary-card">'
+                + '<div class="sc-label">' + escHtml(a) + '</div>'
+                + '<div class="sc-value ' + pc + '">' + (g.total >= 0 ? '+' : '') + fmt(g.total) + '</div>'
+                + '<div class="sc-count">' + g.count + ' trade(s)</div>'
+                + '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    // --- By Reason ---
+    function renderByReason() {
+        var container = document.getElementById('reason-cards');
+        var empty = document.getElementById('reason-empty');
+        var groups = {};
+
+        filteredTrades.forEach(function(t) {
+            var r = t.reason_tag || 'Untagged';
+            if (!groups[r]) groups[r] = { total: 0, count: 0 };
+            groups[r].total += (t.realized_pnl || 0);
+            groups[r].count++;
+        });
+
+        var keys = Object.keys(groups).sort();
+        if (!keys.length) {
+            container.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        var html = '';
+        keys.forEach(function(r) {
+            var g = groups[r];
+            var pc = pnlClass(g.total);
+            html += '<div class="summary-card">'
+                + '<div class="sc-label">' + escHtml(r) + '</div>'
+                + '<div class="sc-value ' + pc + '">' + (g.total >= 0 ? '+' : '') + fmt(g.total) + '</div>'
+                + '<div class="sc-count">' + g.count + ' trade(s)</div>'
+                + '</div>';
+        });
+        container.innerHTML = html;
+    }
+
+    // --- Edit Trade ---
+    window.openEditTrade = function(id, account, reason) {
+        document.getElementById('edit-trade-id').value = id;
+        document.getElementById('edit-account').value = account;
+        document.getElementById('edit-reason').value = reason;
+        openModal('modal-edit-trade');
+        setTimeout(function() { document.getElementById('edit-account').focus(); }, 100);
+    };
+
+    window.saveTradeEdit = function() {
+        var id = document.getElementById('edit-trade-id').value;
+        var account = document.getElementById('edit-account').value.trim();
+        var reason_tag = document.getElementById('edit-reason').value.trim();
+
+        api('/api/trades/' + id, 'PUT', { account: account, reason_tag: reason_tag })
+            .then(function(data) {
+                if (data.error) {
+                    toast(data.error, 'error');
+                    return;
+                }
+                closeModal('modal-edit-trade');
+                toast('Trade updated');
+                loadData();
+            })
+            .catch(function() {
+                toast('Failed to update trade', 'error');
+            });
+    };
+
+    // --- Load data ---
+    function buildQueryString() {
+        var params = [];
+        var year = document.getElementById('filter-year').value;
+        var market = document.getElementById('filter-market').value;
+        var account = document.getElementById('filter-account').value;
+        var reason = document.getElementById('filter-reason').value;
+
+        if (year) params.push('year=' + encodeURIComponent(year));
+        if (market) params.push('market=' + encodeURIComponent(market));
+        if (account) params.push('account=' + encodeURIComponent(account));
+        if (reason) params.push('reason_tag=' + encodeURIComponent(reason));
+
+        return params.length ? '?' + params.join('&') : '';
+    }
+
+    function loadData() {
+        var qs = buildQueryString();
+        api('/api/report/realized' + qs)
+            .then(function(data) {
+                allTrades = Array.isArray(data) ? data : (data.trades || []);
+                filteredTrades = allTrades.slice();
+
+                // Apply client-side P&L filter
+                var pnl = document.getElementById('filter-pnl').value;
+                if (pnl === 'profit') {
+                    filteredTrades = filteredTrades.filter(function(t) { return (t.realized_pnl || 0) > 0; });
+                } else if (pnl === 'loss') {
+                    filteredTrades = filteredTrades.filter(function(t) { return (t.realized_pnl || 0) < 0; });
+                }
+
+                populateFilters();
+                updateSubtotal();
+                renderCurrentView();
+            })
+            .catch(function(err) {
+                console.error('Failed to load report data:', err);
+                toast('Failed to load report data', 'error');
+            });
+    }
+
+    // --- Init ---
+    window.addEventListener('DOMContentLoaded', function() {
+        loadData();
+
+        // ESC to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal('modal-edit-trade');
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

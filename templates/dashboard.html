@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div style="max-width:1280px;margin:0 auto;padding:16px;">
+
+    <!-- Section 1: Market Barometer -->
+    <div style="margin-bottom:20px;">
+        <h3 style="color:#8fa4c4;margin-bottom:10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">Market Barometer</h3>
+        <div id="market-bar" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;">
+            <div style="color:#556;font-size:13px;padding:16px;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Section 2 & 3: Word of the Day + Anniversary Countdown (side by side) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <!-- Word of the Day -->
+        <div id="word-of-day-card" style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:18px;min-height:100px;">
+            <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">Word of the Day</h4>
+            <div id="word-of-day-content" style="color:#94a3b8;font-size:13px;">Loading...</div>
+        </div>
+        <!-- US Stock Anniversary Countdown -->
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:18px;min-height:100px;">
+            <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">1-Year Anniversary Countdown</h4>
+            <div id="anniversary-list" style="color:#94a3b8;font-size:13px;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Section 4: Position Concentration Alert Banner -->
+    <div id="concentration-alert" style="display:none;background:#7f1d1d;border:1px solid #dc2626;border-radius:8px;padding:12px 18px;margin-bottom:20px;color:#fca5a5;font-size:13px;font-weight:600;"></div>
+
+    <!-- Section 5: Stats Cards -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="stats-cards">
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Market Value</div>
+            <div id="stat-market-value" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        </div>
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Total Cost</div>
+            <div id="stat-total-cost" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        </div>
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Unrealized P&L</div>
+            <div id="stat-pnl" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+            <div id="stat-pnl-pct" style="font-size:12px;margin-top:2px;">--</div>
+        </div>
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Holdings Count</div>
+            <div id="stat-holdings" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        </div>
+    </div>
+
+    <!-- Section 6: Charts -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">Market Value Allocation</h4>
+            <div style="position:relative;height:280px;display:flex;align-items:center;justify-content:center;">
+                <canvas id="chart-allocation"></canvas>
+            </div>
+        </div>
+        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
+            <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">P&L % Ranked</h4>
+            <div style="position:relative;height:280px;">
+                <canvas id="chart-pnl"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 7: Holdings Detail Table -->
+    <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;overflow-x:auto;">
+        <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">Holdings Detail</h4>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;" id="holdings-table">
+            <thead>
+                <tr style="border-bottom:1px solid #1e2d4a;">
+                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Symbol</th>
+                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Market</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Shares</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Avg Cost</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Current Price</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Market Value</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">P&L (Net)</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">P&L%</th>
+                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">Div Yield</th>
+                </tr>
+            </thead>
+            <tbody id="holdings-body">
+                <tr><td colspan="9" style="padding:20px;color:#556;text-align:center;">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Responsive: stack on mobile -->
+<style>
+    @media (max-width: 768px) {
+        #stats-cards { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    @media (max-width: 600px) {
+        #stats-cards { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+    }
+    #market-bar::-webkit-scrollbar { height: 4px; }
+    #market-bar::-webkit-scrollbar-thumb { background: #1e2d4a; border-radius: 2px; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+    const GREEN = '#22c55e';
+    const RED = '#ef4444';
+    const ORANGE = '#f59e0b';
+    const ACCENT_COLORS = [
+        '#6366f1','#8b5cf6','#ec4899','#14b8a6','#f59e0b',
+        '#3b82f6','#22c55e','#ef4444','#06b6d4','#a855f7',
+        '#10b981','#f97316','#64748b','#84cc16','#e879f9'
+    ];
+
+    function fmt(n, decimals) {
+        if (n == null) return '--';
+        return Number(n).toLocaleString(undefined, {minimumFractionDigits: decimals || 0, maximumFractionDigits: decimals || 0});
+    }
+
+    function pnlColor(v) {
+        if (v > 0) return GREEN;
+        if (v < 0) return RED;
+        return '#94a3b8';
+    }
+
+    // ---- 1. Market Barometer ----
+    fetch('/api/market/overview')
+        .then(r => r.json())
+        .then(data => {
+            const bar = document.getElementById('market-bar');
+            bar.innerHTML = '';
+            const items = data.items || data;
+            (Array.isArray(items) ? items : []).forEach(item => {
+                const change = item.change_pct || item.change_percent || 0;
+                const price = item.price;
+                const symbol = item.symbol || item.name;
+                let color;
+                if (symbol === 'VIX' || symbol === '^VIX') {
+                    color = price > 25 ? RED : price >= 18 ? ORANGE : GREEN;
+                } else {
+                    color = change >= 0 ? GREEN : RED;
+                }
+                const sign = change >= 0 ? '+' : '';
+                const card = document.createElement('div');
+                card.style.cssText = 'background:#0f1629;border:1px solid #1e2d4a;border-radius:8px;padding:14px 18px;min-width:140px;flex-shrink:0;';
+                card.innerHTML = `
+                    <div style="color:#94a3b8;font-size:11px;font-weight:600;margin-bottom:4px;">${symbol}</div>
+                    <div style="color:#e2e8f0;font-size:18px;font-weight:700;">${fmt(price, 2)}</div>
+                    <div style="color:${color};font-size:13px;font-weight:600;">${sign}${change.toFixed(2)}%</div>
+                `;
+                bar.appendChild(card);
+            });
+            if (bar.children.length === 0) {
+                bar.innerHTML = '<div style="color:#556;font-size:13px;padding:16px;">No market data available</div>';
+            }
+        })
+        .catch(() => {
+            document.getElementById('market-bar').innerHTML = '<div style="color:#ef4444;font-size:13px;padding:16px;">Failed to load market data</div>';
+        });
+
+    // ---- 2. Word of the Day ----
+    fetch('/api/academy/word_of_day')
+        .then(r => r.json())
+        .then(data => {
+            const el = document.getElementById('word-of-day-content');
+            if (data && data.title) {
+                const link = data.id ? `/academy/${data.id}` : '#';
+                el.innerHTML = `
+                    <a href="${link}" style="color:#a5b4fc;text-decoration:none;font-weight:600;font-size:15px;">${data.title}</a>
+                    <div style="color:#94a3b8;font-size:12px;margin-top:6px;line-height:1.5;">${data.summary || ''}</div>
+                `;
+            } else {
+                el.textContent = 'No word available today';
+            }
+        })
+        .catch(() => {
+            document.getElementById('word-of-day-content').textContent = 'Failed to load';
+        });
+
+    // ---- 3. US Stock Anniversary Countdown ----
+    fetch('/api/portfolio/anniversaries')
+        .then(r => r.json())
+        .then(data => {
+            const el = document.getElementById('anniversary-list');
+            const items = data.items || data;
+            if (!Array.isArray(items) || items.length === 0) {
+                el.textContent = 'No holdings to track';
+                return;
+            }
+            el.innerHTML = '';
+            items.forEach(item => {
+                const days = item.days_remaining != null ? item.days_remaining : item.days;
+                const symbol = item.symbol;
+                let badge, color;
+                if (days <= 0) {
+                    badge = '<span style="color:#22c55e;font-weight:700;">&#10003;</span>';
+                    color = '#22c55e';
+                } else if (days <= 30) {
+                    badge = `<span style="color:#f59e0b;font-weight:700;">${days}d</span>`;
+                    color = '#f59e0b';
+                } else {
+                    badge = `<span style="color:#94a3b8;">${days}d</span>`;
+                    color = '#94a3b8';
+                }
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #1e2d4a;';
+                row.innerHTML = `<span style="color:#e2e8f0;font-weight:600;font-size:13px;">${symbol}</span>${badge}`;
+                el.appendChild(row);
+            });
+        })
+        .catch(() => {
+            document.getElementById('anniversary-list').textContent = 'Failed to load';
+        });
+
+    // ---- 4. Position Concentration Alert ----
+    fetch('/api/portfolio/concentration')
+        .then(r => r.json())
+        .then(data => {
+            const el = document.getElementById('concentration-alert');
+            const alerts = data.alerts || data;
+            if (Array.isArray(alerts) && alerts.length > 0) {
+                const msgs = alerts.map(a => `${a.symbol}: ${(a.weight || a.percentage || 0).toFixed(1)}% of portfolio (threshold: ${(a.threshold || 0).toFixed(0)}%)`);
+                el.innerHTML = '&#9888; Concentration Warning: ' + msgs.join(' | ');
+                el.style.display = 'block';
+            }
+        })
+        .catch(() => {});
+
+    // ---- 5. Stats Cards + 6. Charts + 7. Table ----
+    fetch('/api/portfolio/summary')
+        .then(r => r.json())
+        .then(data => {
+            // Stats
+            document.getElementById('stat-market-value').textContent = '$' + fmt(data.total_market_value || data.market_value, 2);
+            document.getElementById('stat-total-cost').textContent = '$' + fmt(data.total_cost, 2);
+
+            const pnl = data.unrealized_pnl != null ? data.unrealized_pnl : data.pnl;
+            const pnlPct = data.unrealized_pnl_pct != null ? data.unrealized_pnl_pct : data.pnl_pct;
+            const pnlSign = pnl >= 0 ? '+' : '';
+            document.getElementById('stat-pnl').textContent = pnlSign + '$' + fmt(Math.abs(pnl), 2);
+            document.getElementById('stat-pnl').style.color = pnlColor(pnl);
+            if (pnlPct != null) {
+                const pctSign = pnlPct >= 0 ? '+' : '';
+                document.getElementById('stat-pnl-pct').textContent = pctSign + pnlPct.toFixed(2) + '%';
+                document.getElementById('stat-pnl-pct').style.color = pnlColor(pnlPct);
+            }
+
+            document.getElementById('stat-holdings').textContent = data.holdings_count || (data.holdings ? data.holdings.length : '--');
+
+            // Holdings data for charts and table
+            const holdings = data.holdings || [];
+            renderCharts(holdings);
+            renderTable(holdings);
+        })
+        .catch(() => {
+            document.getElementById('stat-market-value').textContent = 'Error';
+        });
+
+    // ---- Charts ----
+    function renderCharts(holdings) {
+        if (!holdings.length) return;
+
+        // Doughnut: allocation by market value
+        const labels = holdings.map(h => h.symbol);
+        const values = holdings.map(h => h.market_value || 0);
+
+        new Chart(document.getElementById('chart-allocation'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: ACCENT_COLORS.slice(0, labels.length),
+                    borderColor: '#0f1629',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#94a3b8', font: { size: 11 }, padding: 8 }
+                    }
+                }
+            }
+        });
+
+        // Bar: P&L% ranked
+        const sorted = [...holdings].sort((a, b) => (b.pnl_pct || 0) - (a.pnl_pct || 0));
+        const barLabels = sorted.map(h => h.symbol);
+        const barValues = sorted.map(h => h.pnl_pct || 0);
+        const barColors = barValues.map(v => v >= 0 ? GREEN : RED);
+
+        new Chart(document.getElementById('chart-pnl'), {
+            type: 'bar',
+            data: {
+                labels: barLabels,
+                datasets: [{
+                    label: 'P&L %',
+                    data: barValues,
+                    backgroundColor: barColors,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#64748b', callback: v => v + '%' },
+                        grid: { color: '#1e2d4a' }
+                    },
+                    y: {
+                        ticks: { color: '#94a3b8', font: { size: 11 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // ---- Holdings Table ----
+    function renderTable(holdings) {
+        const tbody = document.getElementById('holdings-body');
+        if (!holdings.length) {
+            tbody.innerHTML = '<tr><td colspan="9" style="padding:20px;color:#556;text-align:center;">No holdings</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        holdings.forEach(h => {
+            const pnl = h.pnl || h.unrealized_pnl || 0;
+            const pnlPct = h.pnl_pct || 0;
+            const color = pnlColor(pnl);
+            const sign = pnl >= 0 ? '+' : '';
+
+            const divYield = h.dividend_yield || 0;
+            const divAnnual = h.estimated_annual_dividend || 0;
+            const divDisplay = divYield ? `${divYield.toFixed(2)}%` + (divAnnual ? `<br><span style="font-size:11px;color:#64748b;">$${fmt(divAnnual, 2)}/yr</span>` : '') : '--';
+
+            const tr = document.createElement('tr');
+            tr.style.cssText = 'border-bottom:1px solid #1e2d4a;';
+            tr.innerHTML = `
+                <td style="padding:10px 8px;color:#e2e8f0;font-weight:600;">${h.symbol}</td>
+                <td style="padding:10px 8px;color:#94a3b8;">${h.market || '--'}</td>
+                <td style="padding:10px 8px;color:#e2e8f0;text-align:right;">${fmt(h.shares)}</td>
+                <td style="padding:10px 8px;color:#94a3b8;text-align:right;">${fmt(h.avg_cost, 2)}</td>
+                <td style="padding:10px 8px;color:#e2e8f0;text-align:right;">${fmt(h.current_price, 2)}</td>
+                <td style="padding:10px 8px;color:#e2e8f0;text-align:right;">${fmt(h.market_value, 2)}</td>
+                <td style="padding:10px 8px;text-align:right;color:${color};font-weight:600;">${sign}${fmt(Math.abs(pnl), 2)}</td>
+                <td style="padding:10px 8px;text-align:right;color:${color};font-weight:600;">${sign}${pnlPct.toFixed(2)}%</td>
+                <td style="padding:10px 8px;text-align:right;color:#94a3b8;">${divDisplay}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+})();
+</script>
+{% endblock %}

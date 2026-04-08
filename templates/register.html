@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daystock - Register</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0a0f1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Daystock">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: #0a0f1e;
+            color: #e8eef7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image:
+                linear-gradient(rgba(30,45,74,0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30,45,74,0.25) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+        .card {
+            position: relative; z-index: 1;
+            background: #0f1629;
+            border: 1px solid #1e2d4a;
+            border-radius: 20px;
+            padding: 48px 40px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 0 80px rgba(0,255,136,0.05), 0 4px 32px rgba(0,0,0,0.4);
+            margin: 32px 0;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            font-size: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 68px; height: 68px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(0,255,136,0.12), rgba(0,212,255,0.08));
+            border: 1px solid rgba(0,255,136,0.2);
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 26px;
+            color: #e8eef7;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            color: #4a5a7a;
+            font-size: 13px;
+            margin-top: 4px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5a7a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(10,15,30,0.6);
+            border: 1px solid #1e2d4a;
+            border-radius: 12px;
+            color: #e8eef7;
+            font-size: 15px;
+            font-family: 'DM Mono', monospace;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 0 3px rgba(0,255,136,0.12), 0 0 20px rgba(0,255,136,0.08);
+        }
+
+        .form-group input::placeholder {
+            color: #2a3a5a;
+        }
+
+        .form-group input.input-error {
+            border-color: #ff4a6e;
+            box-shadow: 0 0 0 3px rgba(255,74,110,0.12);
+        }
+
+        .field-hint {
+            font-size: 11px;
+            color: #4a5a7a;
+            margin-top: 6px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .field-hint.hint-error {
+            color: #ff4a6e;
+        }
+
+        .field-hint.hint-ok {
+            color: #00ff88;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #0a0f1e;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.3s;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 24px rgba(0,255,136,0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            background: rgba(255,74,110,0.1);
+            border: 1px solid rgba(255,74,110,0.25);
+            color: #ff4a6e;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            font-family: 'DM Mono', monospace;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .success-msg {
+            background: rgba(0,255,136,0.1);
+            border: 1px solid rgba(0,255,136,0.25);
+            color: #00ff88;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            font-family: 'DM Mono', monospace;
+            display: none;
+        }
+
+        .success-msg.show {
+            display: block;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #4a5a7a;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .footer-link a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: #00ff88;
+        }
+
+        .pw-strength {
+            height: 3px;
+            border-radius: 2px;
+            background: #1e2d4a;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .pw-strength-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 2px;
+            transition: width 0.3s, background 0.3s;
+        }
+
+        @media (max-width: 480px) {
+            .card { margin: 16px; padding: 36px 24px 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="card">
+        <div class="logo">
+            <div class="logo-icon">&#x1F4DD;</div>
+            <h1>Create Account</h1>
+            <p>join Daystock</p>
+        </div>
+
+        <div class="error-msg" id="errorMsg">
+            {% if error %}{{ error }}{% endif %}
+        </div>
+        <div class="success-msg" id="successMsg"></div>
+
+        <form id="registerForm" autocomplete="on" novalidate>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" id="username" placeholder="Choose a username" required autofocus autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" id="email" placeholder="you@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" id="password" placeholder="Min 8 characters" required autocomplete="new-password">
+                <div class="pw-strength"><div class="pw-strength-bar" id="pwBar"></div></div>
+                <div class="field-hint" id="pwHint">Minimum 8 characters</div>
+            </div>
+            <button type="submit" class="btn-submit" id="submitBtn">Create Account</button>
+        </form>
+
+        <p class="footer-link">Already have an account? <a href="/login">Sign in</a></p>
+    </div>
+
+    <script>
+        // Show error if server-rendered
+        (function() {
+            const el = document.getElementById('errorMsg');
+            if (el.textContent.trim()) el.classList.add('show');
+        })();
+
+        // Password strength / validation
+        const pwInput = document.getElementById('password');
+        const pwBar = document.getElementById('pwBar');
+        const pwHint = document.getElementById('pwHint');
+
+        pwInput.addEventListener('input', function() {
+            const len = this.value.length;
+            pwInput.classList.remove('input-error');
+            pwHint.classList.remove('hint-error', 'hint-ok');
+
+            if (len === 0) {
+                pwBar.style.width = '0';
+                pwHint.textContent = 'Minimum 8 characters';
+                return;
+            }
+
+            if (len < 8) {
+                const pct = (len / 8) * 50;
+                pwBar.style.width = pct + '%';
+                pwBar.style.background = '#ff4a6e';
+                pwHint.textContent = (8 - len) + ' more character' + (8 - len > 1 ? 's' : '') + ' needed';
+                pwHint.classList.add('hint-error');
+            } else if (len < 12) {
+                pwBar.style.width = '70%';
+                pwBar.style.background = '#ffb800';
+                pwHint.textContent = 'Good';
+                pwHint.classList.add('hint-ok');
+            } else {
+                pwBar.style.width = '100%';
+                pwBar.style.background = '#00ff88';
+                pwHint.textContent = 'Strong';
+                pwHint.classList.add('hint-ok');
+            }
+        });
+
+        // Register form handler
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errEl = document.getElementById('errorMsg');
+            const sucEl = document.getElementById('successMsg');
+            const btn = document.getElementById('submitBtn');
+
+            errEl.classList.remove('show');
+            sucEl.classList.remove('show');
+
+            // Client-side password validation
+            const pw = document.getElementById('password').value;
+            if (pw.length < 8) {
+                pwInput.classList.add('input-error');
+                pwHint.textContent = 'Password must be at least 8 characters';
+                pwHint.classList.add('hint-error');
+                errEl.textContent = 'Password must be at least 8 characters.';
+                errEl.classList.add('show');
+                return;
+            }
+
+            // Email validation
+            const email = document.getElementById('email').value;
+            if (!email.includes('@') || !email.includes('.')) {
+                errEl.textContent = 'Please enter a valid email address.';
+                errEl.classList.add('show');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            try {
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        email: email,
+                        password: pw
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    sucEl.textContent = data.message || 'Account created! Redirecting...';
+                    sucEl.classList.add('show');
+                    setTimeout(function() {
+                        window.location.href = '/dashboard';
+                    }, 800);
+                } else {
+                    errEl.textContent = data.message || 'Registration failed.';
+                    errEl.classList.add('show');
+                }
+            } catch (err) {
+                errEl.textContent = 'Network error. Please try again.';
+                errEl.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>

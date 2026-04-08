@@ -1,0 +1,914 @@
+{% extends "base.html" %}
+{% block title %}Simulation{% endblock %}
+
+{% block content %}
+<style>
+    /* ===== Tabs ===== */
+    .sim-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .sim-tab {
+        padding: 10px 18px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: var(--muted);
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .sim-tab:hover {
+        color: var(--text);
+        background: rgba(0, 212, 255, 0.04);
+    }
+    .sim-tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+
+    /* ===== Strategy Panels ===== */
+    .strategy-panel {
+        display: none;
+    }
+    .strategy-panel.active {
+        display: block;
+    }
+    .sim-form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    /* ===== Custom Trades Table ===== */
+    .trades-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+    }
+    .trades-table th {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 8px 10px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+    }
+    .trades-table td {
+        padding: 6px 10px;
+        border-bottom: 1px solid rgba(30, 45, 74, 0.5);
+    }
+    .trades-table input,
+    .trades-table select {
+        width: 100%;
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+    .trade-remove-btn {
+        background: none;
+        border: none;
+        color: var(--danger);
+        font-size: 16px;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+    .trade-remove-btn:hover {
+        background: rgba(255, 74, 110, 0.12);
+    }
+
+    /* ===== Run Button ===== */
+    .sim-run-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 6px;
+    }
+    .sim-run-row .btn {
+        min-width: 140px;
+    }
+    .sim-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ===== Result Section ===== */
+    #result-section {
+        display: none;
+        margin-top: 28px;
+    }
+
+    /* ===== Metric Cards ===== */
+    .metric-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+    .metric-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
+    }
+    .metric-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 6px;
+    }
+    .metric-value {
+        font-family: 'Syne', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text);
+    }
+    .metric-value.positive { color: var(--secondary); }
+    .metric-value.negative { color: var(--danger); }
+
+    /* ===== Chart Container ===== */
+    .chart-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        position: relative;
+    }
+    .chart-wrap canvas {
+        width: 100% !important;
+        max-height: 420px;
+    }
+    .chart-legend-custom {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 12px;
+    }
+    .chart-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--muted);
+    }
+    .chart-legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    /* ===== DRIP diff badge ===== */
+    .drip-diff {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.25);
+        color: var(--primary);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+        .sim-form-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        .metric-cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .sim-tabs {
+            gap: 0;
+        }
+        .sim-tab {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+    }
+    @media (max-width: 480px) {
+        .sim-form-grid {
+            grid-template-columns: 1fr;
+        }
+        .metric-cards {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<h2 style="margin-bottom:18px; font-size:20px;">Simulation</h2>
+
+<!-- Strategy Tabs -->
+<div class="sim-tabs" role="tablist">
+    <button class="sim-tab active" data-tab="fixed_shares" onclick="switchStrategy(this)" role="tab">Fixed Shares</button>
+    <button class="sim-tab" data-tab="fixed_amount" onclick="switchStrategy(this)" role="tab">Fixed Amount</button>
+    <button class="sim-tab" data-tab="dca" onclick="switchStrategy(this)" role="tab">DCA</button>
+    <button class="sim-tab" data-tab="custom" onclick="switchStrategy(this)" role="tab">Custom</button>
+    <button class="sim-tab" data-tab="dca_drip" onclick="switchStrategy(this)" role="tab">DRIP</button>
+</div>
+
+<!-- =============== Tab 1: Fixed Shares =============== -->
+<div class="strategy-panel active" id="panel-fixed_shares">
+    <div class="card">
+        <div class="card-header"><h3>Fixed Shares</h3></div>
+        <div class="sim-form-grid">
+            <div class="form-group">
+                <label>Symbol</label>
+                <input type="text" id="fs-symbol" placeholder="AAPL, 2330..." style="text-transform:uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Market</label>
+                <select id="fs-market">
+                    <option value="US">US</option>
+                    <option value="TW">TW</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Shares</label>
+                <input type="number" id="fs-shares" min="1" value="100">
+            </div>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="fs-start">
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="fs-end">
+            </div>
+        </div>
+        <div class="sim-run-row">
+            <button class="btn btn-primary" onclick="runSimulation('fixed_shares')">Run Simulation</button>
+            <div class="sim-spinner" id="spinner-fixed_shares"></div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== Tab 2: Fixed Amount =============== -->
+<div class="strategy-panel" id="panel-fixed_amount">
+    <div class="card">
+        <div class="card-header"><h3>Fixed Amount</h3></div>
+        <div class="sim-form-grid">
+            <div class="form-group">
+                <label>Symbol</label>
+                <input type="text" id="fa-symbol" placeholder="AAPL, 2330..." style="text-transform:uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Market</label>
+                <select id="fa-market">
+                    <option value="US">US</option>
+                    <option value="TW">TW</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount per Buy</label>
+                <input type="number" id="fa-amount" min="1" value="10000">
+            </div>
+            <div class="form-group">
+                <label>Frequency (days)</label>
+                <input type="number" id="fa-frequency" min="1" value="1" placeholder="1=one-time, 30=monthly">
+            </div>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="fa-start">
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="fa-end">
+            </div>
+        </div>
+        <div class="sim-run-row">
+            <button class="btn btn-primary" onclick="runSimulation('fixed_amount')">Run Simulation</button>
+            <div class="sim-spinner" id="spinner-fixed_amount"></div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== Tab 3: DCA =============== -->
+<div class="strategy-panel" id="panel-dca">
+    <div class="card">
+        <div class="card-header"><h3>DCA (Dollar-Cost Averaging)</h3></div>
+        <div class="sim-form-grid">
+            <div class="form-group">
+                <label>Symbol</label>
+                <input type="text" id="dca-symbol" placeholder="AAPL, 2330..." style="text-transform:uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Market</label>
+                <select id="dca-market">
+                    <option value="US">US</option>
+                    <option value="TW">TW</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" id="dca-amount" min="1" value="10000">
+            </div>
+            <div class="form-group">
+                <label>Frequency (days)</label>
+                <input type="number" id="dca-frequency" min="1" value="30" placeholder="e.g. 30">
+            </div>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="dca-start">
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="dca-end">
+            </div>
+        </div>
+        <div class="sim-run-row">
+            <button class="btn btn-primary" onclick="runSimulation('dca')">Run Simulation</button>
+            <div class="sim-spinner" id="spinner-dca"></div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== Tab 4: Custom =============== -->
+<div class="strategy-panel" id="panel-custom">
+    <div class="card">
+        <div class="card-header"><h3>Custom (Multi-Trade)</h3></div>
+        <div class="sim-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+            <div class="form-group">
+                <label>Symbol</label>
+                <input type="text" id="ct-symbol" placeholder="AAPL, 2330..." style="text-transform:uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Market</label>
+                <select id="ct-market">
+                    <option value="US">US</option>
+                    <option value="TW">TW</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="ct-start">
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="ct-end">
+            </div>
+        </div>
+
+        <h4 style="font-size:14px; margin-bottom:10px; color:var(--text);">Trade List</h4>
+        <table class="trades-table" id="custom-trades-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Shares</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="custom-trades-body">
+                <tr>
+                    <td><input type="date" class="ct-date"></td>
+                    <td>
+                        <select class="ct-type">
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
+                        </select>
+                    </td>
+                    <td><input type="number" class="ct-shares" min="1" value="100"></td>
+                    <td><button class="trade-remove-btn" onclick="removeTradeRow(this)" title="Remove">&times;</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-secondary btn-sm" onclick="addTradeRow()" style="margin-bottom:14px;">+ Add Trade</button>
+
+        <div class="sim-run-row">
+            <button class="btn btn-primary" onclick="runSimulation('custom')">Run Simulation</button>
+            <div class="sim-spinner" id="spinner-custom"></div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== Tab 5: DRIP =============== -->
+<div class="strategy-panel" id="panel-dca_drip">
+    <div class="card">
+        <div class="card-header"><h3>DRIP (Dividend Reinvestment)</h3></div>
+        <div class="sim-form-grid">
+            <div class="form-group">
+                <label>Symbol</label>
+                <input type="text" id="drip-symbol" placeholder="AAPL, 2330..." style="text-transform:uppercase;">
+            </div>
+            <div class="form-group">
+                <label>Market</label>
+                <select id="drip-market">
+                    <option value="US">US</option>
+                    <option value="TW">TW</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" id="drip-amount" min="1" value="10000">
+            </div>
+            <div class="form-group">
+                <label>Frequency (days)</label>
+                <input type="number" id="drip-frequency" min="1" value="30" placeholder="e.g. 30">
+            </div>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" id="drip-start">
+            </div>
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="date" id="drip-end">
+            </div>
+        </div>
+        <div class="sim-run-row">
+            <button class="btn btn-primary" onclick="runDRIP()">Run DRIP Simulation</button>
+            <div class="sim-spinner" id="spinner-dca_drip"></div>
+        </div>
+    </div>
+</div>
+
+<!-- =============== Result Section =============== -->
+<div id="result-section">
+    <h3 style="font-size:16px; margin-bottom:14px; color:var(--text);">Results</h3>
+
+    <!-- Metric Cards -->
+    <div class="metric-cards" id="metric-cards">
+        <div class="metric-card">
+            <div class="metric-label">Gross Return</div>
+            <div class="metric-value" id="m-gross">--</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Net Return</div>
+            <div class="metric-value" id="m-net">--</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">CAGR</div>
+            <div class="metric-value" id="m-cagr">--</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Max Drawdown</div>
+            <div class="metric-value" id="m-mdd">--</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">vs Benchmark</div>
+            <div class="metric-value" id="m-bench">--</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Net P&amp;L</div>
+            <div class="metric-value" id="m-pnl">--</div>
+        </div>
+    </div>
+
+    <!-- DRIP compound diff badge (hidden by default) -->
+    <div id="drip-diff-wrap" style="display:none; margin-bottom:16px;">
+        <span class="drip-diff" id="drip-diff-badge"></span>
+    </div>
+
+    <!-- Equity Curve Chart -->
+    <div class="chart-wrap">
+        <div class="chart-legend-custom" id="chart-legend"></div>
+        <canvas id="equityChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    /* ---------- Default dates ---------- */
+    var today = new Date();
+    var oneYearAgo = new Date(today);
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    var todayStr = today.toISOString().slice(0, 10);
+    var yearAgoStr = oneYearAgo.toISOString().slice(0, 10);
+
+    ['fs-start','fa-start','dca-start','ct-start','drip-start'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && !el.value) el.value = yearAgoStr;
+    });
+    ['fs-end','fa-end','dca-end','ct-end','drip-end'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && !el.value) el.value = todayStr;
+    });
+
+    /* ---------- Tab switching ---------- */
+    window.switchStrategy = function(btn) {
+        document.querySelectorAll('.sim-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.strategy-panel').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        var panelId = 'panel-' + btn.getAttribute('data-tab');
+        document.getElementById(panelId).classList.add('active');
+    };
+
+    /* ---------- Custom trade rows ---------- */
+    window.addTradeRow = function() {
+        var tbody = document.getElementById('custom-trades-body');
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+            '<td><input type="date" class="ct-date"></td>' +
+            '<td><select class="ct-type"><option value="buy">Buy</option><option value="sell">Sell</option></select></td>' +
+            '<td><input type="number" class="ct-shares" min="1" value="100"></td>' +
+            '<td><button class="trade-remove-btn" onclick="removeTradeRow(this)" title="Remove">&times;</button></td>';
+        tbody.appendChild(tr);
+    };
+
+    window.removeTradeRow = function(btn) {
+        var tbody = document.getElementById('custom-trades-body');
+        if (tbody.rows.length > 1) {
+            btn.closest('tr').remove();
+        }
+    };
+
+    /* ---------- Collect form data ---------- */
+    function getPayload(strategy) {
+        var p = {};
+        if (strategy === 'fixed_shares') {
+            p = {
+                strategy: 'fixed_shares',
+                symbol: document.getElementById('fs-symbol').value.trim().toUpperCase(),
+                market: document.getElementById('fs-market').value,
+                shares: parseInt(document.getElementById('fs-shares').value) || 100,
+                start_date: document.getElementById('fs-start').value,
+                end_date: document.getElementById('fs-end').value
+            };
+        } else if (strategy === 'fixed_amount') {
+            p = {
+                strategy: 'fixed_amount',
+                symbol: document.getElementById('fa-symbol').value.trim().toUpperCase(),
+                market: document.getElementById('fa-market').value,
+                amount: parseFloat(document.getElementById('fa-amount').value) || 10000,
+                frequency: parseInt(document.getElementById('fa-frequency').value) || 1,
+                start_date: document.getElementById('fa-start').value,
+                end_date: document.getElementById('fa-end').value
+            };
+        } else if (strategy === 'dca') {
+            p = {
+                strategy: 'dca',
+                symbol: document.getElementById('dca-symbol').value.trim().toUpperCase(),
+                market: document.getElementById('dca-market').value,
+                amount: parseFloat(document.getElementById('dca-amount').value) || 10000,
+                frequency: parseInt(document.getElementById('dca-frequency').value) || 30,
+                start_date: document.getElementById('dca-start').value,
+                end_date: document.getElementById('dca-end').value
+            };
+        } else if (strategy === 'custom') {
+            var trades = [];
+            var rows = document.getElementById('custom-trades-body').querySelectorAll('tr');
+            rows.forEach(function(row) {
+                var d = row.querySelector('.ct-date').value;
+                var t = row.querySelector('.ct-type').value;
+                var s = parseInt(row.querySelector('.ct-shares').value) || 0;
+                if (d && s > 0) trades.push({ date: d, type: t, shares: s });
+            });
+            p = {
+                strategy: 'custom',
+                symbol: document.getElementById('ct-symbol').value.trim().toUpperCase(),
+                market: document.getElementById('ct-market').value,
+                start_date: document.getElementById('ct-start').value,
+                end_date: document.getElementById('ct-end').value,
+                trades: trades
+            };
+        }
+        return p;
+    }
+
+    function getDRIPPayload() {
+        return {
+            symbol: document.getElementById('drip-symbol').value.trim().toUpperCase(),
+            market: document.getElementById('drip-market').value,
+            amount: parseFloat(document.getElementById('drip-amount').value) || 10000,
+            frequency: parseInt(document.getElementById('drip-frequency').value) || 30,
+            start_date: document.getElementById('drip-start').value,
+            end_date: document.getElementById('drip-end').value
+        };
+    }
+
+    /* ---------- Spinner helpers ---------- */
+    function showSpinner(strategy) {
+        var el = document.getElementById('spinner-' + strategy);
+        if (el) el.style.display = 'block';
+    }
+    function hideSpinner(strategy) {
+        var el = document.getElementById('spinner-' + strategy);
+        if (el) el.style.display = 'none';
+    }
+
+    /* ---------- Chart instance ---------- */
+    var chartInstance = null;
+
+    /* ---------- Format helpers ---------- */
+    function fmtPct(v) {
+        if (v == null) return '--';
+        var n = parseFloat(v);
+        return (n >= 0 ? '+' : '') + n.toFixed(2) + '%';
+    }
+    function fmtMoney(v) {
+        if (v == null) return '--';
+        var n = parseFloat(v);
+        var prefix = n >= 0 ? '+' : '';
+        return prefix + n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+    function pctClass(v) {
+        if (v == null) return '';
+        return parseFloat(v) >= 0 ? 'positive' : 'negative';
+    }
+
+    /* ---------- Render metrics ---------- */
+    function renderMetrics(data) {
+        var m = data.metrics || data;
+
+        var gross = document.getElementById('m-gross');
+        gross.textContent = fmtPct(m.gross_return_pct);
+        gross.className = 'metric-value ' + pctClass(m.gross_return_pct);
+
+        var net = document.getElementById('m-net');
+        net.textContent = fmtPct(m.net_return_pct);
+        net.className = 'metric-value ' + pctClass(m.net_return_pct);
+
+        var cagr = document.getElementById('m-cagr');
+        cagr.textContent = fmtPct(m.cagr);
+        cagr.className = 'metric-value ' + pctClass(m.cagr);
+
+        var mdd = document.getElementById('m-mdd');
+        mdd.textContent = m.max_drawdown != null ? parseFloat(m.max_drawdown).toFixed(2) + '%' : '--';
+        mdd.className = 'metric-value negative';
+
+        var bench = document.getElementById('m-bench');
+        bench.textContent = fmtPct(m.vs_benchmark);
+        bench.className = 'metric-value ' + pctClass(m.vs_benchmark);
+
+        var pnl = document.getElementById('m-pnl');
+        pnl.textContent = fmtMoney(m.net_pnl);
+        pnl.className = 'metric-value ' + pctClass(m.net_pnl);
+    }
+
+    /* ---------- Render standard chart ---------- */
+    function renderChart(data) {
+        var labels = data.dates || [];
+        var datasets = [];
+
+        /* Market value line */
+        if (data.market_values) {
+            datasets.push({
+                label: 'Market Value',
+                data: data.market_values,
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.06)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHitRadius: 8,
+                fill: true,
+                tension: 0.3
+            });
+        }
+
+        /* Cost line */
+        if (data.costs) {
+            datasets.push({
+                label: 'Cost',
+                data: data.costs,
+                borderColor: '#ffb800',
+                borderWidth: 1.5,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                pointHitRadius: 8,
+                fill: false,
+                tension: 0.1
+            });
+        }
+
+        /* Benchmark line */
+        if (data.benchmark_values) {
+            datasets.push({
+                label: 'Benchmark',
+                data: data.benchmark_values,
+                borderColor: '#4a5a7a',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                pointHitRadius: 8,
+                fill: false,
+                tension: 0.3
+            });
+        }
+
+        buildChart(labels, datasets);
+    }
+
+    /* ---------- Render DRIP chart ---------- */
+    function renderDRIPChart(data) {
+        var labels = data.dates || [];
+        var datasets = [];
+
+        /* DCA line (blue) */
+        if (data.dca_values) {
+            datasets.push({
+                label: 'DCA',
+                data: data.dca_values,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHitRadius: 8,
+                fill: false,
+                tension: 0.3
+            });
+        }
+
+        /* DRIP line (cyan) */
+        if (data.drip_values) {
+            datasets.push({
+                label: 'DCA + DRIP',
+                data: data.drip_values,
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.08)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHitRadius: 8,
+                fill: true,
+                tension: 0.3
+            });
+        }
+
+        /* Cost line (dashed) */
+        if (data.costs) {
+            datasets.push({
+                label: 'Cost',
+                data: data.costs,
+                borderColor: '#ffb800',
+                borderWidth: 1.5,
+                borderDash: [6, 4],
+                pointRadius: 0,
+                pointHitRadius: 8,
+                fill: false,
+                tension: 0.1
+            });
+        }
+
+        buildChart(labels, datasets);
+
+        /* Show DRIP compound diff */
+        var diffWrap = document.getElementById('drip-diff-wrap');
+        var diffBadge = document.getElementById('drip-diff-badge');
+        if (data.compound_diff != null) {
+            diffBadge.textContent = 'DRIP Compound Advantage: ' + fmtMoney(data.compound_diff);
+            diffWrap.style.display = 'block';
+        } else {
+            diffWrap.style.display = 'none';
+        }
+    }
+
+    /* ---------- Build Chart.js ---------- */
+    function buildChart(labels, datasets) {
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;
+        }
+
+        /* Custom legend */
+        var legendEl = document.getElementById('chart-legend');
+        legendEl.innerHTML = '';
+        datasets.forEach(function(ds) {
+            var item = document.createElement('div');
+            item.className = 'chart-legend-item';
+            var dot = document.createElement('span');
+            dot.className = 'chart-legend-dot';
+            dot.style.background = ds.borderColor;
+            if (ds.borderDash) {
+                dot.style.border = '2px dashed ' + ds.borderColor;
+                dot.style.background = 'transparent';
+            }
+            var text = document.createElement('span');
+            text.textContent = ds.label;
+            item.appendChild(dot);
+            item.appendChild(text);
+            legendEl.appendChild(item);
+        });
+
+        var ctx = document.getElementById('equityChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: labels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(15, 22, 41, 0.95)',
+                        borderColor: '#1e2d4a',
+                        borderWidth: 1,
+                        titleFont: { family: 'DM Mono', size: 12 },
+                        bodyFont: { family: 'DM Mono', size: 12 },
+                        padding: 12,
+                        callbacks: {
+                            label: function(ctx) {
+                                var val = ctx.parsed.y;
+                                return ctx.dataset.label + ': ' + (val != null ? val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '--');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#4a5a7a',
+                            font: { family: 'DM Mono', size: 11 },
+                            maxTicksLimit: 10
+                        },
+                        grid: { color: 'rgba(30, 45, 74, 0.4)' }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#4a5a7a',
+                            font: { family: 'DM Mono', size: 11 },
+                            callback: function(v) { return v.toLocaleString(); }
+                        },
+                        grid: { color: 'rgba(30, 45, 74, 0.4)' }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ---------- Run standard simulation ---------- */
+    window.runSimulation = function(strategy) {
+        var payload = getPayload(strategy);
+        if (!payload.symbol) { alert('Please enter a symbol.'); return; }
+
+        showSpinner(strategy);
+        document.getElementById('result-section').style.display = 'none';
+        document.getElementById('drip-diff-wrap').style.display = 'none';
+
+        fetch('/api/simulate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            hideSpinner(strategy);
+            if (data.error) { alert('Error: ' + data.error); return; }
+            renderMetrics(data);
+            renderChart(data);
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        })
+        .catch(function(err) {
+            hideSpinner(strategy);
+            alert('Request failed: ' + err.message);
+        });
+    };
+
+    /* ---------- Run DRIP simulation ---------- */
+    window.runDRIP = function() {
+        var payload = getDRIPPayload();
+        if (!payload.symbol) { alert('Please enter a symbol.'); return; }
+
+        showSpinner('dca_drip');
+        document.getElementById('result-section').style.display = 'none';
+
+        fetch('/api/simulate/dca_drip', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            hideSpinner('dca_drip');
+            if (data.error) { alert('Error: ' + data.error); return; }
+            renderMetrics(data);
+            renderDRIPChart(data);
+            document.getElementById('result-section').style.display = 'block';
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        })
+        .catch(function(err) {
+            hideSpinner('dca_drip');
+            alert('Request failed: ' + err.message);
+        });
+    };
+})();
+</script>
+{% endblock %}

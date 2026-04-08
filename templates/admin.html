@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+
+{% block content %}
+<style>
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .stat-card {
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .stat-card .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+    .stat-card:nth-child(1) .stat-icon {
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+    }
+    .stat-card:nth-child(2) .stat-icon {
+        background: rgba(0, 255, 136, 0.1);
+        color: #00ff88;
+    }
+    .stat-num {
+        font-family: 'Syne', sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: #e8eef7;
+        line-height: 1.2;
+    }
+    .stat-label {
+        font-size: 12px;
+        color: #4a5a7a;
+        margin-top: 2px;
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+    }
+    .search-bar input {
+        width: 100%;
+        padding: 12px 16px;
+        background: #0a0f1e;
+        border: 1px solid #1e2d4a;
+        border-radius: 8px;
+        color: #e8eef7;
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+    }
+    .search-bar input::placeholder {
+        color: #4a5a7a;
+    }
+    .search-bar input:focus {
+        outline: none;
+        border-color: #00d4ff;
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    .users-card {
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .users-card .card-header {
+        padding: 16px 20px;
+        margin-bottom: 0;
+        border-bottom: 1px solid #1e2d4a;
+    }
+    .users-card .card-header h3 {
+        font-size: 16px;
+        color: #e8eef7;
+    }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .users-table th {
+        padding: 10px 16px;
+        text-align: left;
+        font-size: 11px;
+        color: #4a5a7a;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-weight: 500;
+        border-bottom: 1px solid #1e2d4a;
+        background: rgba(10, 15, 30, 0.4);
+    }
+    .users-table td {
+        padding: 12px 16px;
+        font-size: 13px;
+        color: #e8eef7;
+        border-bottom: 1px solid #1e2d4a;
+        vertical-align: middle;
+    }
+    .users-table tr:last-child td {
+        border-bottom: none;
+    }
+    .users-table tr:hover td {
+        background: rgba(0, 212, 255, 0.03);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+    .badge-member {
+        background: rgba(100, 116, 139, 0.2);
+        color: #94a3b8;
+        border: 1px solid rgba(100, 116, 139, 0.3);
+    }
+    .badge-admin {
+        background: rgba(0, 212, 255, 0.12);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+    .badge-superadmin {
+        background: rgba(255, 184, 0, 0.12);
+        color: #ffb800;
+        border: 1px solid rgba(255, 184, 0, 0.3);
+    }
+    .badge-active {
+        background: rgba(0, 255, 136, 0.12);
+        color: #00ff88;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+    }
+    .badge-disabled {
+        background: rgba(255, 74, 110, 0.12);
+        color: #ff4a6e;
+        border: 1px solid rgba(255, 74, 110, 0.3);
+    }
+
+    .actions-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .role-select {
+        padding: 5px 10px;
+        background: #0a0f1e;
+        border: 1px solid #1e2d4a;
+        border-radius: 6px;
+        color: #e8eef7;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    .role-select:focus {
+        outline: none;
+        border-color: #00d4ff;
+    }
+    .role-select:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .btn-toggle {
+        padding: 5px 12px;
+        border: 1px solid #1e2d4a;
+        border-radius: 6px;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: transparent;
+    }
+    .btn-toggle-disable {
+        color: #ff4a6e;
+        border-color: rgba(255, 74, 110, 0.3);
+    }
+    .btn-toggle-disable:hover {
+        background: rgba(255, 74, 110, 0.1);
+    }
+    .btn-toggle-enable {
+        color: #00ff88;
+        border-color: rgba(0, 255, 136, 0.3);
+    }
+    .btn-toggle-enable:hover {
+        background: rgba(0, 255, 136, 0.1);
+    }
+    .btn-toggle:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+    .btn-toggle:disabled:hover {
+        background: transparent;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #4a5a7a;
+        font-size: 13px;
+    }
+
+    .toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-family: 'DM Mono', monospace;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        transition: opacity 0.3s ease;
+    }
+    .toast-success {
+        background: #0f1629;
+        border: 1px solid rgba(0, 255, 136, 0.3);
+        color: #00ff88;
+    }
+    .toast-error {
+        background: #0f1629;
+        border: 1px solid rgba(255, 74, 110, 0.3);
+        color: #ff4a6e;
+    }
+
+    @media (max-width: 768px) {
+        .admin-stats {
+            grid-template-columns: 1fr;
+        }
+        .users-table-wrap {
+            overflow-x: auto;
+        }
+        .users-table {
+            min-width: 700px;
+        }
+    }
+</style>
+
+<!-- Stats Cards -->
+<div class="admin-stats">
+    <div class="stat-card">
+        <div class="stat-icon">&#x25A3;</div>
+        <div>
+            <div class="stat-num" id="stat-total">--</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">&#x2714;</div>
+        <div>
+            <div class="stat-num" id="stat-active">--</div>
+            <div class="stat-label">Active Users</div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search by username or email..." oninput="filterUsers()">
+</div>
+
+<!-- Users Table -->
+<div class="users-card">
+    <div class="card-header">
+        <h3>User Management</h3>
+    </div>
+    <div class="users-table-wrap">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersBody">
+                <tr><td colspan="7" class="empty-state">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CURRENT_USER_ROLE = '{{ current_user.role }}';
+const CURRENT_USER_ID = {{ current_user.id }};
+let allUsers = [];
+
+function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function toast(msg, type) {
+    type = type || 'success';
+    var el = document.createElement('div');
+    el.className = 'toast toast-' + type;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(function() {
+        el.style.opacity = '0';
+        setTimeout(function() { el.remove(); }, 300);
+    }, 2500);
+}
+
+async function apiCall(url, method, body) {
+    method = method || 'GET';
+    var opts = { method: method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    var res = await fetch(url, opts);
+    return res.json();
+}
+
+function roleBadgeClass(role) {
+    if (role === 'superadmin') return 'badge-superadmin';
+    if (role === 'admin') return 'badge-admin';
+    return 'badge-member';
+}
+
+function renderUsers(users) {
+    var tbody = document.getElementById('usersBody');
+    if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No users found.</td></tr>';
+        return;
+    }
+
+    var html = '';
+    for (var i = 0; i < users.length; i++) {
+        var u = users[i];
+        var isSelf = u.id === CURRENT_USER_ID;
+        var isActive = u.is_active !== false && u.status !== 'disabled';
+        var statusLabel = isActive ? 'active' : 'disabled';
+        var statusClass = isActive ? 'badge-active' : 'badge-disabled';
+        var role = u.role || 'member';
+        var created = u.created_at ? u.created_at.slice(0, 10) : '--';
+
+        var actionsHtml = '<div class="actions-cell">';
+
+        // Role change dropdown - only for superadmin
+        if (CURRENT_USER_ROLE === 'superadmin') {
+            var disabled = isSelf ? ' disabled' : '';
+            actionsHtml += '<select class="role-select" onchange="changeRole(' + u.id + ', this.value)"' + disabled + '>';
+            var roles = ['member', 'admin', 'superadmin'];
+            for (var r = 0; r < roles.length; r++) {
+                var sel = roles[r] === role ? ' selected' : '';
+                actionsHtml += '<option value="' + roles[r] + '"' + sel + '>' + roles[r] + '</option>';
+            }
+            actionsHtml += '</select>';
+        }
+
+        // Toggle button
+        var toggleDisabled = isSelf ? ' disabled' : '';
+        if (isActive) {
+            actionsHtml += '<button class="btn-toggle btn-toggle-disable" onclick="toggleUser(' + u.id + ')"' + toggleDisabled + '>Disable</button>';
+        } else {
+            actionsHtml += '<button class="btn-toggle btn-toggle-enable" onclick="toggleUser(' + u.id + ')"' + toggleDisabled + '>Enable</button>';
+        }
+
+        actionsHtml += '</div>';
+
+        html += '<tr>' +
+            '<td>' + u.id + '</td>' +
+            '<td>' + escHtml(u.username) + '</td>' +
+            '<td>' + escHtml(u.email) + '</td>' +
+            '<td><span class="badge ' + roleBadgeClass(role) + '">' + escHtml(role) + '</span></td>' +
+            '<td><span class="badge ' + statusClass + '">' + statusLabel + '</span></td>' +
+            '<td>' + created + '</td>' +
+            '<td>' + actionsHtml + '</td>' +
+            '</tr>';
+    }
+    tbody.innerHTML = html;
+}
+
+function updateStats(users) {
+    document.getElementById('stat-total').textContent = users.length;
+    var active = 0;
+    for (var i = 0; i < users.length; i++) {
+        if (users[i].is_active !== false && users[i].status !== 'disabled') active++;
+    }
+    document.getElementById('stat-active').textContent = active;
+}
+
+function filterUsers() {
+    var q = document.getElementById('searchInput').value.toLowerCase().trim();
+    if (!q) {
+        renderUsers(allUsers);
+        return;
+    }
+    var filtered = allUsers.filter(function(u) {
+        return (u.username && u.username.toLowerCase().indexOf(q) !== -1) ||
+               (u.email && u.email.toLowerCase().indexOf(q) !== -1);
+    });
+    renderUsers(filtered);
+}
+
+async function loadUsers() {
+    try {
+        var data = await apiCall('/api/admin/users');
+        allUsers = Array.isArray(data) ? data : (data.users || []);
+        updateStats(allUsers);
+        filterUsers();
+    } catch (e) {
+        document.getElementById('usersBody').innerHTML =
+            '<tr><td colspan="7" class="empty-state">Failed to load users.</td></tr>';
+    }
+}
+
+async function changeRole(userId, newRole) {
+    try {
+        var data = await apiCall('/api/admin/users/' + userId + '/role', 'PUT', { role: newRole });
+        if (data.error) { toast(data.error, 'error'); loadUsers(); return; }
+        toast('Role updated');
+        loadUsers();
+    } catch (e) {
+        toast('Failed to update role', 'error');
+        loadUsers();
+    }
+}
+
+async function toggleUser(userId) {
+    try {
+        var data = await apiCall('/api/admin/users/' + userId + '/toggle', 'POST');
+        if (data.error) { toast(data.error, 'error'); return; }
+        toast('Status updated');
+        loadUsers();
+    } catch (e) {
+        toast('Failed to toggle status', 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadUsers();
+});
+</script>
+{% endblock %}

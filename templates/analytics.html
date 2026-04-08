@@ -1,0 +1,620 @@
+{% extends "base.html" %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<style>
+    .analytics-wrap{max-width:1200px;margin:0 auto;padding:16px;}
+    .tab-nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px;border-bottom:2px solid #333;margin-bottom:20px;flex-wrap:nowrap;}
+    .tab-nav button{background:#1e1e2e;color:#aaa;border:none;padding:10px 16px;border-radius:8px 8px 0 0;cursor:pointer;font-size:13px;white-space:nowrap;transition:all .2s;}
+    .tab-nav button.active{background:#2d2d44;color:#fff;border-bottom:2px solid #7c6ff7;}
+    .tab-nav button:hover{background:#2d2d44;color:#ddd;}
+    .tab-pane{display:none;}
+    .tab-pane.active{display:block;}
+    .stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;}
+    .stat-card{background:#1e1e2e;border-radius:10px;padding:16px;text-align:center;border:1px solid #333;}
+    .stat-card .label{font-size:12px;color:#888;margin-bottom:6px;}
+    .stat-card .value{font-size:28px;font-weight:700;color:#fff;}
+    .stat-card .value.green{color:#4ade80;}
+    .stat-card .value.red{color:#f87171;}
+    .chart-box{background:#1e1e2e;border-radius:10px;padding:16px;margin-bottom:20px;border:1px solid #333;}
+    .chart-box canvas{width:100%!important;max-height:400px;}
+    .data-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px;}
+    .data-table th,.data-table td{padding:8px 10px;text-align:left;border-bottom:1px solid #333;}
+    .data-table th{background:#1a1a2e;color:#aaa;font-weight:600;position:sticky;top:0;}
+    .data-table td{color:#ddd;}
+    .data-table tr:hover{background:#252540;}
+    .table-wrap{max-height:500px;overflow-y:auto;border-radius:8px;border:1px solid #333;}
+    .pnl-pos{color:#4ade80;}
+    .pnl-neg{color:#f87171;}
+    /* Heatmap grid */
+    .heatmap-grid{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:20px;}
+    .heatmap-cell{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;cursor:default;position:relative;}
+    .heatmap-cell:hover .heatmap-tip{display:block;}
+    .heatmap-tip{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;z-index:10;}
+    /* Bucket cards */
+    .bucket-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:20px;}
+    .bucket-card{background:#1e1e2e;border:1px solid #333;border-radius:10px;padding:14px;text-align:center;}
+    .bucket-card .b-label{font-size:14px;font-weight:700;color:#7c6ff7;margin-bottom:6px;}
+    .bucket-card .b-stat{font-size:12px;color:#aaa;line-height:1.8;}
+    .bucket-card .b-val{font-weight:700;color:#fff;}
+    /* FX */
+    .fx-rate-box{background:linear-gradient(135deg,#1e1e2e,#2d2d44);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;border:1px solid #444;}
+    .fx-rate-box .rate{font-size:36px;font-weight:800;color:#7c6ff7;}
+    .toggle-group{display:flex;gap:0;margin-bottom:16px;justify-content:center;}
+    .toggle-group button{padding:8px 20px;border:1px solid #555;background:#1e1e2e;color:#aaa;cursor:pointer;font-size:13px;}
+    .toggle-group button:first-child{border-radius:8px 0 0 8px;}
+    .toggle-group button:last-child{border-radius:0 8px 8px 0;}
+    .toggle-group button.active{background:#7c6ff7;color:#fff;border-color:#7c6ff7;}
+    /* Compare input */
+    .compare-form{background:#1e1e2e;border-radius:10px;padding:16px;margin-bottom:16px;border:1px solid #333;}
+    .compare-form label{font-size:12px;color:#888;display:block;margin-bottom:4px;}
+    .compare-form input,.compare-form select{background:#0d0d1a;border:1px solid #444;color:#fff;padding:8px 10px;border-radius:6px;font-size:13px;width:100%;box-sizing:border-box;}
+    .compare-form .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:10px;}
+    .btn-run{background:#7c6ff7;color:#fff;border:none;padding:10px 24px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;}
+    .btn-run:hover{background:#6b5ce7;}
+    .medal{font-size:18px;}
+    .rank-table{margin-top:12px;}
+    .spinner{display:inline-block;width:20px;height:20px;border:3px solid #333;border-top:3px solid #7c6ff7;border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-box{text-align:center;padding:40px;color:#888;}
+    .section-title{font-size:16px;font-weight:700;color:#ccc;margin:16px 0 10px;padding-left:4px;}
+</style>
+
+<div class="analytics-wrap">
+    <div class="tab-nav" id="tabNav">
+        <button class="active" onclick="switchTab(0)">📈 勝率統計</button>
+        <button onclick="switchTab(1)">🗓 月損益熱力圖</button>
+        <button onclick="switchTab(2)">⏱ 持有天數分析</button>
+        <button onclick="switchTab(3)">💱 匯率統一總覽</button>
+        <button onclick="switchTab(4)">🔀 多標的比較</button>
+        <button onclick="switchTab(5)">🏷 理由勝率分析</button>
+    </div>
+
+    <!-- Tab 1: Win Rate Stats -->
+    <div class="tab-pane active" id="tab0">
+        <div class="loading-box" id="tab0-loading"><div class="spinner"></div><br>載入中...</div>
+        <div id="tab0-content" style="display:none;">
+            <div class="stat-cards" id="winrate-cards"></div>
+            <div class="chart-box"><canvas id="chartMarketWR"></canvas></div>
+            <div class="section-title">已結清交易明細</div>
+            <div class="table-wrap"><table class="data-table" id="matchedTable"><thead><tr>
+                <th>標的</th><th>市場</th><th>買入價</th><th>賣出價</th><th>股數</th><th>損益</th><th>報酬%</th><th>持有天數</th><th>賣出日</th>
+            </tr></thead><tbody></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Monthly Heatmap -->
+    <div class="tab-pane" id="tab1">
+        <div class="loading-box" id="tab1-loading"><div class="spinner"></div><br>載入中...</div>
+        <div id="tab1-content" style="display:none;">
+            <div class="section-title">月損益熱力圖</div>
+            <div class="heatmap-grid" id="heatmapGrid"></div>
+            <div class="chart-box"><canvas id="chartMonthlyPnl"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Tab 3: Hold Days -->
+    <div class="tab-pane" id="tab2">
+        <div class="loading-box" id="tab2-loading"><div class="spinner"></div><br>載入中...</div>
+        <div id="tab2-content" style="display:none;">
+            <div class="section-title">持有天數區間統計</div>
+            <div class="bucket-cards" id="bucketCards"></div>
+            <div class="chart-box"><canvas id="chartScatter"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Tab 4: FX Overview -->
+    <div class="tab-pane" id="tab3">
+        <div class="loading-box" id="tab3-loading"><div class="spinner"></div><br>載入中...</div>
+        <div id="tab3-content" style="display:none;">
+            <div class="fx-rate-box">
+                <div style="font-size:13px;color:#888;margin-bottom:4px;">USD / TWD 匯率</div>
+                <div class="rate" id="fxRateDisplay">--</div>
+            </div>
+            <div class="toggle-group">
+                <button class="active" id="btnTWD" onclick="setFxBase('TWD')">TWD 為基準</button>
+                <button id="btnUSD" onclick="setFxBase('USD')">USD 為基準</button>
+            </div>
+            <div class="table-wrap"><table class="data-table" id="fxTable"><thead><tr>
+                <th>標的</th><th>市場</th><th>股數</th><th>成本</th><th>市值</th><th>損益</th>
+            </tr></thead><tbody></tbody></table></div>
+            <div class="stat-cards" style="margin-top:16px;" id="fxTotalCards"></div>
+        </div>
+    </div>
+
+    <!-- Tab 5: Multi Compare -->
+    <div class="tab-pane" id="tab4">
+        <div class="compare-form">
+            <div class="row">
+                <div><label>標的代號 (最多6個, 逗號分隔)</label><input type="text" id="cmpSymbols" placeholder="AAPL,MSFT,GOOG"></div>
+                <div><label>市場</label><select id="cmpMarket"><option value="US">US</option><option value="TW">TW</option></select></div>
+            </div>
+            <div class="row">
+                <div><label>開始日期</label><input type="date" id="cmpStart"></div>
+                <div><label>結束日期</label><input type="date" id="cmpEnd"></div>
+                <div><label>模式</label><select id="cmpMode"><option value="fixed_shares">固定股數</option><option value="fixed_amount">固定金額</option><option value="dca">定期定額</option></select></div>
+            </div>
+            <div style="text-align:center;margin-top:10px;">
+                <button class="btn-run" onclick="runCompare()">🚀 比較分析</button>
+            </div>
+        </div>
+        <div class="loading-box" id="tab4-loading" style="display:none;"><div class="spinner"></div><br>分析中...</div>
+        <div id="tab4-content" style="display:none;">
+            <div class="chart-box"><canvas id="chartCompare"></canvas></div>
+            <div class="section-title">排名</div>
+            <div class="table-wrap"><table class="data-table rank-table" id="rankTable"><thead><tr>
+                <th>名次</th><th>標的</th><th>總報酬%</th>
+            </tr></thead><tbody></tbody></table></div>
+        </div>
+    </div>
+
+    <!-- Tab 6: Reason Win Rate -->
+    <div class="tab-pane" id="tab5">
+        <div class="loading-box" id="tab5-loading"><div class="spinner"></div><br>載入中...</div>
+        <div id="tab5-content" style="display:none;">
+            <div class="chart-box"><canvas id="chartReason"></canvas></div>
+            <div class="section-title">理由標籤明細</div>
+            <div class="table-wrap"><table class="data-table" id="reasonTable"><thead><tr>
+                <th>理由標籤</th><th>交易次數</th><th>勝率%</th><th>平均報酬%</th><th>平均持有天數</th><th>總損益</th>
+            </tr></thead><tbody></tbody></table></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+/* ======== Global state ======== */
+let overviewData = null;
+let reasonData = null;
+let portfolioData = null;
+let fxBase = 'TWD';
+let compareChart = null;
+
+/* ======== Tab switching ======== */
+function switchTab(idx) {
+    document.querySelectorAll('.tab-pane').forEach((p,i) => {
+        p.classList.toggle('active', i === idx);
+    });
+    document.querySelectorAll('#tabNav button').forEach((b,i) => {
+        b.classList.toggle('active', i === idx);
+    });
+    // Lazy load data
+    if (idx <= 3 && !overviewData) loadOverview();
+    if (idx === 3 && !portfolioData) loadPortfolio();
+    if (idx === 5 && !reasonData) loadReasonWinrate();
+}
+
+/* ======== API loaders ======== */
+async function loadOverview() {
+    try {
+        const res = await fetch('/api/analytics/overview');
+        overviewData = await res.json();
+        renderTab0();
+        renderTab1();
+        renderTab2();
+        renderTab3Partial();
+    } catch(e) {
+        console.error('Overview load failed:', e);
+    }
+}
+
+async function loadPortfolio() {
+    try {
+        const res = await fetch('/api/portfolio/summary');
+        portfolioData = await res.json();
+        renderTab3();
+    } catch(e) {
+        console.error('Portfolio load failed:', e);
+    }
+}
+
+async function loadReasonWinrate() {
+    try {
+        const res = await fetch('/api/analytics/reason_winrate');
+        reasonData = await res.json();
+        renderTab5();
+    } catch(e) {
+        console.error('Reason winrate load failed:', e);
+    }
+}
+
+/* ======== Tab 0: Win Rate Stats ======== */
+function renderTab0() {
+    const d = overviewData;
+    document.getElementById('tab0-loading').style.display = 'none';
+    document.getElementById('tab0-content').style.display = 'block';
+
+    const cards = document.getElementById('winrate-cards');
+    cards.innerHTML = `
+        <div class="stat-card"><div class="label">總勝率</div><div class="value ${d.win_rate >= 50?'green':'red'}">${d.win_rate}%</div></div>
+        <div class="stat-card"><div class="label">平均獲利</div><div class="value green">+${d.avg_win}%</div></div>
+        <div class="stat-card"><div class="label">平均虧損</div><div class="value red">${d.avg_loss}%</div></div>
+        <div class="stat-card"><div class="label">獲利因子</div><div class="value">${d.profit_factor}</div></div>
+        <div class="stat-card"><div class="label">總交易</div><div class="value">${d.total_trades}</div></div>
+        <div class="stat-card"><div class="label">勝 / 負</div><div class="value"><span class="pnl-pos">${d.wins}</span> / <span class="pnl-neg">${d.losses}</span></div></div>
+    `;
+
+    // Market comparison bar chart
+    new Chart(document.getElementById('chartMarketWR'), {
+        type: 'bar',
+        data: {
+            labels: ['TW 台股', 'US 美股'],
+            datasets: [{
+                label: '勝率 %',
+                data: [d.tw_win_rate, d.us_win_rate],
+                backgroundColor: ['#7c6ff7', '#4ade80'],
+                borderRadius: 6,
+                barThickness: 50,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: 'TW vs US 勝率比較', color: '#ccc' },
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, max: 100, ticks: { color: '#888', callback: v => v+'%' }, grid: { color: '#2a2a3e' } },
+                x: { ticks: { color: '#ccc' }, grid: { display: false } }
+            }
+        }
+    });
+
+    // Matched trades table
+    const tbody = document.querySelector('#matchedTable tbody');
+    tbody.innerHTML = '';
+    (d.matched_trades || []).forEach(m => {
+        const cls = m.realized_pnl > 0 ? 'pnl-pos' : 'pnl-neg';
+        tbody.innerHTML += `<tr>
+            <td>${m.symbol}</td><td>${m.market||''}</td>
+            <td>${num(m.buy_price)}</td><td>${num(m.sell_price)}</td>
+            <td>${m.shares}</td>
+            <td class="${cls}">${num(m.realized_pnl)}</td>
+            <td class="${cls}">${m.return_pct}%</td>
+            <td>${m.hold_days}</td><td>${m.sell_date}</td>
+        </tr>`;
+    });
+}
+
+/* ======== Tab 1: Monthly Heatmap ======== */
+function renderTab1() {
+    const d = overviewData;
+    document.getElementById('tab1-loading').style.display = 'none';
+    document.getElementById('tab1-content').style.display = 'block';
+
+    const heatmap = d.heatmap || [];
+    const grid = document.getElementById('heatmapGrid');
+    grid.innerHTML = '';
+
+    if (heatmap.length === 0) {
+        grid.innerHTML = '<div style="color:#888;padding:20px;">尚無數據</div>';
+        return;
+    }
+
+    const vals = heatmap.map(h => Math.abs(h.pnl));
+    const maxVal = Math.max(...vals, 1);
+
+    heatmap.forEach(h => {
+        const cell = document.createElement('div');
+        cell.className = 'heatmap-cell';
+        const intensity = Math.min(Math.abs(h.pnl) / maxVal, 1);
+        const alpha = 0.2 + intensity * 0.8;
+        cell.style.background = h.pnl >= 0
+            ? `rgba(74,222,128,${alpha})`
+            : `rgba(248,113,113,${alpha})`;
+        cell.innerHTML = `<span style="font-size:8px;">${h.month.slice(5)}</span><span class="heatmap-tip">${h.month}: ${num(h.pnl)}</span>`;
+        grid.appendChild(cell);
+    });
+
+    // Monthly bar chart
+    const labels = heatmap.map(h => h.month);
+    const values = heatmap.map(h => h.pnl);
+    const colors = values.map(v => v >= 0 ? '#4ade80' : '#f87171');
+
+    new Chart(document.getElementById('chartMonthlyPnl'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '月損益',
+                data: values,
+                backgroundColor: colors,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: '月度損益', color: '#ccc' },
+                legend: { display: false }
+            },
+            scales: {
+                y: { ticks: { color: '#888' }, grid: { color: '#2a2a3e' } },
+                x: { ticks: { color: '#888', maxRotation: 45 }, grid: { display: false } }
+            }
+        }
+    });
+}
+
+/* ======== Tab 2: Hold Days Analysis ======== */
+function renderTab2() {
+    const d = overviewData;
+    document.getElementById('tab2-loading').style.display = 'none';
+    document.getElementById('tab2-content').style.display = 'block';
+
+    // Bucket stat cards
+    const container = document.getElementById('bucketCards');
+    container.innerHTML = '';
+    (d.bucket_stats || []).forEach(b => {
+        container.innerHTML += `
+        <div class="bucket-card">
+            <div class="b-label">${b.label}</div>
+            <div class="b-stat">交易數: <span class="b-val">${b.count}</span></div>
+            <div class="b-stat">勝率: <span class="b-val" style="color:${b.win_rate>=50?'#4ade80':'#f87171'}">${b.win_rate}%</span></div>
+            <div class="b-stat">平均報酬: <span class="b-val" style="color:${b.avg_return>=0?'#4ade80':'#f87171'}">${b.avg_return}%</span></div>
+        </div>`;
+    });
+
+    // Scatter plot
+    const scatter = d.scatter || [];
+    const winPts = scatter.filter(s => s.win).map(s => ({x: s.hold_days, y: s.return_pct}));
+    const losePts = scatter.filter(s => !s.win).map(s => ({x: s.hold_days, y: s.return_pct}));
+
+    new Chart(document.getElementById('chartScatter'), {
+        type: 'scatter',
+        data: {
+            datasets: [
+                { label: '獲利', data: winPts, backgroundColor: 'rgba(74,222,128,0.7)', pointRadius: 6 },
+                { label: '虧損', data: losePts, backgroundColor: 'rgba(248,113,113,0.7)', pointRadius: 6 }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: '持有天數 vs 報酬率', color: '#ccc' },
+                legend: { labels: { color: '#ccc' } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `${ctx.raw.x}天, ${ctx.raw.y}%`
+                    }
+                }
+            },
+            scales: {
+                x: { title: { display: true, text: '持有天數', color: '#888' }, ticks: { color: '#888' }, grid: { color: '#2a2a3e' } },
+                y: { title: { display: true, text: '報酬率 %', color: '#888' }, ticks: { color: '#888' }, grid: { color: '#2a2a3e' } }
+            }
+        }
+    });
+}
+
+/* ======== Tab 3: FX Overview ======== */
+function renderTab3Partial() {
+    if (overviewData && overviewData.fx_rate) {
+        document.getElementById('fxRateDisplay').textContent = overviewData.fx_rate;
+    }
+}
+
+function renderTab3() {
+    document.getElementById('tab3-loading').style.display = 'none';
+    document.getElementById('tab3-content').style.display = 'block';
+    renderTab3Partial();
+    renderFxTable();
+}
+
+function setFxBase(base) {
+    fxBase = base;
+    document.getElementById('btnTWD').classList.toggle('active', base === 'TWD');
+    document.getElementById('btnUSD').classList.toggle('active', base === 'USD');
+    renderFxTable();
+}
+
+function renderFxTable() {
+    const rate = overviewData ? overviewData.fx_rate : null;
+    const holdings = portfolioData || [];
+    const tbody = document.querySelector('#fxTable tbody');
+    tbody.innerHTML = '';
+
+    let totalCost = 0, totalMV = 0;
+    const displayCurrency = fxBase;
+
+    holdings.forEach(h => {
+        if (!h.remaining_shares || h.remaining_shares <= 0) return;
+        let cost = h.avg_cost * h.remaining_shares;
+        let mv = (h.current_price || h.avg_cost) * h.remaining_shares;
+
+        if (rate) {
+            if (fxBase === 'TWD' && h.market === 'US') {
+                cost *= rate; mv *= rate;
+            } else if (fxBase === 'USD' && h.market === 'TW') {
+                cost /= rate; mv /= rate;
+            }
+        }
+
+        const pnl = mv - cost;
+        totalCost += cost;
+        totalMV += mv;
+
+        tbody.innerHTML += `<tr>
+            <td>${h.symbol}</td><td>${h.market}</td>
+            <td>${h.remaining_shares}</td>
+            <td>${num(cost)}</td><td>${num(mv)}</td>
+            <td class="${pnl>=0?'pnl-pos':'pnl-neg'}">${num(pnl)}</td>
+        </tr>`;
+    });
+
+    const totalPnl = totalMV - totalCost;
+    const cards = document.getElementById('fxTotalCards');
+    cards.innerHTML = `
+        <div class="stat-card"><div class="label">總成本 (${displayCurrency})</div><div class="value">${num(totalCost)}</div></div>
+        <div class="stat-card"><div class="label">總市值 (${displayCurrency})</div><div class="value">${num(totalMV)}</div></div>
+        <div class="stat-card"><div class="label">總損益 (${displayCurrency})</div><div class="value ${totalPnl>=0?'green':'red'}">${num(totalPnl)}</div></div>
+    `;
+}
+
+/* ======== Tab 4: Multi Compare ======== */
+async function runCompare() {
+    const symbols = document.getElementById('cmpSymbols').value.split(',').map(s => s.trim()).filter(Boolean);
+    if (symbols.length === 0) { alert('請輸入至少一個標的代號'); return; }
+
+    const payload = {
+        symbols: symbols.slice(0, 6),
+        market: document.getElementById('cmpMarket').value,
+        start_date: document.getElementById('cmpStart').value,
+        end_date: document.getElementById('cmpEnd').value,
+        mode: document.getElementById('cmpMode').value,
+    };
+
+    document.getElementById('tab4-loading').style.display = 'block';
+    document.getElementById('tab4-content').style.display = 'none';
+
+    try {
+        const res = await fetch('/api/simulate/compare', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        document.getElementById('tab4-loading').style.display = 'none';
+        document.getElementById('tab4-content').style.display = 'block';
+        renderCompare(data);
+    } catch(e) {
+        document.getElementById('tab4-loading').innerHTML = '<div style="color:#f87171;">載入失敗</div>';
+    }
+}
+
+const COMPARE_COLORS = ['#7c6ff7','#4ade80','#f87171','#facc15','#38bdf8','#fb923c'];
+
+function renderCompare(data) {
+    // Multi-line chart
+    if (compareChart) compareChart.destroy();
+
+    const datasets = data.map((r, i) => {
+        const curve = r.curve || [];
+        return {
+            label: r.symbol,
+            data: curve.map(c => ({x: c.date, y: c.value})),
+            borderColor: COMPARE_COLORS[i % COMPARE_COLORS.length],
+            backgroundColor: 'transparent',
+            pointRadius: 0,
+            borderWidth: 2,
+            tension: 0.3,
+        };
+    });
+
+    // Collect all dates for labels
+    const allDates = [...new Set(data.flatMap(r => (r.curve||[]).map(c => c.date)))].sort();
+
+    compareChart = new Chart(document.getElementById('chartCompare'), {
+        type: 'line',
+        data: { labels: allDates, datasets },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: '多標的報酬比較 (基準=100)', color: '#ccc' },
+                legend: { labels: { color: '#ccc' } }
+            },
+            scales: {
+                x: { ticks: { color: '#888', maxTicksLimit: 12 }, grid: { color: '#2a2a3e' } },
+                y: { ticks: { color: '#888' }, grid: { color: '#2a2a3e' } }
+            }
+        }
+    });
+
+    // Ranking table
+    const medals = ['🥇','🥈','🥉'];
+    const tbody = document.querySelector('#rankTable tbody');
+    tbody.innerHTML = '';
+    data.forEach(r => {
+        const medal = r.rank <= 3 ? `<span class="medal">${medals[r.rank-1]}</span> ` : '';
+        const cls = r.total_return >= 0 ? 'pnl-pos' : 'pnl-neg';
+        tbody.innerHTML += `<tr>
+            <td>${medal}#${r.rank}</td>
+            <td>${r.symbol}</td>
+            <td class="${cls}">${r.total_return}%</td>
+        </tr>`;
+    });
+}
+
+/* ======== Tab 5: Reason Win Rate ======== */
+function renderTab5() {
+    document.getElementById('tab5-loading').style.display = 'none';
+    document.getElementById('tab5-content').style.display = 'block';
+
+    const data = reasonData || [];
+    if (data.length === 0) return;
+
+    const labels = data.map(d => d.reason_tag);
+    const winRates = data.map(d => d.win_rate);
+    const avgReturns = data.map(d => d.avg_return);
+
+    new Chart(document.getElementById('chartReason'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: '勝率 %',
+                    data: winRates,
+                    backgroundColor: 'rgba(124,111,247,0.8)',
+                    borderRadius: 4,
+                    yAxisID: 'y',
+                },
+                {
+                    label: '平均報酬 %',
+                    data: avgReturns,
+                    backgroundColor: avgReturns.map(v => v >= 0 ? 'rgba(74,222,128,0.8)' : 'rgba(248,113,113,0.8)'),
+                    borderRadius: 4,
+                    yAxisID: 'y1',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: '理由標籤 — 勝率 & 平均報酬', color: '#ccc' },
+                legend: { labels: { color: '#ccc' } }
+            },
+            scales: {
+                y: { position: 'left', title: { display: true, text: '勝率 %', color: '#888' }, ticks: { color: '#888' }, grid: { color: '#2a2a3e' } },
+                y1: { position: 'right', title: { display: true, text: '平均報酬 %', color: '#888' }, ticks: { color: '#888' }, grid: { drawOnChartArea: false } },
+                x: { ticks: { color: '#ccc' }, grid: { display: false } }
+            }
+        }
+    });
+
+    // Table
+    const tbody = document.querySelector('#reasonTable tbody');
+    tbody.innerHTML = '';
+    data.forEach(r => {
+        const cls = r.total_pnl >= 0 ? 'pnl-pos' : 'pnl-neg';
+        tbody.innerHTML += `<tr>
+            <td>${r.reason_tag}</td><td>${r.total}</td>
+            <td>${r.win_rate}%</td><td>${r.avg_return}%</td>
+            <td>${r.avg_hold_days}</td>
+            <td class="${cls}">${num(r.total_pnl)}</td>
+        </tr>`;
+    });
+}
+
+/* ======== Helpers ======== */
+function num(v) {
+    if (v == null) return '--';
+    return Number(v).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+/* ======== Init ======== */
+document.addEventListener('DOMContentLoaded', () => {
+    // Set default date range for compare
+    const today = new Date();
+    const yearAgo = new Date(today);
+    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+    document.getElementById('cmpEnd').value = today.toISOString().slice(0,10);
+    document.getElementById('cmpStart').value = yearAgo.toISOString().slice(0,10);
+
+    // Load default tab data
+    loadOverview();
+});
+</script>
+{% endblock %}

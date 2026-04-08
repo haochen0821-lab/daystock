@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+{% block title %}Academy{% endblock %}
+
+{% block content %}
+<style>
+    .academy-hero {
+        text-align: center;
+        padding: 32px 20px 24px;
+        margin-bottom: 24px;
+        background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(0,255,136,0.05) 100%);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+    }
+    .academy-hero h1 {
+        font-size: 28px;
+        color: var(--primary);
+        margin-bottom: 8px;
+    }
+    .academy-hero p {
+        color: var(--muted);
+        font-size: 14px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .category-filters {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .cat-btn {
+        padding: 8px 18px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .cat-btn:hover {
+        border-color: var(--primary);
+        background: rgba(0,212,255,0.08);
+    }
+    .cat-btn.active {
+        background: var(--primary);
+        color: var(--bg);
+        border-color: var(--primary);
+    }
+    .search-bar {
+        max-width: 500px;
+        margin: 0 auto 20px;
+        position: relative;
+    }
+    .search-bar input {
+        padding-left: 36px;
+    }
+    .search-bar::before {
+        content: '🔍';
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+    }
+    .tag-cloud {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 24px;
+        min-height: 24px;
+    }
+    .tag-chip {
+        padding: 4px 12px;
+        border-radius: 12px;
+        background: rgba(0,212,255,0.1);
+        color: var(--primary);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+    .tag-chip:hover {
+        background: rgba(0,212,255,0.2);
+    }
+    .tag-chip.active {
+        background: var(--primary);
+        color: var(--bg);
+        border-color: var(--primary);
+    }
+    .section-header {
+        color: var(--muted);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 24px 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+    .articles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+    .article-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .article-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 4px 20px rgba(0,212,255,0.1);
+        transform: translateY(-2px);
+    }
+    .article-card .card-title {
+        font-family: 'Syne', sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+    .article-card .card-summary {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .article-card .card-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .cat-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 500;
+    }
+    .cat-badge.concept { background: rgba(0,212,255,0.15); color: #00d4ff; }
+    .cat-badge.glossary { background: rgba(0,255,136,0.15); color: #00ff88; }
+    .cat-badge.abbreviation { background: rgba(255,184,0,0.15); color: #ffb800; }
+    .cat-badge.practical { background: rgba(255,74,110,0.15); color: #ff4a6e; }
+    .card-tag {
+        font-size: 11px;
+        color: var(--muted);
+        background: rgba(255,255,255,0.05);
+        padding: 2px 8px;
+        border-radius: 8px;
+    }
+    .manage-link {
+        text-align: right;
+        margin-bottom: 16px;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+        font-size: 14px;
+    }
+    @media (max-width: 768px) {
+        .articles-grid {
+            grid-template-columns: 1fr;
+        }
+        .category-filters {
+            gap: 6px;
+        }
+        .cat-btn {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div style="max-width:1100px;margin:0 auto;">
+
+    <!-- Admin quick link -->
+    {% if current_user.role in ['admin', 'superadmin'] %}
+    <div class="manage-link">
+        <a href="/academy/manage" class="btn btn-secondary btn-sm">&#x2699; Manage</a>
+    </div>
+    {% endif %}
+
+    <!-- Hero Banner -->
+    <div class="academy-hero">
+        <h1>&#x1F393; Daystock 學堂</h1>
+        <p>從基礎概念到實戰技巧，系統化學習股票投資知識，建立完整的交易思維框架。</p>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="category-filters">
+        <button class="cat-btn active" data-cat="" onclick="filterCategory(this)">全部</button>
+        <button class="cat-btn" data-cat="concept" onclick="filterCategory(this)">💡概念解說</button>
+        <button class="cat-btn" data-cat="glossary" onclick="filterCategory(this)">📖名詞解釋</button>
+        <button class="cat-btn" data-cat="abbreviation" onclick="filterCategory(this)">🔤英文縮寫</button>
+        <button class="cat-btn" data-cat="practical" onclick="filterCategory(this)">🎯實戰技巧</button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="搜尋文章標題、內容、標籤..." oninput="debounceSearch()">
+    </div>
+
+    <!-- Tag Cloud -->
+    <div class="tag-cloud" id="tagCloud"></div>
+
+    <!-- Articles Container -->
+    <div id="articlesContainer"></div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var currentCategory = '';
+    var currentTag = '';
+    var currentSearch = '';
+    var searchTimer = null;
+    var allArticles = [];
+    var allTags = [];
+
+    var catLabels = {
+        concept: '💡概念解說',
+        glossary: '📖名詞解釋',
+        abbreviation: '🔤英文縮寫',
+        practical: '🎯實戰技巧'
+    };
+
+    function init() {
+        fetchTags();
+        fetchArticles();
+    }
+
+    function fetchTags() {
+        fetch('/api/academy/tags')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                allTags = data.tags || data || [];
+                renderTags();
+            })
+            .catch(function(e) { console.error('Failed to fetch tags', e); });
+    }
+
+    function renderTags() {
+        var cloud = document.getElementById('tagCloud');
+        cloud.innerHTML = '';
+        allTags.forEach(function(tag) {
+            var chip = document.createElement('span');
+            chip.className = 'tag-chip' + (currentTag === tag ? ' active' : '');
+            chip.textContent = tag;
+            chip.onclick = function() {
+                if (currentTag === tag) {
+                    currentTag = '';
+                } else {
+                    currentTag = tag;
+                }
+                renderTags();
+                fetchArticles();
+            };
+            cloud.appendChild(chip);
+        });
+    }
+
+    function fetchArticles() {
+        var params = new URLSearchParams();
+        if (currentCategory) params.set('category', currentCategory);
+        if (currentTag) params.set('tag', currentTag);
+        if (currentSearch) params.set('q', currentSearch);
+
+        var url = '/api/academy/articles' + (params.toString() ? '?' + params.toString() : '');
+        fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                allArticles = data.articles || data || [];
+                renderArticles();
+            })
+            .catch(function(e) { console.error('Failed to fetch articles', e); });
+    }
+
+    function renderArticles() {
+        var container = document.getElementById('articlesContainer');
+        container.innerHTML = '';
+
+        if (!allArticles.length) {
+            container.innerHTML = '<div class="empty-state">目前沒有符合條件的文章</div>';
+            return;
+        }
+
+        var isFiltered = currentCategory || currentTag || currentSearch;
+
+        if (isFiltered) {
+            var grid = document.createElement('div');
+            grid.className = 'articles-grid';
+            allArticles.forEach(function(a) {
+                grid.appendChild(createCard(a));
+            });
+            container.appendChild(grid);
+        } else {
+            var groups = {};
+            var order = ['concept', 'glossary', 'abbreviation', 'practical'];
+            order.forEach(function(c) { groups[c] = []; });
+            allArticles.forEach(function(a) {
+                if (groups[a.category]) {
+                    groups[a.category].push(a);
+                }
+            });
+            order.forEach(function(cat) {
+                if (!groups[cat].length) return;
+                var header = document.createElement('div');
+                header.className = 'section-header';
+                header.textContent = catLabels[cat] || cat;
+                container.appendChild(header);
+
+                var grid = document.createElement('div');
+                grid.className = 'articles-grid';
+                groups[cat].forEach(function(a) {
+                    grid.appendChild(createCard(a));
+                });
+                container.appendChild(grid);
+            });
+        }
+    }
+
+    function createCard(article) {
+        var card = document.createElement('div');
+        card.className = 'article-card';
+        card.onclick = function() {
+            window.location.href = '/academy/' + article.id;
+        };
+
+        var title = document.createElement('div');
+        title.className = 'card-title';
+        title.textContent = article.title;
+
+        var summary = document.createElement('div');
+        summary.className = 'card-summary';
+        summary.textContent = article.summary || '';
+
+        var meta = document.createElement('div');
+        meta.className = 'card-meta';
+
+        var badge = document.createElement('span');
+        badge.className = 'cat-badge ' + article.category;
+        badge.textContent = catLabels[article.category] || article.category;
+        meta.appendChild(badge);
+
+        if (article.tags && article.tags.length) {
+            article.tags.forEach(function(t) {
+                var tagEl = document.createElement('span');
+                tagEl.className = 'card-tag';
+                tagEl.textContent = t;
+                meta.appendChild(tagEl);
+            });
+        }
+
+        card.appendChild(title);
+        card.appendChild(summary);
+        card.appendChild(meta);
+        return card;
+    }
+
+    window.filterCategory = function(btn) {
+        document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentCategory = btn.getAttribute('data-cat');
+        fetchArticles();
+    };
+
+    window.debounceSearch = function() {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function() {
+            currentSearch = document.getElementById('searchInput').value.trim();
+            fetchArticles();
+        }, 250);
+    };
+
+    init();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daystock 股票紀錄系統 — {% block title %}{% endblock %}</title>
+
+    <!-- PWA Meta -->
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <meta name="theme-color" content="#0a0f1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Daystock">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <style>
+        /* ===== Reset & Base ===== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0f1e;
+            --surface: #0f1629;
+            --border: #1e2d4a;
+            --text: #e8eef7;
+            --muted: #4a5a7a;
+            --primary: #00d4ff;
+            --secondary: #00ff88;
+            --danger: #ff4a6e;
+            --warning: #ffb800;
+            --sidebar-w: 220px;
+            --topbar-h: 56px;
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== Layout ===== */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== Sidebar ===== */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .sidebar-brand .brand-icon {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 0;
+        }
+
+        .sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            color: var(--muted);
+            font-size: 13px;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            color: var(--text);
+            background: rgba(0, 212, 255, 0.05);
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.08);
+            border-left-color: var(--primary);
+        }
+
+        .nav-item .nav-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 20px;
+        }
+
+        .sidebar-footer {
+            padding: 12px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item.logout {
+            color: var(--danger);
+        }
+
+        .nav-item.logout:hover {
+            background: rgba(255, 74, 110, 0.08);
+        }
+
+        /* ===== Top Bar ===== */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-w);
+            right: 0;
+            height: var(--topbar-h);
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 90;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .topbar-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .topbar-user .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg);
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .topbar-user .user-name {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-w);
+            margin-top: var(--topbar-h);
+            padding: 24px;
+            min-height: calc(100vh - var(--topbar-h));
+        }
+
+        /* ===== Flash Messages ===== */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 8px;
+            border: 1px solid;
+        }
+
+        .flash-success {
+            background: rgba(0, 255, 136, 0.08);
+            border-color: rgba(0, 255, 136, 0.3);
+            color: var(--secondary);
+        }
+
+        .flash-error {
+            background: rgba(255, 74, 110, 0.08);
+            border-color: rgba(255, 74, 110, 0.3);
+            color: var(--danger);
+        }
+
+        .flash-warning {
+            background: rgba(255, 184, 0, 0.08);
+            border-color: rgba(255, 184, 0, 0.3);
+            color: var(--warning);
+        }
+
+        .flash-info {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.3);
+            color: var(--primary);
+        }
+
+        /* ===== Card ===== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2,
+        .card-header h3 {
+            font-size: 16px;
+            color: var(--text);
+        }
+
+        /* ===== Grid Utilities ===== */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            line-height: 1.4;
+        }
+
+        .btn:hover {
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            background: #33ddff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #2a3d5e;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #ff6d8a;
+            box-shadow: 0 0 20px rgba(255, 74, 110, 0.3);
+        }
+
+        .btn-success {
+            background: var(--secondary);
+            color: var(--bg);
+        }
+
+        .btn-success:hover {
+            background: #33ff9f;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--bg);
+        }
+
+        .btn-warning:hover {
+            background: #ffc633;
+            box-shadow: 0 0 20px rgba(255, 184, 0, 0.3);
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+
+        .btn-lg {
+            padding: 12px 24px;
+            font-size: 15px;
+        }
+
+        /* ===== Forms ===== */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="email"],
+        input[type="password"],
+        input[type="search"],
+        input[type="url"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        /* ===== Tables ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:hover td {
+            background: rgba(0, 212, 255, 0.03);
+        }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 520px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            color: var(--text);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ===== Utility ===== */
+        .text-primary { color: var(--primary); }
+        .text-secondary { color: var(--secondary); }
+        .text-danger { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+        .text-muted { color: var(--muted); }
+
+        .text-up { color: var(--danger); }
+        .text-down { color: var(--secondary); }
+
+        .font-num {
+            font-family: 'Syne', sans-serif;
+            font-weight: 600;
+        }
+
+        .mt-1 { margin-top: 8px; }
+        .mt-2 { margin-top: 16px; }
+        .mt-3 { margin-top: 24px; }
+        .mb-1 { margin-bottom: 8px; }
+        .mb-2 { margin-bottom: 16px; }
+        .mb-3 { margin-bottom: 24px; }
+
+        .flex { display: flex; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .gap-1 { gap: 8px; }
+        .gap-2 { gap: 16px; }
+
+        /* ===== Sidebar overlay for mobile ===== */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 1024px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .topbar {
+                left: 0;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                width: 95%;
+                margin: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Overlay (mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">&#x1F4C8;</span>
+                <span>Daystock</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item {% if request.path == '/dashboard' %}active{% endif %}">
+                    <span class="nav-icon">&#x25A3;</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/trades" class="nav-item {% if request.path.startswith('/trades') %}active{% endif %}">
+                    <span class="nav-icon">&#x21C5;</span>
+                    <span>Trades</span>
+                </a>
+                <a href="/watchlist" class="nav-item {% if request.path.startswith('/watchlist') %}active{% endif %}">
+                    <span class="nav-icon">&#x2606;</span>
+                    <span>Watchlist</span>
+                </a>
+                <a href="/analytics" class="nav-item {% if request.path.startswith('/analytics') %}active{% endif %}">
+                    <span class="nav-icon">&#x2237;</span>
+                    <span>Analytics</span>
+                </a>
+                <a href="/simulation" class="nav-item {% if request.path.startswith('/simulation') %}active{% endif %}">
+                    <span class="nav-icon">&#x29D6;</span>
+                    <span>Simulation</span>
+                </a>
+                <a href="/report" class="nav-item {% if request.path.startswith('/report') %}active{% endif %}">
+                    <span class="nav-icon">&#x2263;</span>
+                    <span>Report</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="/dividends" class="nav-item {% if request.path.startswith('/dividends') %}active{% endif %}">
+                    <span class="nav-icon">&#x25CE;</span>
+                    <span>Dividends</span>
+                </a>
+                <a href="/academy" class="nav-item {% if request.path.startswith('/academy') %}active{% endif %}">
+                    <span class="nav-icon">&#x1F393;</span>
+                    <span>Academy</span>
+                </a>
+                <a href="/bookmarks" class="nav-item {% if request.path.startswith('/bookmarks') %}active{% endif %}">
+                    <span class="nav-icon">&#x2691;</span>
+                    <span>Bookmarks</span>
+                </a>
+                <a href="/portfolios" class="nav-item {% if request.path.startswith('/portfolios') %}active{% endif %}">
+                    <span class="nav-icon">&#x25A4;</span>
+                    <span>Portfolios</span>
+                </a>
+                <a href="/journal" class="nav-item {% if request.path.startswith('/journal') %}active{% endif %}">
+                    <span class="nav-icon">&#x270E;</span>
+                    <span>Journal</span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="/settings" class="nav-item {% if request.path.startswith('/settings') %}active{% endif %}">
+                    <span class="nav-icon">&#x2699;</span>
+                    <span>Settings</span>
+                </a>
+                {% if current_user.role in ['admin', 'superadmin'] %}
+                <a href="/admin" class="nav-item {% if request.path.startswith('/admin') %}active{% endif %}">
+                    <span class="nav-icon">&#x2630;</span>
+                    <span>Admin</span>
+                </a>
+                {% endif %}
+            </nav>
+            <div class="sidebar-footer">
+                <a href="/logout" class="nav-item logout">
+                    <span class="nav-icon">&#x23FB;</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <div style="flex:1;">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">&#x2630;</button>
+                    <span class="topbar-title">Daystock</span>
+                </div>
+                <div class="topbar-right">
+                    <div class="topbar-user">
+                        <div class="user-avatar">{{ current_user.username[0]|upper }}</div>
+                        <span class="user-name">{{ current_user.username }}</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="main-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages">
+                            {% for category, msg in messages %}
+                                <div class="flash flash-{{ category }}">{{ msg }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script>
+    /* Sidebar toggle for mobile */
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var overlay = document.getElementById('sidebarOverlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    }
+
+    /* Close sidebar on window resize to desktop */
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+    });
+
+    /* Modal helpers */
+    function openModal(id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.add('active');
+    }
+
+    function closeModal(id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    }
+
+    /* Close modal on overlay click */
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal-overlay')) {
+            e.target.classList.remove('active');
+        }
+    });
+    </script>
+
+    <!-- Service Worker -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/sw.js')
+            .then(function() { console.log('SW registered'); })
+            .catch(function(e) { console.log('SW error', e); });
+    }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

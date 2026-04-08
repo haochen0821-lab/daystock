@@ -1,0 +1,659 @@
+{% extends "base.html" %}
+{% block title %}Academy Manage{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.css">
+<style>
+    .manage-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 24px;
+        border-bottom: 2px solid var(--border);
+    }
+    .manage-tab {
+        padding: 10px 24px;
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        color: var(--muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+    }
+    .manage-tab:hover {
+        color: var(--text);
+    }
+    .manage-tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Article Management Tab */
+    .editor-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+        min-height: calc(100vh - 200px);
+    }
+    .article-list-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        max-height: calc(100vh - 200px);
+    }
+    .list-header {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .list-header h3 {
+        font-size: 14px;
+        color: var(--text);
+    }
+    .article-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 0;
+    }
+    .article-list::-webkit-scrollbar {
+        width: 4px;
+    }
+    .article-list::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+    }
+    .article-list-item {
+        padding: 10px 16px;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .article-list-item:hover {
+        background: rgba(0,212,255,0.05);
+    }
+    .article-list-item.active {
+        background: rgba(0,212,255,0.08);
+        border-left-color: var(--primary);
+    }
+    .article-list-item .item-title {
+        font-size: 13px;
+        color: var(--text);
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .draft-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #ff8c42;
+        flex-shrink: 0;
+    }
+    .item-cat-badge {
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+    .item-cat-badge.concept { background: rgba(0,212,255,0.15); color: #00d4ff; }
+    .item-cat-badge.glossary { background: rgba(0,255,136,0.15); color: #00ff88; }
+    .item-cat-badge.abbreviation { background: rgba(255,184,0,0.15); color: #ffb800; }
+    .item-cat-badge.practical { background: rgba(255,74,110,0.15); color: #ff4a6e; }
+
+    /* Editor Panel */
+    .editor-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+    }
+    .editor-panel .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    .published-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text);
+        cursor: pointer;
+        margin-top: 24px;
+    }
+    .published-check input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--secondary);
+    }
+    .editor-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+    .editor-actions .spacer {
+        flex: 1;
+    }
+
+    /* Quill Dark Theme Overrides */
+    .ql-toolbar.ql-snow {
+        background: var(--bg);
+        border-color: var(--border) !important;
+        border-radius: 8px 8px 0 0;
+    }
+    .ql-toolbar .ql-stroke {
+        stroke: var(--muted) !important;
+    }
+    .ql-toolbar .ql-fill {
+        fill: var(--muted) !important;
+    }
+    .ql-toolbar .ql-picker-label {
+        color: var(--muted) !important;
+    }
+    .ql-toolbar button:hover .ql-stroke,
+    .ql-toolbar .ql-picker-label:hover .ql-stroke {
+        stroke: var(--primary) !important;
+    }
+    .ql-toolbar button:hover .ql-fill,
+    .ql-toolbar .ql-picker-label:hover .ql-fill {
+        fill: var(--primary) !important;
+    }
+    .ql-toolbar button.ql-active .ql-stroke {
+        stroke: var(--primary) !important;
+    }
+    .ql-toolbar button.ql-active .ql-fill {
+        fill: var(--primary) !important;
+    }
+    .ql-toolbar .ql-picker-options {
+        background: var(--surface) !important;
+        border-color: var(--border) !important;
+    }
+    .ql-toolbar .ql-picker-item {
+        color: var(--text) !important;
+    }
+    .ql-container.ql-snow {
+        border-color: var(--border) !important;
+        border-radius: 0 0 8px 8px;
+        background: var(--bg);
+        min-height: 300px;
+        font-family: 'DM Mono', monospace;
+        font-size: 14px;
+        color: var(--text);
+    }
+    .ql-editor {
+        color: var(--text);
+        min-height: 300px;
+    }
+    .ql-editor.ql-blank::before {
+        color: var(--muted);
+        font-style: normal;
+    }
+    .ql-snow .ql-editor blockquote {
+        border-left: 3px solid var(--primary);
+        padding-left: 14px;
+        color: var(--muted);
+    }
+    .ql-snow .ql-editor pre.ql-syntax {
+        background: #060a14;
+        color: var(--secondary);
+        border-radius: 6px;
+    }
+
+    /* Drag Sort Tab */
+    .sort-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    .sort-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .sort-panel h3 {
+        font-size: 14px;
+        color: var(--text);
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+    .sort-list {
+        min-height: 60px;
+    }
+    .sort-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: var(--text);
+        cursor: grab;
+        transition: border-color 0.2s;
+    }
+    .sort-item:active {
+        cursor: grabbing;
+    }
+    .sort-item:hover {
+        border-color: var(--primary);
+    }
+    .drag-handle {
+        color: var(--muted);
+        font-size: 16px;
+        cursor: grab;
+        user-select: none;
+    }
+    .sort-item .item-title {
+        flex: 1;
+    }
+    .sort-save-bar {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    @media (max-width: 1024px) {
+        .editor-layout {
+            grid-template-columns: 1fr;
+        }
+        .article-list-panel {
+            max-height: 250px;
+        }
+        .sort-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div style="max-width:1200px;margin:0 auto;">
+    <!-- Tabs -->
+    <div class="manage-tabs">
+        <button class="manage-tab active" onclick="switchTab('articles')">Article Management</button>
+        <button class="manage-tab" onclick="switchTab('sort')">Drag Sort</button>
+    </div>
+
+    <!-- Tab: Article Management -->
+    <div class="tab-content active" id="tab-articles">
+        <div class="editor-layout">
+            <!-- Left: Article List -->
+            <div class="article-list-panel">
+                <div class="list-header">
+                    <h3>Articles</h3>
+                    <button class="btn btn-primary btn-sm" onclick="newArticle()">+ New</button>
+                </div>
+                <div class="article-list" id="articleList">
+                    <div style="padding:16px;color:var(--muted);font-size:12px;">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Right: Editor -->
+            <div class="editor-panel">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="editorTitle" placeholder="文章標題">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="editorCategory">
+                            <option value="concept">💡 概念解說</option>
+                            <option value="glossary">📖 名詞解釋</option>
+                            <option value="abbreviation">🔤 英文縮寫</option>
+                            <option value="practical">🎯 實戰技巧</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags (逗號分隔)</label>
+                        <input type="text" id="editorTags" placeholder="tag1, tag2, tag3">
+                    </div>
+                </div>
+                <label class="published-check">
+                    <input type="checkbox" id="editorPublished" checked>
+                    立即發布
+                </label>
+                <div class="form-group" style="margin-top:16px;">
+                    <label>Summary</label>
+                    <textarea id="editorSummary" rows="2" placeholder="摘要（留空則自動擷取前150字）"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <div id="quillEditor"></div>
+                </div>
+                <div class="editor-actions">
+                    <button class="btn btn-primary" id="saveBtn" onclick="saveArticle()">Save</button>
+                    <button class="btn btn-secondary" onclick="newArticle()">Cancel</button>
+                    <div class="spacer"></div>
+                    <button class="btn btn-danger" id="deleteBtn" onclick="deleteArticle()" style="display:none;">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Drag Sort -->
+    <div class="tab-content" id="tab-sort">
+        <div class="sort-container" id="sortContainer"></div>
+        <div class="sort-save-bar">
+            <button class="btn btn-primary" onclick="saveSortOrder()">Save Order</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<script>
+(function() {
+    var articles = [];
+    var editingId = null;
+    var quill = null;
+
+    var catLabels = {
+        concept: '💡概念解說',
+        glossary: '📖名詞解釋',
+        abbreviation: '🔤英文縮寫',
+        practical: '🎯實戰技巧'
+    };
+    var catOrder = ['concept', 'glossary', 'abbreviation', 'practical'];
+
+    // Init Quill
+    quill = new Quill('#quillEditor', {
+        theme: 'snow',
+        placeholder: '在此輸入文章內容...',
+        modules: {
+            toolbar: [
+                [{ header: [2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ color: [] }],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                ['blockquote', 'code-block'],
+                ['link'],
+                ['clean']
+            ]
+        }
+    });
+
+    // Check for query param ?id=
+    var urlParams = new URLSearchParams(window.location.search);
+    var preloadId = urlParams.get('id');
+
+    function init() {
+        fetchArticles(function() {
+            if (preloadId) {
+                loadArticle(parseInt(preloadId));
+            }
+        });
+    }
+
+    function fetchArticles(cb) {
+        fetch('/api/academy/admin/articles')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                articles = data.articles || data || [];
+                renderList();
+                if (cb) cb();
+            })
+            .catch(function(e) { console.error('Failed to fetch articles', e); });
+    }
+
+    function renderList() {
+        var list = document.getElementById('articleList');
+        list.innerHTML = '';
+        if (!articles.length) {
+            list.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:12px;">No articles yet.</div>';
+            return;
+        }
+        articles.forEach(function(a) {
+            var item = document.createElement('div');
+            item.className = 'article-list-item' + (editingId === a.id ? ' active' : '');
+            item.onclick = function() { loadArticle(a.id); };
+
+            if (!a.published) {
+                var dot = document.createElement('div');
+                dot.className = 'draft-dot';
+                dot.title = 'Draft';
+                item.appendChild(dot);
+            }
+
+            var badge = document.createElement('span');
+            badge.className = 'item-cat-badge ' + a.category;
+            badge.textContent = a.category ? a.category.substring(0, 3).toUpperCase() : '';
+            item.appendChild(badge);
+
+            var title = document.createElement('span');
+            title.className = 'item-title';
+            title.textContent = a.title || '(Untitled)';
+            item.appendChild(title);
+
+            list.appendChild(item);
+        });
+    }
+
+    window.newArticle = function() {
+        editingId = null;
+        document.getElementById('editorTitle').value = '';
+        document.getElementById('editorCategory').value = 'concept';
+        document.getElementById('editorTags').value = '';
+        document.getElementById('editorPublished').checked = true;
+        document.getElementById('editorSummary').value = '';
+        quill.setContents([]);
+        document.getElementById('deleteBtn').style.display = 'none';
+        renderList();
+    };
+
+    function loadArticle(id) {
+        fetch('/api/academy/articles/' + id)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var a = data.article || data;
+                editingId = a.id;
+                document.getElementById('editorTitle').value = a.title || '';
+                document.getElementById('editorCategory').value = a.category || 'concept';
+                document.getElementById('editorTags').value = (a.tags || []).join(', ');
+                document.getElementById('editorPublished').checked = a.published !== false;
+                document.getElementById('editorSummary').value = a.summary || '';
+
+                if (a.content) {
+                    quill.root.innerHTML = a.content;
+                } else {
+                    quill.setContents([]);
+                }
+
+                document.getElementById('deleteBtn').style.display = 'inline-flex';
+                renderList();
+            });
+    }
+    window.loadArticle = loadArticle;
+
+    window.saveArticle = function() {
+        var title = document.getElementById('editorTitle').value.trim();
+        if (!title) { alert('請輸入標題'); return; }
+
+        var content = quill.root.innerHTML;
+        var summary = document.getElementById('editorSummary').value.trim();
+        if (!summary) {
+            var tmp = document.createElement('div');
+            tmp.innerHTML = content;
+            summary = (tmp.textContent || tmp.innerText || '').substring(0, 150);
+        }
+
+        var tags = document.getElementById('editorTags').value
+            .split(',')
+            .map(function(t) { return t.trim(); })
+            .filter(function(t) { return t.length > 0; });
+
+        var payload = {
+            title: title,
+            category: document.getElementById('editorCategory').value,
+            tags: tags,
+            published: document.getElementById('editorPublished').checked,
+            summary: summary,
+            content: content
+        };
+
+        var url, method;
+        if (editingId) {
+            url = '/api/academy/articles/' + editingId;
+            method = 'PUT';
+        } else {
+            url = '/api/academy/articles';
+            method = 'POST';
+        }
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var a = data.article || data;
+            editingId = a.id;
+            fetchArticles();
+            document.getElementById('deleteBtn').style.display = 'inline-flex';
+        })
+        .catch(function(e) { alert('儲存失敗: ' + e.message); });
+    };
+
+    window.deleteArticle = function() {
+        if (!editingId) return;
+        if (!confirm('確定要刪除此文章嗎？此操作無法復原。')) return;
+
+        fetch('/api/academy/articles/' + editingId, { method: 'DELETE' })
+            .then(function() {
+                newArticle();
+                fetchArticles();
+            })
+            .catch(function(e) { alert('刪除失敗: ' + e.message); });
+    };
+
+    // Tabs
+    window.switchTab = function(tab) {
+        document.querySelectorAll('.manage-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+
+        if (tab === 'sort') {
+            document.querySelectorAll('.manage-tab')[1].classList.add('active');
+            document.getElementById('tab-sort').classList.add('active');
+            loadSortTab();
+        } else {
+            document.querySelectorAll('.manage-tab')[0].classList.add('active');
+            document.getElementById('tab-articles').classList.add('active');
+        }
+    };
+
+    // Drag Sort Tab
+    var sortableInstances = [];
+
+    function loadSortTab() {
+        fetch('/api/academy/admin/articles')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var all = data.articles || data || [];
+                renderSortPanels(all);
+            });
+    }
+
+    function renderSortPanels(allArticles) {
+        var container = document.getElementById('sortContainer');
+        container.innerHTML = '';
+        sortableInstances.forEach(function(s) { s.destroy(); });
+        sortableInstances = [];
+
+        catOrder.forEach(function(cat) {
+            var items = allArticles.filter(function(a) { return a.category === cat; });
+            var panel = document.createElement('div');
+            panel.className = 'sort-panel';
+
+            var header = document.createElement('h3');
+            header.textContent = catLabels[cat];
+            panel.appendChild(header);
+
+            var list = document.createElement('div');
+            list.className = 'sort-list';
+            list.setAttribute('data-category', cat);
+
+            items.forEach(function(a) {
+                var item = document.createElement('div');
+                item.className = 'sort-item';
+                item.setAttribute('data-id', a.id);
+
+                var handle = document.createElement('span');
+                handle.className = 'drag-handle';
+                handle.innerHTML = '&#x2630;';
+
+                var title = document.createElement('span');
+                title.className = 'item-title';
+                title.textContent = a.title;
+
+                item.appendChild(handle);
+                item.appendChild(title);
+                list.appendChild(item);
+            });
+
+            panel.appendChild(list);
+            container.appendChild(panel);
+
+            var sortable = new Sortable(list, {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'sortable-ghost'
+            });
+            sortableInstances.push(sortable);
+        });
+    }
+
+    window.saveSortOrder = function() {
+        var order = [];
+        document.querySelectorAll('.sort-list').forEach(function(list) {
+            var cat = list.getAttribute('data-category');
+            var items = list.querySelectorAll('.sort-item');
+            items.forEach(function(item, idx) {
+                order.push({
+                    id: parseInt(item.getAttribute('data-id')),
+                    category: cat,
+                    sort_order: idx
+                });
+            });
+        });
+
+        fetch('/api/academy/articles/reorder', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order: order })
+        })
+        .then(function(r) {
+            if (r.ok) {
+                alert('排序已儲存！');
+            } else {
+                alert('儲存失敗');
+            }
+        })
+        .catch(function(e) { alert('儲存失敗: ' + e.message); });
+    };
+
+    init();
+})();
+</script>
+{% endblock %}

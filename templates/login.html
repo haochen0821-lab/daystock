@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daystock - Login</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0a0f1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Daystock">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: #0a0f1e;
+            color: #e8eef7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0;
+            background-image:
+                linear-gradient(rgba(30,45,74,0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30,45,74,0.25) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+        }
+
+        .card {
+            position: relative; z-index: 1;
+            background: #0f1629;
+            border: 1px solid #1e2d4a;
+            border-radius: 20px;
+            padding: 48px 40px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 0 80px rgba(0,212,255,0.06), 0 4px 32px rgba(0,0,0,0.4);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            font-size: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px; height: 72px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(0,255,136,0.08));
+            border: 1px solid rgba(0,212,255,0.2);
+            margin-bottom: 16px;
+        }
+
+        .logo h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 28px;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            color: #4a5a7a;
+            font-size: 13px;
+            margin-top: 4px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5a7a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(10,15,30,0.6);
+            border: 1px solid #1e2d4a;
+            border-radius: 12px;
+            color: #e8eef7;
+            font-size: 15px;
+            font-family: 'DM Mono', monospace;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0,212,255,0.12), 0 0 20px rgba(0,212,255,0.08);
+        }
+
+        .form-group input::placeholder {
+            color: #2a3a5a;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00d4ff, #00a0cc);
+            color: #0a0f1e;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.3s;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 24px rgba(0,212,255,0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            background: rgba(255,74,110,0.1);
+            border: 1px solid rgba(255,74,110,0.25);
+            color: #ff4a6e;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            font-family: 'DM Mono', monospace;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #4a5a7a;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .footer-link a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover {
+            color: #00ff88;
+        }
+
+        /* Ticker */
+        .ticker-wrap {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            z-index: 2;
+            background: rgba(15,22,41,0.9);
+            border-top: 1px solid #1e2d4a;
+            overflow: hidden;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .ticker-track {
+            display: flex;
+            animation: ticker-scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 28px;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .ticker-symbol {
+            color: #e8eef7;
+            font-weight: 500;
+        }
+
+        .ticker-up { color: #00ff88; }
+        .ticker-down { color: #ff4a6e; }
+
+        @keyframes ticker-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @media (max-width: 480px) {
+            .card { margin: 16px; padding: 36px 24px 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="card">
+        <div class="logo">
+            <div class="logo-icon">&#x1F4C8;</div>
+            <h1>Daystock</h1>
+            <p>smart trading terminal</p>
+        </div>
+
+        <div class="error-msg" id="errorMsg">
+            {% if error %}{{ error }}{% endif %}
+        </div>
+
+        <form id="loginForm" autocomplete="on">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" id="username" placeholder="Enter username" required autofocus autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" id="password" placeholder="Enter password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn-submit" id="submitBtn">Sign In</button>
+        </form>
+
+        <p class="footer-link">No account? <a href="/register">Create one</a></p>
+    </div>
+
+    <!-- Ticker -->
+    <div class="ticker-wrap">
+        <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <script>
+        // Ticker data
+        const stocks = [
+            { sym: 'AAPL', pct: '+2.31', up: true },
+            { sym: 'TSLA', pct: '-1.18', up: false },
+            { sym: 'NVDA', pct: '+4.52', up: true },
+            { sym: 'AMZN', pct: '+0.87', up: true },
+            { sym: 'MSFT', pct: '-0.45', up: false },
+            { sym: 'GOOG', pct: '+1.63', up: true },
+            { sym: 'META', pct: '+3.07', up: true },
+            { sym: 'AMD', pct: '-2.14', up: false },
+            { sym: 'JPM', pct: '+0.92', up: true },
+            { sym: 'NFLX', pct: '-0.73', up: false },
+            { sym: 'DIS', pct: '+1.44', up: true },
+            { sym: 'BABA', pct: '-3.21', up: false },
+            { sym: 'V', pct: '+0.58', up: true },
+            { sym: 'TSM', pct: '+2.89', up: true },
+            { sym: 'INTC', pct: '-1.67', up: false },
+        ];
+
+        function buildTicker() {
+            const track = document.getElementById('tickerTrack');
+            let html = '';
+            // Duplicate for seamless loop
+            for (let r = 0; r < 2; r++) {
+                stocks.forEach(s => {
+                    const cls = s.up ? 'ticker-up' : 'ticker-down';
+                    const arrow = s.up ? '\u25B2' : '\u25BC';
+                    html += '<span class="ticker-item"><span class="ticker-symbol">' + s.sym + '</span><span class="' + cls + '">' + arrow + ' ' + s.pct + '%</span></span>';
+                });
+            }
+            track.innerHTML = html;
+        }
+        buildTicker();
+
+        // Show error if server-rendered
+        (function() {
+            const el = document.getElementById('errorMsg');
+            if (el.textContent.trim()) el.classList.add('show');
+        })();
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errEl = document.getElementById('errorMsg');
+            const btn = document.getElementById('submitBtn');
+            errEl.classList.remove('show');
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.href = data.redirect || '/dashboard';
+                } else {
+                    errEl.textContent = data.message || 'Login failed.';
+                    errEl.classList.add('show');
+                }
+            } catch (err) {
+                errEl.textContent = 'Network error. Please try again.';
+                errEl.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        });
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div style="max-width: 720px; margin: 0 auto;">
+
+    <!-- Profile Info Card -->
+    <div class="card mb-3" id="profileCard">
+        <div class="card-header">
+            <h3>&#x1F464; Profile Info</h3>
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div id="profileAvatar" style="
+                width: 64px; height: 64px; border-radius: 50%;
+                background: linear-gradient(135deg, #00d4ff, #00ff88);
+                display: flex; align-items: center; justify-content: center;
+                font-family: 'Syne', sans-serif; font-weight: 800;
+                font-size: 28px; color: #0a0f1e; flex-shrink: 0;
+            ">-</div>
+            <div>
+                <div style="font-size: 18px; font-weight: 600; font-family: 'Syne', sans-serif;" id="profileUsername">-</div>
+                <div style="color: var(--muted); font-size: 13px; margin-top: 2px;" id="profileEmail">-</div>
+                <div style="margin-top: 8px;">
+                    <span id="profileRole" style="
+                        display: inline-block; padding: 3px 12px; border-radius: 20px;
+                        font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+                    ">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trading Preferences Card -->
+    <div class="card mb-3" id="prefsCard">
+        <div class="card-header">
+            <h3>&#x2699; Trading Preferences</h3>
+        </div>
+
+        <!-- Default Market -->
+        <div class="form-group">
+            <label>Default Market</label>
+            <div style="display: flex; gap: 0;">
+                <button type="button" id="marketTW" onclick="setMarket('TW')" style="
+                    flex: 1; padding: 10px; border: 1px solid var(--border);
+                    background: var(--bg); color: var(--muted); cursor: pointer;
+                    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600;
+                    border-radius: 8px 0 0 8px; transition: all 0.2s ease;
+                ">TW &#x1F1F9;&#x1F1FC;</button>
+                <button type="button" id="marketUS" onclick="setMarket('US')" style="
+                    flex: 1; padding: 10px; border: 1px solid var(--border); border-left: none;
+                    background: var(--bg); color: var(--muted); cursor: pointer;
+                    font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 600;
+                    border-radius: 0 8px 8px 0; transition: all 0.2s ease;
+                ">US &#x1F1FA;&#x1F1F8;</button>
+            </div>
+        </div>
+
+        <!-- Commission Discount Slider -->
+        <div class="form-group">
+            <label>Commission Discount</label>
+            <input type="range" id="commissionSlider" min="0.1" max="1.0" step="0.1" value="0.6"
+                oninput="updateCommissionLabel(this.value)" style="
+                width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+                background: var(--border); border-radius: 3px; outline: none;
+                accent-color: var(--primary); cursor: pointer;
+            ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span style="color: var(--muted); font-size: 12px;">一折</span>
+                <span id="commissionLabel" style="
+                    color: var(--primary); font-size: 14px; font-weight: 600;
+                    font-family: 'Syne', sans-serif;
+                ">0.6 = 六折 = 60% of standard rate</span>
+                <span style="color: var(--muted); font-size: 12px;">無折扣</span>
+            </div>
+        </div>
+
+        <!-- Concentration Threshold Slider -->
+        <div class="form-group">
+            <label>Concentration Threshold (%)</label>
+            <input type="range" id="concentrationSlider" min="10" max="80" step="5" value="30"
+                oninput="updateConcentrationLabel(this.value)" style="
+                width: 100%; height: 6px; -webkit-appearance: none; appearance: none;
+                background: var(--border); border-radius: 3px; outline: none;
+                accent-color: var(--warning); cursor: pointer;
+            ">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span style="color: var(--muted); font-size: 12px;">10%</span>
+                <span id="concentrationLabel" style="
+                    color: var(--warning); font-size: 14px; font-weight: 600;
+                    font-family: 'Syne', sans-serif;
+                ">30% — Alert when a single stock exceeds 30% of portfolio</span>
+                <span style="color: var(--muted); font-size: 12px;">80%</span>
+            </div>
+        </div>
+
+        <!-- Anniversary Countdown Toggle -->
+        <div class="form-group">
+            <label>Anniversary Countdown (US Stock Tax Reminder)</label>
+            <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
+                <div id="anniversaryToggle" onclick="toggleAnniversary()" style="
+                    width: 48px; height: 26px; border-radius: 13px;
+                    background: var(--border); cursor: pointer;
+                    position: relative; transition: background 0.3s ease;
+                ">
+                    <div id="anniversaryKnob" style="
+                        width: 20px; height: 20px; border-radius: 50%;
+                        background: var(--muted); position: absolute;
+                        top: 3px; left: 3px; transition: all 0.3s ease;
+                    "></div>
+                </div>
+                <span id="anniversaryStatus" style="color: var(--muted); font-size: 13px;">OFF</span>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div style="margin-top: 20px; text-align: right;">
+            <button class="btn btn-primary" onclick="savePreferences()">
+                &#x2714; Save Preferences
+            </button>
+        </div>
+        <div id="prefsMsg" style="margin-top: 12px; font-size: 13px; display: none;"></div>
+    </div>
+
+    <!-- Change Password Card -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3>&#x1F512; Change Password</h3>
+        </div>
+        <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" placeholder="Enter current password">
+        </div>
+        <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" placeholder="Min 8 characters" oninput="checkPasswordStrength()">
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input type="password" id="confirmPassword" placeholder="Repeat new password" oninput="checkPasswordMatch()">
+        </div>
+
+        <!-- Password Strength Bar -->
+        <div style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: var(--muted); font-size: 12px;">Password Strength</span>
+                <span id="strengthText" style="font-size: 12px; color: var(--muted);">-</span>
+            </div>
+            <div style="width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
+                <div id="strengthBar" style="
+                    width: 0%; height: 100%; border-radius: 3px;
+                    transition: width 0.3s ease, background 0.3s ease;
+                "></div>
+            </div>
+        </div>
+
+        <!-- Password Match Indicator -->
+        <div id="matchMsg" style="font-size: 12px; margin-bottom: 16px; display: none;"></div>
+
+        <!-- Submit -->
+        <div style="text-align: right;">
+            <button class="btn btn-primary" onclick="changePassword()">
+                &#x1F512; Change Password
+            </button>
+        </div>
+        <div id="pwdMsg" style="margin-top: 12px; font-size: 13px; display: none;"></div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // ===== State =====
+    var selectedMarket = 'TW';
+    var anniversaryOn = false;
+
+    // ===== Slider Styles =====
+    var styleEl = document.createElement('style');
+    styleEl.textContent = [
+        'input[type="range"]::-webkit-slider-thumb {',
+        '  -webkit-appearance: none; appearance: none;',
+        '  width: 18px; height: 18px; border-radius: 50%;',
+        '  background: var(--primary); cursor: pointer;',
+        '  border: 2px solid var(--surface);',
+        '  box-shadow: 0 0 8px rgba(0,212,255,0.4);',
+        '}',
+        'input[type="range"]::-moz-range-thumb {',
+        '  width: 18px; height: 18px; border-radius: 50%;',
+        '  background: var(--primary); cursor: pointer;',
+        '  border: 2px solid var(--surface);',
+        '  box-shadow: 0 0 8px rgba(0,212,255,0.4);',
+        '}',
+        '#concentrationSlider::-webkit-slider-thumb {',
+        '  background: var(--warning);',
+        '  box-shadow: 0 0 8px rgba(255,184,0,0.4);',
+        '}',
+        '#concentrationSlider::-moz-range-thumb {',
+        '  background: var(--warning);',
+        '  box-shadow: 0 0 8px rgba(255,184,0,0.4);',
+        '}'
+    ].join('\n');
+    document.head.appendChild(styleEl);
+
+    // ===== Load Profile & Settings =====
+    fetch('/api/settings')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            // Profile
+            var u = data.username || '-';
+            document.getElementById('profileAvatar').textContent = u[0].toUpperCase();
+            document.getElementById('profileUsername').textContent = u;
+            document.getElementById('profileEmail').textContent = data.email || '-';
+
+            var role = data.role || 'member';
+            var roleEl = document.getElementById('profileRole');
+            roleEl.textContent = role;
+            if (role === 'superadmin') {
+                roleEl.style.background = 'rgba(255,74,110,0.15)';
+                roleEl.style.color = '#ff4a6e';
+            } else if (role === 'admin') {
+                roleEl.style.background = 'rgba(255,184,0,0.15)';
+                roleEl.style.color = '#ffb800';
+            } else {
+                roleEl.style.background = 'rgba(0,212,255,0.15)';
+                roleEl.style.color = '#00d4ff';
+            }
+
+            // Trading Preferences
+            if (data.default_market) {
+                selectedMarket = data.default_market;
+                setMarket(selectedMarket);
+            }
+            if (data.commission_discount !== undefined) {
+                var v = parseFloat(data.commission_discount);
+                document.getElementById('commissionSlider').value = v;
+                updateCommissionLabel(v);
+            }
+            if (data.concentration_threshold !== undefined) {
+                var ct = parseInt(data.concentration_threshold);
+                document.getElementById('concentrationSlider').value = ct;
+                updateConcentrationLabel(ct);
+            }
+            if (data.anniversary_countdown) {
+                anniversaryOn = true;
+                renderAnniversaryToggle();
+            }
+        })
+        .catch(function(e) { console.error('Failed to load settings', e); });
+
+    // ===== Market Toggle =====
+    window.setMarket = function(m) {
+        selectedMarket = m;
+        var tw = document.getElementById('marketTW');
+        var us = document.getElementById('marketUS');
+        if (m === 'TW') {
+            tw.style.background = 'rgba(0,212,255,0.15)';
+            tw.style.color = '#00d4ff';
+            tw.style.borderColor = '#00d4ff';
+            us.style.background = 'var(--bg)';
+            us.style.color = 'var(--muted)';
+            us.style.borderColor = 'var(--border)';
+        } else {
+            us.style.background = 'rgba(0,212,255,0.15)';
+            us.style.color = '#00d4ff';
+            us.style.borderColor = '#00d4ff';
+            tw.style.background = 'var(--bg)';
+            tw.style.color = 'var(--muted)';
+            tw.style.borderColor = 'var(--border)';
+        }
+    };
+
+    // ===== Commission Slider Label =====
+    var zhNumbers = {1:'一',2:'二',3:'三',4:'四',5:'五',6:'六',7:'七',8:'八',9:'九',10:'十'};
+    window.updateCommissionLabel = function(val) {
+        val = parseFloat(val);
+        var fold = Math.round(val * 10);
+        var pct = Math.round(val * 100);
+        var label;
+        if (fold === 10) {
+            label = '1.0 = 無折扣 = 100% of standard rate';
+        } else {
+            label = val.toFixed(1) + ' = ' + (zhNumbers[fold]||fold) + '折 = ' + pct + '% of standard rate';
+        }
+        document.getElementById('commissionLabel').textContent = label;
+    };
+
+    // ===== Concentration Slider Label =====
+    window.updateConcentrationLabel = function(val) {
+        val = parseInt(val);
+        document.getElementById('concentrationLabel').textContent =
+            val + '% \u2014 Alert when a single stock exceeds ' + val + '% of portfolio';
+    };
+
+    // ===== Anniversary Toggle =====
+    function renderAnniversaryToggle() {
+        var toggle = document.getElementById('anniversaryToggle');
+        var knob = document.getElementById('anniversaryKnob');
+        var status = document.getElementById('anniversaryStatus');
+        if (anniversaryOn) {
+            toggle.style.background = 'var(--primary)';
+            knob.style.left = '25px';
+            knob.style.background = '#fff';
+            status.textContent = 'ON';
+            status.style.color = 'var(--primary)';
+        } else {
+            toggle.style.background = 'var(--border)';
+            knob.style.left = '3px';
+            knob.style.background = 'var(--muted)';
+            status.textContent = 'OFF';
+            status.style.color = 'var(--muted)';
+        }
+    }
+
+    window.toggleAnniversary = function() {
+        anniversaryOn = !anniversaryOn;
+        renderAnniversaryToggle();
+    };
+
+    // ===== Save Preferences =====
+    window.savePreferences = function() {
+        var body = {
+            default_market: selectedMarket,
+            commission_discount: parseFloat(document.getElementById('commissionSlider').value),
+            concentration_threshold: parseInt(document.getElementById('concentrationSlider').value),
+            anniversary_countdown: anniversaryOn
+        };
+        fetch('/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+            var msg = document.getElementById('prefsMsg');
+            msg.style.display = 'block';
+            if (res.ok) {
+                msg.style.color = 'var(--secondary)';
+                msg.textContent = '\u2714 Preferences saved successfully.';
+            } else {
+                msg.style.color = 'var(--danger)';
+                msg.textContent = '\u2718 ' + (res.data.error || 'Failed to save.');
+            }
+            setTimeout(function() { msg.style.display = 'none'; }, 4000);
+        })
+        .catch(function() {
+            var msg = document.getElementById('prefsMsg');
+            msg.style.display = 'block';
+            msg.style.color = 'var(--danger)';
+            msg.textContent = '\u2718 Network error.';
+            setTimeout(function() { msg.style.display = 'none'; }, 4000);
+        });
+    };
+
+    // ===== Password Strength =====
+    window.checkPasswordStrength = function() {
+        var pw = document.getElementById('newPassword').value;
+        var score = 0;
+        if (pw.length >= 8) score++;
+        if (/[A-Z]/.test(pw)) score++;
+        if (/[0-9]/.test(pw)) score++;
+        if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+        var bar = document.getElementById('strengthBar');
+        var txt = document.getElementById('strengthText');
+        var colors = ['', '#ff4a6e', '#ff8c00', '#ffcc00', '#00ff88'];
+        var labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+
+        bar.style.width = (score * 25) + '%';
+        bar.style.background = colors[score] || 'transparent';
+        txt.textContent = labels[score] || '-';
+        txt.style.color = colors[score] || 'var(--muted)';
+
+        checkPasswordMatch();
+    };
+
+    // ===== Password Match =====
+    window.checkPasswordMatch = function() {
+        var pw = document.getElementById('newPassword').value;
+        var confirm = document.getElementById('confirmPassword').value;
+        var matchMsg = document.getElementById('matchMsg');
+
+        if (!confirm) {
+            matchMsg.style.display = 'none';
+            return;
+        }
+        matchMsg.style.display = 'block';
+        if (pw === confirm) {
+            matchMsg.style.color = 'var(--secondary)';
+            matchMsg.textContent = '\u2714 Passwords match';
+        } else {
+            matchMsg.style.color = 'var(--danger)';
+            matchMsg.textContent = '\u2718 Passwords do not match';
+        }
+    };
+
+    // ===== Change Password =====
+    window.changePassword = function() {
+        var current = document.getElementById('currentPassword').value;
+        var newPw = document.getElementById('newPassword').value;
+        var confirm = document.getElementById('confirmPassword').value;
+        var msg = document.getElementById('pwdMsg');
+
+        // Validation
+        if (!current || !newPw || !confirm) {
+            msg.style.display = 'block';
+            msg.style.color = 'var(--danger)';
+            msg.textContent = '\u2718 Please fill in all password fields.';
+            return;
+        }
+        if (newPw.length < 8) {
+            msg.style.display = 'block';
+            msg.style.color = 'var(--danger)';
+            msg.textContent = '\u2718 New password must be at least 8 characters.';
+            return;
+        }
+        if (newPw !== confirm) {
+            msg.style.display = 'block';
+            msg.style.color = 'var(--danger)';
+            msg.textContent = '\u2718 New passwords do not match.';
+            return;
+        }
+
+        fetch('/api/settings/password', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                current_password: current,
+                new_password: newPw
+            })
+        })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+            msg.style.display = 'block';
+            if (res.ok) {
+                msg.style.color = 'var(--secondary)';
+                msg.textContent = '\u2714 Password changed successfully.';
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                document.getElementById('strengthBar').style.width = '0%';
+                document.getElementById('strengthText').textContent = '-';
+                document.getElementById('strengthText').style.color = 'var(--muted)';
+                document.getElementById('matchMsg').style.display = 'none';
+            } else {
+                msg.style.color = 'var(--danger)';
+                msg.textContent = '\u2718 ' + (res.data.error || 'Failed to change password.');
+            }
+            setTimeout(function() { msg.style.display = 'none'; }, 5000);
+        })
+        .catch(function() {
+            msg.style.display = 'block';
+            msg.style.color = 'var(--danger)';
+            msg.textContent = '\u2718 Network error.';
+            setTimeout(function() { msg.style.display = 'none'; }, 4000);
+        });
+    };
+
+    // Init market toggle visual
+    setMarket(selectedMarket);
+})();
+</script>
+{% endblock %}

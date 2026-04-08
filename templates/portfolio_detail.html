@@ -1,0 +1,937 @@
+{% extends "base.html" %}
+{% block title %}{{ portfolio.name }}{% endblock %}
+
+{% block content %}
+<style>
+    .pd-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 16px;
+    }
+
+    .pd-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #5a6a8a;
+        font-size: 13px;
+        margin-bottom: 16px;
+        cursor: pointer;
+        transition: color 0.2s;
+        text-decoration: none;
+    }
+    .pd-back-btn:hover {
+        color: #00d4ff;
+        text-decoration: none;
+    }
+
+    .pd-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .pd-title-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .pd-page-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #e0e6f0;
+    }
+
+    .pd-tag-dots {
+        display: flex;
+        gap: 5px;
+    }
+
+    .pd-tag-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Tabs */
+    .pd-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 2px solid #1e2d4a;
+        margin-bottom: 24px;
+    }
+
+    .pd-tab {
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #5a6a8a;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+        transition: all 0.2s;
+        background: none;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        font-family: 'DM Mono', monospace;
+    }
+    .pd-tab:hover {
+        color: #c0ccee;
+    }
+    .pd-tab.active {
+        color: #00d4ff;
+        border-bottom-color: #00d4ff;
+    }
+
+    .pd-tab-panel {
+        display: none;
+    }
+    .pd-tab-panel.active {
+        display: block;
+    }
+
+    /* Overview: Member table */
+    .pd-member-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    .pd-member-table th {
+        text-align: left;
+        padding: 8px 14px;
+        color: #5a6a8a;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid #1e2d4a;
+    }
+    .pd-member-table td {
+        padding: 10px 14px;
+        font-size: 13px;
+        border-bottom: 1px solid rgba(30, 45, 74, 0.5);
+        color: #e0e6f0;
+    }
+    .pd-member-table tr:hover td {
+        background: rgba(0, 212, 255, 0.03);
+    }
+
+    .pd-symbol-cell {
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.3px;
+    }
+
+    .pd-market-badge {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    .pd-market-badge.tw {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .pd-market-badge.us {
+        background: rgba(0, 212, 255, 0.15);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.25);
+    }
+
+    .pd-change-up { color: #22c55e; }
+    .pd-change-down { color: #ef4444; }
+    .pd-change-flat { color: #6b7a9a; }
+
+    .pd-remove-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 1px solid #2a3a5c;
+        background: transparent;
+        color: #5a6a8a;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .pd-remove-btn:hover {
+        background: rgba(255, 74, 110, 0.15);
+        color: #ff4a6e;
+        border-color: #ff4a6e;
+    }
+
+    /* Chart containers */
+    .pd-chart-row {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .pd-chart-box {
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 12px;
+        padding: 20px;
+        flex: 1;
+        min-width: 280px;
+    }
+
+    .pd-chart-box h3 {
+        font-size: 15px;
+        color: #e0e6f0;
+        margin-bottom: 16px;
+    }
+
+    .pd-pie-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 350px;
+        margin: 0 auto;
+    }
+
+    /* Trend compare */
+    .pd-trend-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .pd-btn-group {
+        display: flex;
+        gap: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #2a3a5c;
+    }
+    .pd-btn-group button {
+        padding: 7px 16px;
+        border: none;
+        background: #1a2340;
+        color: #8a9abf;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-right: 1px solid #2a3a5c;
+        font-family: 'DM Mono', monospace;
+    }
+    .pd-btn-group button:last-child {
+        border-right: none;
+    }
+    .pd-btn-group button:hover {
+        background: #24305a;
+        color: #c0ccee;
+    }
+    .pd-btn-group button.active {
+        background: #00d4ff;
+        color: #0a0e1a;
+    }
+
+    .pd-trend-wrap {
+        position: relative;
+        width: 100%;
+        height: 420px;
+        background: #0b1022;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .pd-trend-wrap canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* News */
+    .pd-news-banner {
+        background: rgba(255, 184, 0, 0.1);
+        border: 1px solid rgba(255, 184, 0, 0.3);
+        border-radius: 8px;
+        padding: 10px 16px;
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: #ffb800;
+    }
+    .pd-news-banner a {
+        color: #ffb800;
+        text-decoration: underline;
+    }
+
+    .pd-news-filter {
+        margin-bottom: 16px;
+    }
+    .pd-news-filter select {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: 1px solid #2a3a5c;
+        background: #1a2340;
+        color: #e0e6f0;
+        font-size: 13px;
+        min-width: 160px;
+    }
+
+    .pd-news-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .pd-news-card {
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 10px;
+        padding: 16px;
+        transition: border-color 0.2s;
+    }
+    .pd-news-card:hover {
+        border-color: #2a3a5c;
+    }
+
+    .pd-news-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #e0e6f0;
+        margin-bottom: 6px;
+        line-height: 1.5;
+    }
+    .pd-news-title a {
+        color: #e0e6f0;
+        transition: color 0.2s;
+    }
+    .pd-news-title a:hover {
+        color: #00d4ff;
+        text-decoration: none;
+    }
+
+    .pd-news-meta {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 12px;
+        color: #5a6a8a;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+
+    .pd-news-symbol-badge {
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .pd-news-trade-btn {
+        padding: 4px 12px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 184, 0, 0.3);
+        background: rgba(255, 184, 0, 0.08);
+        color: #ffb800;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'DM Mono', monospace;
+    }
+    .pd-news-trade-btn:hover {
+        background: rgba(255, 184, 0, 0.18);
+        border-color: #ffb800;
+    }
+
+    /* Add member modal items */
+    .pd-wl-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        border-bottom: 1px solid rgba(30, 45, 74, 0.5);
+        transition: background 0.15s;
+    }
+    .pd-wl-item:hover {
+        background: rgba(0, 212, 255, 0.03);
+    }
+    .pd-wl-item:last-child {
+        border-bottom: none;
+    }
+
+    .pd-wl-symbol {
+        font-weight: 700;
+        font-size: 14px;
+        color: #e0e6f0;
+    }
+
+    .pd-wl-market {
+        font-size: 11px;
+        color: #5a6a8a;
+        margin-left: 8px;
+    }
+
+    .pd-wl-add-btn {
+        padding: 5px 14px;
+        border-radius: 6px;
+        border: none;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'DM Mono', monospace;
+    }
+    .pd-wl-add-btn.available {
+        background: linear-gradient(135deg, #00d4ff, #0090ff);
+        color: #fff;
+    }
+    .pd-wl-add-btn.available:hover {
+        opacity: 0.9;
+    }
+    .pd-wl-add-btn.added {
+        background: transparent;
+        border: 1px solid #2a3a5c;
+        color: #5a6a8a;
+        cursor: default;
+    }
+
+    .pd-empty-msg {
+        text-align: center;
+        color: #5a6a8a;
+        padding: 40px 20px;
+        font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+        .pd-chart-row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="pd-container">
+    <a href="/portfolios" class="pd-back-btn">&larr; Back to Portfolios</a>
+
+    <div class="pd-page-header">
+        <div class="pd-title-area">
+            <h1 class="pd-page-title">{{ portfolio.name }}</h1>
+            <div class="pd-tag-dots" id="pd-header-tags"></div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddMemberModal()">+ Add Member</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="pd-tabs">
+        <button class="pd-tab active" data-tab="overview" onclick="switchTab('overview')">&#x1F4CA; Overview</button>
+        <button class="pd-tab" data-tab="trend" onclick="switchTab('trend')">&#x1F4C8; Trend Compare</button>
+        <button class="pd-tab" data-tab="news" onclick="switchTab('news')">&#x1F4F0; News</button>
+    </div>
+
+    <!-- Tab 1: Overview -->
+    <div class="pd-tab-panel active" id="panel-overview">
+        <table class="pd-member-table" id="pd-member-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Market</th>
+                    <th>Price</th>
+                    <th>Change %</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="pd-member-tbody">
+                <tr><td colspan="5" style="text-align:center;color:#5a6a8a;padding:30px;">Loading...</td></tr>
+            </tbody>
+        </table>
+
+        <div class="pd-chart-row mt-3">
+            <div class="pd-chart-box">
+                <h3>Market Value Allocation</h3>
+                <div class="pd-pie-wrap">
+                    <canvas id="pd-pie-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Trend Compare -->
+    <div class="pd-tab-panel" id="panel-trend">
+        <div class="pd-trend-toolbar">
+            <div class="pd-btn-group" id="pd-period-group">
+                <button data-period="1M" onclick="switchPeriod('1M')">1M</button>
+                <button data-period="3M" class="active" onclick="switchPeriod('3M')">3M</button>
+                <button data-period="6M" onclick="switchPeriod('6M')">6M</button>
+                <button data-period="1Y" onclick="switchPeriod('1Y')">1Y</button>
+            </div>
+        </div>
+        <div class="pd-trend-wrap">
+            <canvas id="pd-trend-chart"></canvas>
+        </div>
+    </div>
+
+    <!-- Tab 3: News -->
+    <div class="pd-tab-panel" id="panel-news">
+        <div class="pd-news-banner">
+            &#x1F4A1; Want to see how news-driven trades perform? Check the
+            <a href="/analytics#reason-winrate">Analytics Reason Winrate</a> tab.
+        </div>
+
+        <div class="pd-news-filter">
+            <select id="pd-news-filter-select" onchange="filterNews()">
+                <option value="all">All Symbols</option>
+            </select>
+        </div>
+
+        <div class="pd-news-list" id="pd-news-list">
+            <div class="pd-empty-msg">Loading news...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Member Modal -->
+<div class="modal-overlay" id="addMemberModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add Member from Watchlist</h3>
+            <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
+        </div>
+        <div id="pd-wl-list" style="max-height:400px;overflow-y:auto;">
+            <div style="text-align:center;color:#5a6a8a;padding:30px;">Loading watchlist...</div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('addMemberModal')">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const PORTFOLIO_ID = {{ portfolio.id }};
+    const PORTFOLIO_TAGS = {{ portfolio.tags | tojson if portfolio.tags else '[]' }};
+    const LINE_COLORS = [
+        '#00d4ff', '#00ff88', '#ff4a6e', '#ffb800', '#8b5cf6',
+        '#d946ef', '#3b82f6', '#f43f5e', '#ff6b35', '#22d3ee',
+        '#a3e635', '#fbbf24'
+    ];
+
+    let members = [];
+    let currentPeriod = '3M';
+    let trendChart = null;
+    let pieChart = null;
+    let allNews = [];
+
+    // ========== Init ==========
+    renderHeaderTags();
+    loadQuotes();
+
+    // ========== Header Tags ==========
+    function renderHeaderTags() {
+        const container = document.getElementById('pd-header-tags');
+        container.innerHTML = PORTFOLIO_TAGS.map(function(t) {
+            return '<span class="pd-tag-dot" style="background:' + t.color + ';" title="' + escHtml(t.label || '') + '"></span>';
+        }).join('');
+    }
+
+    // ========== Tabs ==========
+    window.switchTab = function(tab) {
+        document.querySelectorAll('.pd-tab').forEach(function(t) {
+            t.classList.toggle('active', t.dataset.tab === tab);
+        });
+        document.querySelectorAll('.pd-tab-panel').forEach(function(p) {
+            p.classList.remove('active');
+        });
+        document.getElementById('panel-' + tab).classList.add('active');
+
+        if (tab === 'trend') loadTrend();
+        if (tab === 'news') loadNews();
+    };
+
+    // ========== Overview: Load Quotes ==========
+    function loadQuotes() {
+        fetch('/api/portfolios/' + PORTFOLIO_ID + '/quotes')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                members = data.members || data.quotes || [];
+                renderMemberTable();
+                renderPieChart();
+            })
+            .catch(function(err) {
+                console.error('Load quotes error:', err);
+                document.getElementById('pd-member-tbody').innerHTML =
+                    '<tr><td colspan="5" class="pd-empty-msg">Failed to load quotes.</td></tr>';
+            });
+    }
+
+    function renderMemberTable() {
+        var tbody = document.getElementById('pd-member-tbody');
+        if (!members.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="pd-empty-msg">No members yet. Add stocks from your watchlist.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = members.map(function(m) {
+            var price = m.price != null ? parseFloat(m.price).toFixed(2) : '--';
+            var changePct = m.change_percent != null ? parseFloat(m.change_percent) : 0;
+            var cls = 'pd-change-flat';
+            var arrow = '';
+            if (changePct > 0) { cls = 'pd-change-up'; arrow = '\u25B2 +'; }
+            else if (changePct < 0) { cls = 'pd-change-down'; arrow = '\u25BC '; }
+            var pctStr = changePct.toFixed(2) + '%';
+            var mktCls = (m.market || '').toLowerCase() === 'tw' ? 'tw' : 'us';
+
+            return '<tr>' +
+                '<td class="pd-symbol-cell">' + escHtml(m.symbol) + '</td>' +
+                '<td><span class="pd-market-badge ' + mktCls + '">' + escHtml(m.market || '') + '</span></td>' +
+                '<td class="font-num">' + price + '</td>' +
+                '<td class="' + cls + ' font-num">' + arrow + pctStr + '</td>' +
+                '<td><button class="pd-remove-btn" onclick="removeMember(\'' + escAttr(m.symbol) + '\', \'' + escAttr(m.market || '') + '\')" title="Remove">&times;</button></td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    // ========== Pie Chart ==========
+    function renderPieChart() {
+        if (pieChart) { pieChart.destroy(); pieChart = null; }
+        var canvas = document.getElementById('pd-pie-chart');
+        if (!canvas || !members.length) return;
+
+        var validMembers = members.filter(function(m) { return m.price != null && m.price > 0; });
+        if (!validMembers.length) return;
+
+        var labels = validMembers.map(function(m) { return m.symbol; });
+        var values = validMembers.map(function(m) { return parseFloat(m.market_value || m.price || 0); });
+        var colors = validMembers.map(function(_, i) { return LINE_COLORS[i % LINE_COLORS.length]; });
+
+        pieChart = new Chart(canvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors.map(function(c) { return c + '99'; }),
+                    borderColor: colors,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#8a9abf',
+                            font: { size: 12, family: "'DM Mono', monospace" },
+                            padding: 14
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1a2340',
+                        titleColor: '#e0e6f0',
+                        bodyColor: '#c0ccee',
+                        borderColor: '#2a3a5c',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+    }
+
+    // ========== Add Member Modal ==========
+    window.openAddMemberModal = function() {
+        openModal('addMemberModal');
+        loadWatchlistForAdd();
+    };
+
+    function loadWatchlistForAdd() {
+        var container = document.getElementById('pd-wl-list');
+        container.innerHTML = '<div style="text-align:center;color:#5a6a8a;padding:30px;">Loading watchlist...</div>';
+
+        fetch('/api/watchlist')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var wl = data.watchlist || data || [];
+                if (!wl.length) {
+                    container.innerHTML = '<div style="text-align:center;color:#5a6a8a;padding:30px;">Your watchlist is empty. Add stocks to your watchlist first.</div>';
+                    return;
+                }
+
+                var memberSymbols = {};
+                members.forEach(function(m) {
+                    memberSymbols[m.symbol + '_' + (m.market || '')] = true;
+                });
+
+                container.innerHTML = wl.map(function(item) {
+                    var key = item.symbol + '_' + item.market;
+                    var isAdded = memberSymbols[key];
+                    return '<div class="pd-wl-item" id="wl-item-' + item.symbol + '-' + item.market + '">' +
+                        '<div>' +
+                            '<span class="pd-wl-symbol">' + escHtml(item.symbol) + '</span>' +
+                            '<span class="pd-wl-market">' + escHtml(item.market) + '</span>' +
+                        '</div>' +
+                        '<button class="pd-wl-add-btn ' + (isAdded ? 'added' : 'available') + '"' +
+                            (isAdded ? ' disabled' : '') +
+                            ' onclick="addMember(\'' + escAttr(item.symbol) + '\', \'' + escAttr(item.market) + '\', this)">' +
+                            (isAdded ? '\u2713 Already Added' : 'Add') +
+                        '</button>' +
+                    '</div>';
+                }).join('');
+            })
+            .catch(function(err) {
+                console.error('Load watchlist error:', err);
+                container.innerHTML = '<div style="text-align:center;color:#ff4a6e;padding:30px;">Failed to load watchlist.</div>';
+            });
+    }
+
+    window.addMember = function(symbol, market, btn) {
+        btn.disabled = true;
+        btn.textContent = 'Adding...';
+
+        fetch('/api/portfolios/' + PORTFOLIO_ID + '/members', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol: symbol, market: market })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) {
+                alert(data.error);
+                btn.disabled = false;
+                btn.textContent = 'Add';
+                return;
+            }
+            btn.className = 'pd-wl-add-btn added';
+            btn.textContent = '\u2713 Already Added';
+            loadQuotes();
+        })
+        .catch(function(err) {
+            console.error('Add member error:', err);
+            btn.disabled = false;
+            btn.textContent = 'Add';
+        });
+    };
+
+    // ========== Remove Member ==========
+    window.removeMember = function(symbol, market) {
+        if (!confirm('Remove ' + symbol + ' from this portfolio?')) return;
+
+        fetch('/api/portfolios/' + PORTFOLIO_ID + '/members', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol: symbol, market: market })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.error) { alert(data.error); return; }
+            loadQuotes();
+        })
+        .catch(function(err) { console.error('Remove member error:', err); });
+    };
+
+    // ========== Trend Compare ==========
+    window.switchPeriod = function(period) {
+        currentPeriod = period;
+        document.querySelectorAll('#pd-period-group button').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.period === period);
+        });
+        loadTrend();
+    };
+
+    function loadTrend() {
+        fetch('/api/portfolios/' + PORTFOLIO_ID + '/history?period=' + currentPeriod)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                drawTrendChart(data);
+            })
+            .catch(function(err) { console.error('Load trend error:', err); });
+    }
+
+    function drawTrendChart(data) {
+        if (trendChart) { trendChart.destroy(); trendChart = null; }
+
+        var canvas = document.getElementById('pd-trend-chart');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+
+        var stocks = data.stocks || data || [];
+        if (!stocks.length) return;
+
+        // Each stock: { symbol, history: [{date, close}] }
+        // Standardize all to base 100
+        var labels = stocks[0].history ? stocks[0].history.map(function(h) { return h.date; }) : [];
+
+        var datasets = stocks.map(function(s, i) {
+            var hist = s.history || [];
+            var basePrice = hist.length ? hist[0].close : 1;
+            var normalized = hist.map(function(h) { return ((h.close / basePrice) * 100).toFixed(2); });
+            var color = LINE_COLORS[i % LINE_COLORS.length];
+
+            return {
+                label: s.symbol,
+                data: normalized,
+                borderColor: color,
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: color,
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 2,
+                tension: 0.3
+            };
+        });
+
+        trendChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: labels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#8a9abf',
+                            font: { size: 12, family: "'DM Mono', monospace" },
+                            padding: 14
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1a2340',
+                        titleColor: '#e0e6f0',
+                        bodyColor: '#c0ccee',
+                        borderColor: '#2a3a5c',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(item) {
+                                return item.dataset.label + ': ' + item.raw;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#5a6a8a',
+                            maxRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 20,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 212, 255, 0.06)',
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#5a6a8a',
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(34, 197, 94, 0.1)',
+                            drawBorder: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ========== News ==========
+    function loadNews() {
+        var list = document.getElementById('pd-news-list');
+        list.innerHTML = '<div class="pd-empty-msg">Loading news...</div>';
+
+        fetch('/api/portfolios/' + PORTFOLIO_ID + '/news')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                allNews = data.news || data || [];
+                populateNewsFilter();
+                renderNews(allNews);
+            })
+            .catch(function(err) {
+                console.error('Load news error:', err);
+                list.innerHTML = '<div class="pd-empty-msg">Failed to load news.</div>';
+            });
+    }
+
+    function populateNewsFilter() {
+        var select = document.getElementById('pd-news-filter-select');
+        var symbolSet = {};
+        allNews.forEach(function(n) { if (n.symbol) symbolSet[n.symbol] = true; });
+        var symbols = Object.keys(symbolSet);
+        select.innerHTML = '<option value="all">All Symbols</option>' +
+            symbols.map(function(s) { return '<option value="' + escAttr(s) + '">' + escHtml(s) + '</option>'; }).join('');
+    }
+
+    window.filterNews = function() {
+        var val = document.getElementById('pd-news-filter-select').value;
+        if (val === 'all') {
+            renderNews(allNews);
+        } else {
+            renderNews(allNews.filter(function(n) { return n.symbol === val; }));
+        }
+    };
+
+    function renderNews(news) {
+        var list = document.getElementById('pd-news-list');
+        if (!news.length) {
+            list.innerHTML = '<div class="pd-empty-msg">No news found.</div>';
+            return;
+        }
+
+        list.innerHTML = news.map(function(n) {
+            var title = escHtml(n.title || 'Untitled');
+            var link = n.link || '#';
+            var publisher = escHtml(n.publisher || '');
+            var date = escHtml(n.date || n.published || '');
+            var symbol = escHtml(n.symbol || '');
+
+            return '<div class="pd-news-card">' +
+                '<div class="pd-news-title">' +
+                    '<a href="' + link + '" target="_blank" rel="noopener">' + title + '</a>' +
+                '</div>' +
+                '<div class="pd-news-meta">' +
+                    (symbol ? '<span class="pd-news-symbol-badge">' + symbol + '</span>' : '') +
+                    (publisher ? '<span>' + publisher + '</span>' : '') +
+                    (date ? '<span>' + date + '</span>' : '') +
+                '</div>' +
+                '<button class="pd-news-trade-btn" onclick="recordNewsTrade(\'' + escAttr(n.symbol || '') + '\', \'' + escAttr(n.title || '') + '\')">' +
+                    '&#x1F3F7; Record as News Trade' +
+                '</button>' +
+            '</div>';
+        }).join('');
+    }
+
+    window.recordNewsTrade = function(symbol, title) {
+        var params = new URLSearchParams({ reason: 'news', symbol: symbol, note: title });
+        window.location.href = '/trades?' + params.toString();
+    };
+
+    // ========== Helpers ==========
+    function escHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function escAttr(str) {
+        return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+})();
+</script>
+{% endblock %}

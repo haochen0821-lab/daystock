@@ -1,0 +1,766 @@
+{% extends "base.html" %}
+{% block title %}Watchlist{% endblock %}
+
+{% block content %}
+<style>
+    .wl-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 16px;
+    }
+
+    /* Add Stock Bar */
+    .wl-add-bar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+    .wl-add-bar input[type="text"] {
+        flex: 1;
+        min-width: 120px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #2a3a5c;
+        background: #1a2340;
+        color: #e0e6f0;
+        font-size: 15px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .wl-add-bar input[type="text"]:focus {
+        border-color: #00d4ff;
+        box-shadow: 0 0 8px rgba(0, 212, 255, 0.15);
+    }
+    .wl-add-bar input[type="text"]::placeholder {
+        color: #5a6a8a;
+    }
+    .wl-add-bar select {
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #2a3a5c;
+        background: #1a2340;
+        color: #e0e6f0;
+        font-size: 15px;
+        outline: none;
+        cursor: pointer;
+    }
+    .wl-add-bar select:focus {
+        border-color: #00d4ff;
+    }
+    .wl-add-btn {
+        padding: 10px 22px;
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(135deg, #00d4ff, #0090ff);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.1s;
+    }
+    .wl-add-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+    .wl-add-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Stock Cards Grid */
+    .wl-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    @media (max-width: 900px) {
+        .wl-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+        .wl-grid { grid-template-columns: 1fr; }
+    }
+
+    .wl-card {
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 12px;
+        padding: 18px;
+        cursor: pointer;
+        transition: box-shadow 0.25s, border-color 0.25s, transform 0.15s;
+        position: relative;
+    }
+    .wl-card:hover {
+        border-color: #00d4ff;
+        box-shadow: 0 0 18px rgba(0, 212, 255, 0.18), 0 0 40px rgba(0, 212, 255, 0.06);
+        transform: translateY(-2px);
+    }
+    .wl-card.active {
+        border-color: #00d4ff;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.25);
+    }
+
+    .wl-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+    .wl-card-symbol {
+        font-size: 20px;
+        font-weight: 700;
+        color: #e0e6f0;
+        letter-spacing: 0.5px;
+    }
+    .wl-card-remove {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid #2a3a5c;
+        background: transparent;
+        color: #5a6a8a;
+        font-size: 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        line-height: 1;
+    }
+    .wl-card-remove:hover {
+        background: #ff4466;
+        border-color: #ff4466;
+        color: #fff;
+    }
+
+    .wl-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+    }
+    .wl-badge-tw {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .wl-badge-us {
+        background: rgba(0, 212, 255, 0.15);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.25);
+    }
+
+    .wl-card-price {
+        font-size: 26px;
+        font-weight: 700;
+        color: #e0e6f0;
+        margin-bottom: 4px;
+    }
+    .wl-card-change {
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .wl-card-change.up {
+        color: #22c55e;
+    }
+    .wl-card-change.down {
+        color: #ef4444;
+    }
+    .wl-card-change.flat {
+        color: #6b7a9a;
+    }
+    .wl-card-loading {
+        color: #5a6a8a;
+        font-size: 13px;
+    }
+
+    /* Chart Area */
+    .wl-chart-area {
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        display: none;
+    }
+    .wl-chart-area.show {
+        display: block;
+    }
+
+    .wl-chart-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+    .wl-chart-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #e0e6f0;
+        margin-right: auto;
+    }
+
+    .wl-btn-group {
+        display: flex;
+        gap: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #2a3a5c;
+    }
+    .wl-btn-group button {
+        padding: 7px 16px;
+        border: none;
+        background: #1a2340;
+        color: #8a9abf;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-right: 1px solid #2a3a5c;
+    }
+    .wl-btn-group button:last-child {
+        border-right: none;
+    }
+    .wl-btn-group button:hover {
+        background: #24305a;
+        color: #c0ccee;
+    }
+    .wl-btn-group button.active {
+        background: #00d4ff;
+        color: #0a0e1a;
+    }
+
+    .wl-chart-wrap {
+        position: relative;
+        width: 100%;
+        height: 400px;
+        background: #0b1022;
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .wl-chart-wrap canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Page title */
+    .wl-page-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #e0e6f0;
+        margin-bottom: 20px;
+    }
+
+    /* Empty state */
+    .wl-empty {
+        text-align: center;
+        color: #5a6a8a;
+        padding: 60px 20px;
+        font-size: 15px;
+    }
+</style>
+
+<div class="wl-container">
+    <h1 class="wl-page-title">Watchlist</h1>
+
+    <!-- Add Stock Bar -->
+    <div class="wl-add-bar">
+        <input type="text" id="wl-symbol-input" placeholder="Enter symbol (e.g. 2330, AAPL)" autocomplete="off">
+        <select id="wl-market-select">
+            <option value="TW">TW</option>
+            <option value="US">US</option>
+        </select>
+        <button class="wl-add-btn" onclick="addStock()">Add</button>
+    </div>
+
+    <!-- Stock Cards Grid -->
+    <div class="wl-grid" id="wl-grid">
+        <!-- Cards rendered by JS -->
+    </div>
+
+    <div class="wl-empty" id="wl-empty" style="display:none;">
+        No stocks in your watchlist yet. Add one above to get started.
+    </div>
+
+    <!-- Chart Area -->
+    <div class="wl-chart-area" id="wl-chart-area">
+        <div class="wl-chart-toolbar">
+            <span class="wl-chart-title" id="wl-chart-title"></span>
+            <div class="wl-btn-group" id="wl-chart-type-group">
+                <button class="active" data-type="kline" onclick="switchChartType('kline')">K Line</button>
+                <button data-type="return" onclick="switchChartType('return')">Return Line</button>
+            </div>
+            <div class="wl-btn-group" id="wl-period-group">
+                <button data-period="1M" onclick="switchPeriod('1M')">1M</button>
+                <button class="active" data-period="3M" onclick="switchPeriod('3M')">3M</button>
+                <button data-period="6M" onclick="switchPeriod('6M')">6M</button>
+                <button data-period="1Y" onclick="switchPeriod('1Y')">1Y</button>
+            </div>
+        </div>
+        <div class="wl-chart-wrap">
+            <canvas id="wl-chart-canvas"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+(function() {
+    // ========== State ==========
+    let watchlist = [];
+    let selectedSymbol = null;
+    let selectedMarket = null;
+    let currentChartType = 'kline';
+    let currentPeriod = '3M';
+    let chartInstance = null;
+    const historyCache = {};
+
+    // ========== Init ==========
+    loadWatchlist();
+
+    // ========== Watchlist CRUD ==========
+    function loadWatchlist() {
+        fetch('/api/watchlist')
+            .then(r => r.json())
+            .then(data => {
+                watchlist = data.watchlist || data || [];
+                renderCards();
+                fetchAllQuotes();
+            })
+            .catch(err => console.error('Load watchlist error:', err));
+    }
+
+    window.addStock = function() {
+        const input = document.getElementById('wl-symbol-input');
+        const symbol = input.value.trim().toUpperCase();
+        const market = document.getElementById('wl-market-select').value;
+        if (!symbol) return;
+
+        fetch('/api/watchlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol, market })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+            input.value = '';
+            loadWatchlist();
+        })
+        .catch(err => console.error('Add stock error:', err));
+    };
+
+    // Enter key to add
+    document.getElementById('wl-symbol-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addStock();
+        }
+    });
+
+    function removeStock(symbol, market, e) {
+        e.stopPropagation();
+        if (!confirm('Remove ' + symbol + ' from watchlist?')) return;
+
+        fetch('/api/watchlist', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol, market })
+        })
+        .then(r => r.json())
+        .then(() => {
+            if (selectedSymbol === symbol && selectedMarket === market) {
+                closeChart();
+            }
+            loadWatchlist();
+        })
+        .catch(err => console.error('Remove stock error:', err));
+    }
+
+    // ========== Render Cards ==========
+    function renderCards() {
+        const grid = document.getElementById('wl-grid');
+        const empty = document.getElementById('wl-empty');
+
+        if (!watchlist.length) {
+            grid.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        grid.innerHTML = watchlist.map(item => {
+            const sym = item.symbol;
+            const mkt = item.market;
+            const isActive = selectedSymbol === sym && selectedMarket === mkt;
+            const badgeClass = mkt === 'TW' ? 'wl-badge-tw' : 'wl-badge-us';
+            return `
+                <div class="wl-card ${isActive ? 'active' : ''}"
+                     id="card-${sym}-${mkt}"
+                     onclick="selectCard('${sym}','${mkt}')">
+                    <div class="wl-card-header">
+                        <span class="wl-card-symbol">${sym}</span>
+                        <button class="wl-card-remove" onclick="removeStockBtn('${sym}','${mkt}',event)" title="Remove">&times;</button>
+                    </div>
+                    <span class="wl-badge ${badgeClass}">${mkt}</span>
+                    <div id="quote-${sym}-${mkt}">
+                        <div class="wl-card-loading">Loading...</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    window.removeStockBtn = removeStock;
+
+    // ========== Fetch Quotes ==========
+    function fetchAllQuotes() {
+        watchlist.forEach(item => {
+            fetchQuote(item.symbol, item.market);
+        });
+    }
+
+    function fetchQuote(symbol, market) {
+        fetch(`/api/stock/quote?symbol=${encodeURIComponent(symbol)}&market=${encodeURIComponent(market)}`)
+            .then(r => r.json())
+            .then(data => {
+                renderQuote(symbol, market, data);
+            })
+            .catch(() => {
+                const el = document.getElementById(`quote-${symbol}-${market}`);
+                if (el) el.innerHTML = '<div class="wl-card-loading">Failed to load</div>';
+            });
+    }
+
+    function renderQuote(symbol, market, data) {
+        const el = document.getElementById(`quote-${symbol}-${market}`);
+        if (!el) return;
+
+        const price = data.price != null ? parseFloat(data.price).toFixed(2) : '--';
+        const change = data.change != null ? parseFloat(data.change) : 0;
+        const changePct = data.change_percent != null ? parseFloat(data.change_percent) : 0;
+
+        let cls = 'flat';
+        let arrow = '';
+        if (change > 0) { cls = 'up'; arrow = '\u25B2 '; }
+        else if (change < 0) { cls = 'down'; arrow = '\u25BC '; }
+
+        const changeStr = change > 0 ? `+${change.toFixed(2)}` : change.toFixed(2);
+        const pctStr = change > 0 ? `+${changePct.toFixed(2)}%` : `${changePct.toFixed(2)}%`;
+
+        el.innerHTML = `
+            <div class="wl-card-price">${price}</div>
+            <div class="wl-card-change ${cls}">
+                ${arrow}${changeStr} (${pctStr})
+            </div>
+        `;
+    }
+
+    // ========== Card Selection & Chart ==========
+    window.selectCard = function(symbol, market) {
+        if (selectedSymbol === symbol && selectedMarket === market) {
+            closeChart();
+            return;
+        }
+        selectedSymbol = symbol;
+        selectedMarket = market;
+
+        // highlight active card
+        document.querySelectorAll('.wl-card').forEach(c => c.classList.remove('active'));
+        const card = document.getElementById(`card-${symbol}-${market}`);
+        if (card) card.classList.add('active');
+
+        document.getElementById('wl-chart-title').textContent = `${symbol} (${market})`;
+        document.getElementById('wl-chart-area').classList.add('show');
+
+        loadChart();
+    };
+
+    function closeChart() {
+        selectedSymbol = null;
+        selectedMarket = null;
+        document.querySelectorAll('.wl-card').forEach(c => c.classList.remove('active'));
+        document.getElementById('wl-chart-area').classList.remove('show');
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;
+        }
+    }
+
+    // ========== Chart Type & Period ==========
+    window.switchChartType = function(type) {
+        currentChartType = type;
+        document.querySelectorAll('#wl-chart-type-group button').forEach(b => {
+            b.classList.toggle('active', b.dataset.type === type);
+        });
+        loadChart();
+    };
+
+    window.switchPeriod = function(period) {
+        currentPeriod = period;
+        document.querySelectorAll('#wl-period-group button').forEach(b => {
+            b.classList.toggle('active', b.dataset.period === period);
+        });
+        loadChart();
+    };
+
+    // ========== Load Chart Data ==========
+    function loadChart() {
+        if (!selectedSymbol) return;
+
+        const cacheKey = `${selectedSymbol}_${selectedMarket}_${currentPeriod}`;
+        if (historyCache[cacheKey]) {
+            drawChart(historyCache[cacheKey]);
+            return;
+        }
+
+        const url = `/api/stock/history?symbol=${encodeURIComponent(selectedSymbol)}&market=${encodeURIComponent(selectedMarket)}&period=${encodeURIComponent(currentPeriod)}`;
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                historyCache[cacheKey] = data;
+                drawChart(data);
+            })
+            .catch(err => console.error('Load history error:', err));
+    }
+
+    // ========== Draw Chart ==========
+    function drawChart(data) {
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;
+        }
+
+        const canvas = document.getElementById('wl-chart-canvas');
+        const ctx = canvas.getContext('2d');
+
+        const history = data.history || data || [];
+        if (!history.length) return;
+
+        const labels = history.map(d => d.date);
+
+        if (currentChartType === 'kline') {
+            drawKLine(ctx, labels, history);
+        } else {
+            drawReturnLine(ctx, labels, history);
+        }
+    }
+
+    // ========== K Line Chart (OHLC) ==========
+    function drawKLine(ctx, labels, history) {
+        // Build OHLC bar chart: use floating bars (bar with [low, high]) and color by open/close
+        const barColors = history.map(d => {
+            return (d.close >= d.open) ? 'rgba(34, 197, 94, 0.85)' : 'rgba(239, 68, 68, 0.85)';
+        });
+        const barBorders = history.map(d => {
+            return (d.close >= d.open) ? '#22c55e' : '#ef4444';
+        });
+
+        // Body: open-close range
+        const bodyData = history.map(d => {
+            const lo = Math.min(d.open, d.close);
+            const hi = Math.max(d.open, d.close);
+            return [lo, hi];
+        });
+
+        // Wick: high-low as a separate thin bar behind
+        const wickColors = history.map(d => {
+            return (d.close >= d.open) ? 'rgba(34, 197, 94, 0.5)' : 'rgba(239, 68, 68, 0.5)';
+        });
+        const wickData = history.map(d => [d.low, d.high]);
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Wick (H-L)',
+                        data: wickData,
+                        backgroundColor: wickColors,
+                        borderColor: wickColors,
+                        borderWidth: 1,
+                        barPercentage: 0.15,
+                        categoryPercentage: 0.9,
+                        order: 2
+                    },
+                    {
+                        label: 'Body (O-C)',
+                        data: bodyData,
+                        backgroundColor: barColors,
+                        borderColor: barBorders,
+                        borderWidth: 1,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.9,
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1a2340',
+                        titleColor: '#e0e6f0',
+                        bodyColor: '#c0ccee',
+                        borderColor: '#2a3a5c',
+                        borderWidth: 1,
+                        callbacks: {
+                            title: function(items) {
+                                return items[0].label;
+                            },
+                            label: function(item) {
+                                const idx = item.dataIndex;
+                                const d = history[idx];
+                                if (item.datasetIndex === 1) {
+                                    return [
+                                        `Open: ${d.open}`,
+                                        `High: ${d.high}`,
+                                        `Low: ${d.low}`,
+                                        `Close: ${d.close}`
+                                    ];
+                                }
+                                return null;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#5a6a8a',
+                            maxRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 20,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 212, 255, 0.06)',
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#5a6a8a',
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(34, 197, 94, 0.1)',
+                            drawBorder: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ========== Return Line Chart ==========
+    function drawReturnLine(ctx, labels, history) {
+        if (!history.length) return;
+
+        const basePrice = history[0].close;
+        const returns = history.map(d => ((d.close - basePrice) / basePrice * 100).toFixed(2));
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(0, 212, 255, 0.25)');
+        gradient.addColorStop(1, 'rgba(0, 212, 255, 0.01)');
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Cumulative Return %',
+                    data: returns,
+                    borderColor: '#00d4ff',
+                    backgroundColor: gradient,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: '#00d4ff',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#8a9abf',
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1a2340',
+                        titleColor: '#e0e6f0',
+                        bodyColor: '#c0ccee',
+                        borderColor: '#2a3a5c',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(item) {
+                                return `Return: ${item.raw}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#5a6a8a',
+                            maxRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 20,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: 'rgba(0, 212, 255, 0.06)',
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#5a6a8a',
+                            font: { size: 11 },
+                            callback: function(val) { return val + '%'; }
+                        },
+                        grid: {
+                            color: 'rgba(34, 197, 94, 0.1)',
+                            drawBorder: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,551 @@
+{% extends "base.html" %}
+{% block title %}Portfolios{% endblock %}
+
+{% block content %}
+<style>
+    .pf-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 16px;
+    }
+
+    .pf-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .pf-page-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #e0e6f0;
+    }
+
+    /* Portfolio Cards Grid */
+    .pf-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    @media (max-width: 768px) {
+        .pf-grid { grid-template-columns: 1fr; }
+    }
+
+    .pf-card {
+        background: #0f1629;
+        border: 1px solid #1e2d4a;
+        border-radius: 12px;
+        padding: 20px;
+        cursor: pointer;
+        transition: box-shadow 0.25s, border-color 0.25s, transform 0.15s;
+        position: relative;
+    }
+    .pf-card:hover {
+        border-color: #00d4ff;
+        box-shadow: 0 0 18px rgba(0, 212, 255, 0.18), 0 0 40px rgba(0, 212, 255, 0.06);
+        transform: translateY(-2px);
+    }
+
+    .pf-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+
+    .pf-card-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #e0e6f0;
+        font-family: 'Syne', sans-serif;
+        letter-spacing: 0.3px;
+    }
+
+    .pf-card-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .pf-card-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        border: 1px solid #2a3a5c;
+        background: transparent;
+        color: #5a6a8a;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .pf-card-btn:hover {
+        background: #1a2340;
+        color: #e0e6f0;
+        border-color: #3a4a6c;
+    }
+    .pf-card-btn.delete:hover {
+        background: rgba(255, 74, 110, 0.15);
+        color: #ff4a6e;
+        border-color: #ff4a6e;
+    }
+
+    .pf-card-desc {
+        color: #6b7a9a;
+        font-size: 13px;
+        margin-bottom: 12px;
+        line-height: 1.5;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .pf-card-tags {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+    }
+
+    .pf-tag-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .pf-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 10px;
+        border-top: 1px solid #1e2d4a;
+    }
+
+    .pf-card-symbols {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        flex: 1;
+    }
+
+    .pf-symbol-chip {
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        background: rgba(0, 212, 255, 0.1);
+        color: #00d4ff;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        letter-spacing: 0.3px;
+    }
+
+    .pf-member-count {
+        font-size: 12px;
+        color: #5a6a8a;
+        white-space: nowrap;
+        margin-left: 8px;
+    }
+
+    /* Tag input in modal */
+    .pf-tag-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .pf-tag-row input[type="text"] {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .pf-color-picker {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+
+    .pf-color-opt {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: border-color 0.15s, transform 0.1s;
+    }
+    .pf-color-opt:hover {
+        transform: scale(1.15);
+    }
+    .pf-color-opt.selected {
+        border-color: #fff;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+    }
+
+    .pf-tag-remove-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 1px solid #2a3a5c;
+        background: transparent;
+        color: #ff4a6e;
+        font-size: 15px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+    .pf-tag-remove-btn:hover {
+        background: rgba(255, 74, 110, 0.15);
+        border-color: #ff4a6e;
+    }
+
+    .pf-add-tag-btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px dashed #2a3a5c;
+        background: transparent;
+        color: #5a6a8a;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .pf-add-tag-btn:hover {
+        border-color: #00d4ff;
+        color: #00d4ff;
+    }
+
+    .pf-empty {
+        text-align: center;
+        color: #5a6a8a;
+        padding: 60px 20px;
+        font-size: 15px;
+    }
+
+    .pf-empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.4;
+    }
+</style>
+
+<div class="pf-container">
+    <div class="pf-page-header">
+        <h1 class="pf-page-title">Portfolios</h1>
+        <button class="btn btn-primary" onclick="openModal('createModal')">+ Create Portfolio</button>
+    </div>
+
+    <!-- Portfolio Cards Grid -->
+    <div class="pf-grid" id="pf-grid"></div>
+    <div class="pf-empty" id="pf-empty" style="display:none;">
+        <div class="pf-empty-icon">&#x25A4;</div>
+        No portfolios yet. Create one to group and compare your stocks.
+    </div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal-overlay" id="createModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Create Portfolio</h3>
+            <button class="modal-close" onclick="closeModal('createModal')">&times;</button>
+        </div>
+        <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="create-name" placeholder="e.g. Tech Growth" required>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="create-desc" rows="3" placeholder="Optional description..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Tags (up to 5)</label>
+            <div id="create-tags-container"></div>
+            <button class="pf-add-tag-btn mt-1" id="create-add-tag-btn" onclick="addTagRow('create')">+ Add Tag</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('createModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitCreate()">Create</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit Portfolio</h3>
+            <button class="modal-close" onclick="closeModal('editModal')">&times;</button>
+        </div>
+        <input type="hidden" id="edit-id">
+        <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="edit-name" placeholder="Portfolio name" required>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="edit-desc" rows="3" placeholder="Optional description..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Tags (up to 5)</label>
+            <div id="edit-tags-container"></div>
+            <button class="pf-add-tag-btn mt-1" id="edit-add-tag-btn" onclick="addTagRow('edit')">+ Add Tag</button>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitEdit()">Save</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const TAG_COLORS = [
+        '#ff4a6e', '#ff6b35', '#ffb800', '#ffd600',
+        '#00ff88', '#00d4ff', '#3b82f6', '#8b5cf6',
+        '#d946ef', '#f43f5e', '#6b7280', '#ffffff'
+    ];
+    const MAX_TAGS = 5;
+
+    let portfolios = [];
+
+    // ========== Init ==========
+    loadPortfolios();
+
+    // ========== Load Portfolios ==========
+    function loadPortfolios() {
+        fetch('/api/portfolios')
+            .then(r => r.json())
+            .then(data => {
+                portfolios = data.portfolios || data || [];
+                renderCards();
+            })
+            .catch(err => console.error('Load portfolios error:', err));
+    }
+
+    // ========== Render Cards ==========
+    function renderCards() {
+        const grid = document.getElementById('pf-grid');
+        const empty = document.getElementById('pf-empty');
+
+        if (!portfolios.length) {
+            grid.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        grid.innerHTML = portfolios.map(p => {
+            const tags = p.tags || [];
+            const members = p.members || [];
+            const tagDots = tags.map(t =>
+                `<span class="pf-tag-dot" style="background:${t.color};" title="${escAttr(t.label || '')}"></span>`
+            ).join('');
+
+            const symbolChips = members.slice(0, 6).map(m =>
+                `<span class="pf-symbol-chip">${escHtml(m.symbol || m)}</span>`
+            ).join('');
+            const moreCount = members.length > 6 ? `<span class="pf-symbol-chip">+${members.length - 6}</span>` : '';
+
+            const descPreview = (p.description || '').substring(0, 100);
+
+            return `
+                <div class="pf-card" onclick="goToPortfolio(${p.id})">
+                    <div class="pf-card-header">
+                        <span class="pf-card-name">${escHtml(p.name)}</span>
+                        <div class="pf-card-actions">
+                            <button class="pf-card-btn" onclick="openEdit(${p.id}, event)" title="Edit">&#x270E;</button>
+                            <button class="pf-card-btn delete" onclick="deletePortfolio(${p.id}, event)" title="Delete">&#x2715;</button>
+                        </div>
+                    </div>
+                    ${descPreview ? `<div class="pf-card-desc">${escHtml(descPreview)}</div>` : ''}
+                    ${tagDots ? `<div class="pf-card-tags">${tagDots}</div>` : ''}
+                    <div class="pf-card-footer">
+                        <div class="pf-card-symbols">${symbolChips}${moreCount}</div>
+                        <span class="pf-member-count">${members.length} member${members.length !== 1 ? 's' : ''}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ========== Navigate ==========
+    window.goToPortfolio = function(id) {
+        window.location.href = '/portfolios/' + id;
+    };
+
+    // ========== Tag Row Builder ==========
+    function buildTagRow(prefix, idx, label, color) {
+        label = label || '';
+        color = color || TAG_COLORS[0];
+        const colorDots = TAG_COLORS.map(c => {
+            const sel = c === color ? ' selected' : '';
+            return `<span class="pf-color-opt${sel}" style="background:${c};" data-color="${c}" onclick="selectTagColor('${prefix}', ${idx}, '${c}', this)"></span>`;
+        }).join('');
+
+        return `
+            <div class="pf-tag-row" data-tag-idx="${idx}">
+                <input type="text" value="${escAttr(label)}" placeholder="Tag label" maxlength="20"
+                       onchange="updateTagLabel('${prefix}', ${idx}, this.value)">
+                <div class="pf-color-picker">${colorDots}</div>
+                <button class="pf-tag-remove-btn" onclick="removeTagRow('${prefix}', ${idx})">&times;</button>
+            </div>
+        `;
+    }
+
+    // Tag state per modal
+    const tagState = { create: [], edit: [] };
+
+    function renderTags(prefix) {
+        const container = document.getElementById(prefix + '-tags-container');
+        container.innerHTML = tagState[prefix].map((t, i) => buildTagRow(prefix, i, t.label, t.color)).join('');
+        const addBtn = document.getElementById(prefix + '-add-tag-btn');
+        addBtn.style.display = tagState[prefix].length >= MAX_TAGS ? 'none' : '';
+    }
+
+    window.addTagRow = function(prefix) {
+        if (tagState[prefix].length >= MAX_TAGS) return;
+        tagState[prefix].push({ label: '', color: TAG_COLORS[0] });
+        renderTags(prefix);
+    };
+
+    window.removeTagRow = function(prefix, idx) {
+        tagState[prefix].splice(idx, 1);
+        renderTags(prefix);
+    };
+
+    window.selectTagColor = function(prefix, idx, color, el) {
+        tagState[prefix][idx].color = color;
+        const row = el.closest('.pf-tag-row');
+        row.querySelectorAll('.pf-color-opt').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+    };
+
+    window.updateTagLabel = function(prefix, idx, val) {
+        tagState[prefix][idx].label = val;
+    };
+
+    // ========== Create ==========
+    window.submitCreate = function() {
+        const name = document.getElementById('create-name').value.trim();
+        if (!name) { alert('Name is required'); return; }
+
+        syncTagInputs('create');
+
+        const payload = {
+            name: name,
+            description: document.getElementById('create-desc').value.trim(),
+            tags: tagState.create.filter(t => t.label.trim())
+        };
+
+        fetch('/api/portfolios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert(data.error); return; }
+            closeModal('createModal');
+            document.getElementById('create-name').value = '';
+            document.getElementById('create-desc').value = '';
+            tagState.create = [];
+            renderTags('create');
+            loadPortfolios();
+        })
+        .catch(err => console.error('Create error:', err));
+    };
+
+    // ========== Edit ==========
+    window.openEdit = function(id, e) {
+        e.stopPropagation();
+        const p = portfolios.find(x => x.id === id);
+        if (!p) return;
+
+        document.getElementById('edit-id').value = id;
+        document.getElementById('edit-name').value = p.name;
+        document.getElementById('edit-desc').value = p.description || '';
+        tagState.edit = (p.tags || []).map(t => ({ label: t.label || '', color: t.color || TAG_COLORS[0] }));
+        renderTags('edit');
+        openModal('editModal');
+    };
+
+    window.submitEdit = function() {
+        const id = document.getElementById('edit-id').value;
+        const name = document.getElementById('edit-name').value.trim();
+        if (!name) { alert('Name is required'); return; }
+
+        syncTagInputs('edit');
+
+        const payload = {
+            name: name,
+            description: document.getElementById('edit-desc').value.trim(),
+            tags: tagState.edit.filter(t => t.label.trim())
+        };
+
+        fetch('/api/portfolios/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert(data.error); return; }
+            closeModal('editModal');
+            loadPortfolios();
+        })
+        .catch(err => console.error('Edit error:', err));
+    };
+
+    // ========== Delete ==========
+    window.deletePortfolio = function(id, e) {
+        e.stopPropagation();
+        if (!confirm('Delete this portfolio? This cannot be undone.')) return;
+
+        fetch('/api/portfolios/' + id, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) { alert(data.error); return; }
+            loadPortfolios();
+        })
+        .catch(err => console.error('Delete error:', err));
+    };
+
+    // ========== Helpers ==========
+    function syncTagInputs(prefix) {
+        const container = document.getElementById(prefix + '-tags-container');
+        const rows = container.querySelectorAll('.pf-tag-row');
+        rows.forEach((row, i) => {
+            const input = row.querySelector('input[type="text"]');
+            if (input && tagState[prefix][i]) {
+                tagState[prefix][i].label = input.value;
+            }
+        });
+    }
+
+    function escHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function escAttr(str) {
+        return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+})();
+</script>
+{% endblock %}
