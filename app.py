@@ -368,14 +368,22 @@ def yf_symbol(symbol, market):
 def get_quote(symbol, market):
     """Get real-time quote for a stock."""
     import yfinance as yf
+    import math
     try:
         ticker = yf.Ticker(yf_symbol(symbol, market))
-        info = ticker.fast_info
         hist = ticker.history(period='5d')
         if hist.empty:
             return None
-        current = float(hist['Close'].iloc[-1])
-        prev = float(hist['Close'].iloc[-2]) if len(hist) >= 2 else current
+        # Drop NaN rows to handle intraday/delayed data
+        closes = hist['Close'].dropna()
+        if closes.empty:
+            return None
+        current = float(closes.iloc[-1])
+        if math.isnan(current):
+            return None
+        prev = float(closes.iloc[-2]) if len(closes) >= 2 else current
+        if math.isnan(prev):
+            prev = current
         change = current - prev
         change_pct = (change / prev * 100) if prev != 0 else 0
         return {
@@ -385,7 +393,7 @@ def get_quote(symbol, market):
             'change': round(change, 4),
             'change_pct': round(change_pct, 2),
         }
-    except:
+    except Exception:
         return None
 
 
@@ -1051,7 +1059,11 @@ def api_get_watchlist():
 def api_add_watchlist():
     data = request.get_json()
     symbol = data.get('symbol', '').strip().upper()
-    market = data.get('market', 'US')
+    market = data.get('market', '')
+    # Smart market detection: digits = TW, letters = US
+    if not market:
+        import re
+        market = 'TW' if re.search(r'\d', symbol) else 'US'
     if not symbol:
         return jsonify({'error': 'Symbol required'}), 400
 
@@ -1172,8 +1184,10 @@ def api_analytics_overview():
         ticker = yf.Ticker('TWD=X')
         hist = ticker.history(period='5d')
         if not hist.empty:
-            fx_rate = round(float(hist['Close'].iloc[-1]), 4)
-    except:
+            closes = hist['Close'].dropna()
+            if not closes.empty:
+                fx_rate = round(float(closes.iloc[-1]), 4)
+    except Exception:
         pass
 
     return jsonify({
@@ -1341,8 +1355,11 @@ def api_market_overview():
             hist = ticker.history(period='5d')
             if hist.empty:
                 continue
-            current = round(float(hist['Close'].iloc[-1]), 2)
-            prev = float(hist['Close'].iloc[-2]) if len(hist) >= 2 else current
+            closes = hist['Close'].dropna()
+            if closes.empty:
+                continue
+            current = round(float(closes.iloc[-1]), 2)
+            prev = float(closes.iloc[-2]) if len(closes) >= 2 else current
             change = round(current - prev, 2)
             change_pct = round((change / prev) * 100, 2) if prev != 0 else 0
             result.append({
@@ -1353,7 +1370,7 @@ def api_market_overview():
                 'change': change,
                 'change_pct': change_pct,
             })
-        except:
+        except Exception:
             continue
 
     return jsonify(result)
@@ -1473,7 +1490,8 @@ def api_simulate():
                 continue
 
     # Final value
-    last_price = float(hist['Close'].iloc[-1])
+    _closes = hist['Close'].dropna()
+    last_price = float(_closes.iloc[-1]) if not _closes.empty else 0
     sell_fees = get_fee_breakdown(market, 'sell', last_price, total_shares,
                                    discount=current_user.commission_discount)
     final_value = sell_fees['net_amount']
@@ -1530,8 +1548,9 @@ def api_simulate():
     # Benchmark comparison
     bench_return = 0
     if not bench_hist.empty:
-        bench_first = float(bench_hist['Close'].iloc[0])
-        bench_last = float(bench_hist['Close'].iloc[-1])
+        _bc = bench_hist['Close'].dropna()
+        bench_first = float(_bc.iloc[0]) if not _bc.empty else 0
+        bench_last = float(_bc.iloc[-1]) if not _bc.empty else 0
         bench_return = round(((bench_last - bench_first) / bench_first) * 100, 2)
 
     return jsonify({
@@ -1578,15 +1597,20 @@ def api_simulate_compare():
             continue
 
         # Standardize to base 100
-        first_price = float(hist['Close'].iloc[0])
+        _hc = hist['Close'].dropna()
+        if _hc.empty:
+            continue
+        first_price = float(_hc.iloc[0])
+        if first_price == 0:
+            continue
         curve = []
-        for idx, row in hist.iterrows():
+        for idx, val in _hc.items():
             curve.append({
                 'date': idx.strftime('%Y-%m-%d'),
-                'value': round(float(row['Close']) / first_price * 100, 2),
+                'value': round(float(val) / first_price * 100, 2),
             })
 
-        last_price = float(hist['Close'].iloc[-1])
+        last_price = float(_hc.iloc[-1])
         total_return = round(((last_price - first_price) / first_price) * 100, 2)
 
         results.append({

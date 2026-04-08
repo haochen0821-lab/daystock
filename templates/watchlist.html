@@ -341,6 +341,19 @@
             .catch(err => console.error('Load watchlist error:', err));
     }
 
+    /* Auto-detect market: pure letters = US, contains digit = TW */
+    function detectMarket(sym) {
+        return /\d/.test(sym) ? 'TW' : 'US';
+    }
+
+    /* Auto-switch market selector when user types */
+    document.getElementById('wl-symbol-input').addEventListener('input', function() {
+        const sym = this.value.trim();
+        if (sym) {
+            document.getElementById('wl-market-select').value = detectMarket(sym);
+        }
+    });
+
     window.addStock = function() {
         const input = document.getElementById('wl-symbol-input');
         const symbol = input.value.trim().toUpperCase();
