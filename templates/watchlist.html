@@ -359,6 +359,11 @@
         const symbol = input.value.trim().toUpperCase();
         const market = document.getElementById('wl-market-select').value;
         if (!symbol) return;
+        /* Validate: only allow letters, digits, dots, dashes */
+        if (!/^[A-Z0-9.\-^=]+$/.test(symbol)) {
+            alert('請輸入股票代號（如 2330、AAPL），不支援中文名稱');
+            return;
+        }
 
         fetch('/api/watchlist', {
             method: 'POST',
@@ -389,10 +394,12 @@
         e.stopPropagation();
         if (!confirm('確定從自選股移除 ' + symbol + '？')) return;
 
-        fetch('/api/watchlist', {
+        // Find item id from watchlist array
+        const item = watchlist.find(w => w.symbol === symbol && w.market === market);
+        if (!item) return;
+
+        fetch('/api/watchlist/' + item.id, {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ symbol, market })
         })
         .then(r => r.json())
         .then(() => {

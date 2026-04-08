@@ -358,23 +358,73 @@ def fifo_match(trades_list):
 # ══════════════════════════════════════════════════════════
 
 def yf_symbol(symbol, market):
-    """Convert symbol to yfinance format."""
+    """Convert symbol to yfinance format. Supports TW (listed) and TWO (OTC)."""
     if market == 'TW':
-        s = symbol.replace('.TW', '')
+        s = symbol.replace('.TW', '').replace('.TWO', '')
         return f'{s}.TW'
     return symbol
 
 
+def _try_tw_ticker(symbol):
+    """Try .TW first, fallback to .TWO for OTC stocks."""
+    import yfinance as yf
+    s = symbol.replace('.TW', '').replace('.TWO', '')
+    # Try listed (.TW) first
+    ticker = yf.Ticker(f'{s}.TW')
+    hist = ticker.history(period='5d')
+    closes = hist['Close'].dropna() if not hist.empty else None
+    if closes is not None and not closes.empty:
+        return ticker, hist, f'{s}.TW'
+    # Fallback to OTC (.TWO)
+    ticker = yf.Ticker(f'{s}.TWO')
+    hist = ticker.history(period='5d')
+    return ticker, hist, f'{s}.TWO'
+
+
+# ── Simple in-memory cache for stock data ──
+_quote_cache = {}
+_history_cache = {}
+_CACHE_TTL = 60  # seconds
+
+
+def _cache_get(cache, key):
+    """Get from cache if not expired."""
+    from time import time
+    if key in cache:
+        val, ts = cache[key]
+        if time() - ts < _CACHE_TTL:
+            return val
+        del cache[key]
+    return None
+
+
+def _cache_set(cache, key, val):
+    """Set cache entry."""
+    from time import time
+    cache[key] = (val, time())
+    # Evict old entries if cache grows too large
+    if len(cache) > 200:
+        oldest = sorted(cache.items(), key=lambda x: x[1][1])[:50]
+        for k, _ in oldest:
+            del cache[k]
+
+
 def get_quote(symbol, market):
-    """Get real-time quote for a stock."""
+    """Get real-time quote for a stock (with cache)."""
     import yfinance as yf
     import math
+    cache_key = f'{symbol}:{market}'
+    cached = _cache_get(_quote_cache, cache_key)
+    if cached is not None:
+        return cached
     try:
-        ticker = yf.Ticker(yf_symbol(symbol, market))
-        hist = ticker.history(period='5d')
+        if market == 'TW':
+            ticker, hist, actual_sym = _try_tw_ticker(symbol)
+        else:
+            ticker = yf.Ticker(yf_symbol(symbol, market))
+            hist = ticker.history(period='5d')
         if hist.empty:
             return None
-        # Drop NaN rows to handle intraday/delayed data
         closes = hist['Close'].dropna()
         if closes.empty:
             return None
@@ -386,37 +436,57 @@ def get_quote(symbol, market):
             prev = current
         change = current - prev
         change_pct = (change / prev * 100) if prev != 0 else 0
-        return {
+        result = {
             'symbol': symbol,
             'market': market,
             'price': round(current, 4),
             'change': round(change, 4),
             'change_pct': round(change_pct, 2),
         }
+        _cache_set(_quote_cache, cache_key, result)
+        return result
     except Exception:
         return None
 
 
 def get_history(symbol, market, period='1y'):
-    """Get historical OHLCV data."""
+    """Get historical OHLCV data (with cache)."""
     import yfinance as yf
+    cache_key = f'{symbol}:{market}:{period}'
+    cached = _cache_get(_history_cache, cache_key)
+    if cached is not None:
+        return cached
     try:
-        ticker = yf.Ticker(yf_symbol(symbol, market))
-        hist = ticker.history(period=period)
+        if market == 'TW':
+            s = symbol.replace('.TW', '').replace('.TWO', '')
+            # Try .TW first, fallback .TWO
+            ticker = yf.Ticker(f'{s}.TW')
+            hist = ticker.history(period=period)
+            if hist.empty or hist['Close'].dropna().empty:
+                ticker = yf.Ticker(f'{s}.TWO')
+                hist = ticker.history(period=period)
+        else:
+            ticker = yf.Ticker(yf_symbol(symbol, market))
+            hist = ticker.history(period=period)
         if hist.empty:
+            _cache_set(_history_cache, cache_key, [])
             return []
         data = []
         for idx, row in hist.iterrows():
+            c = float(row['Close'])
+            if math.isnan(c):
+                continue
             data.append({
                 'date': idx.strftime('%Y-%m-%d'),
-                'open': round(float(row['Open']), 4),
-                'high': round(float(row['High']), 4),
-                'low': round(float(row['Low']), 4),
-                'close': round(float(row['Close']), 4),
-                'volume': int(row['Volume']),
+                'open': round(float(row['Open']), 4) if not math.isnan(float(row['Open'])) else 0,
+                'high': round(float(row['High']), 4) if not math.isnan(float(row['High'])) else 0,
+                'low': round(float(row['Low']), 4) if not math.isnan(float(row['Low'])) else 0,
+                'close': round(c, 4),
+                'volume': int(row['Volume']) if not math.isnan(float(row['Volume'])) else 0,
             })
+        _cache_set(_history_cache, cache_key, data)
         return data
-    except:
+    except Exception:
         return []
 
 
