@@ -712,7 +712,7 @@ def api_stock_history():
     market = request.args.get('market', 'US')
     period_raw = request.args.get('period', '1y')
     # Map frontend shorthand to yfinance period format
-    period_map = {'1M': '1mo', '3M': '3mo', '6M': '6mo', '1Y': '1y', '5Y': '5y'}
+    period_map = {'1M': '1mo', '3M': '3mo', '6M': '6mo', '1Y': '1y', '2Y': '2y', '5Y': '5y', 'MAX': 'max'}
     period = period_map.get(period_raw, period_raw)
     if not symbol:
         return jsonify({'error': 'Symbol required'}), 400

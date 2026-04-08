@@ -304,6 +304,9 @@
                 <button class="active" data-period="3M" onclick="switchPeriod('3M')">3M</button>
                 <button data-period="6M" onclick="switchPeriod('6M')">6M</button>
                 <button data-period="1Y" onclick="switchPeriod('1Y')">1Y</button>
+                <button data-period="2Y" onclick="switchPeriod('2Y')">2Y</button>
+                <button data-period="5Y" onclick="switchPeriod('5Y')">5Y</button>
+                <button data-period="MAX" onclick="switchPeriod('MAX')" style="font-weight:700;">ALL</button>
             </div>
         </div>
         <div class="wl-chart-wrap">
@@ -558,6 +561,11 @@
             .catch(err => console.error('Load history error:', err));
     }
 
+    /* Helper: resolve CSS variable to actual color for Chart.js */
+    function cssVar(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#888';
+    }
+
     // ========== Draw Chart ==========
     function drawChart(data) {
         if (chartInstance) {
@@ -640,11 +648,14 @@
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: 'var(--surface)',
-                        titleColor: 'var(--text)',
-                        bodyColor: 'var(--text)',
-                        borderColor: 'var(--border)',
+                        backgroundColor: cssVar('--surface'),
+                        titleColor: cssVar('--text'),
+                        bodyColor: cssVar('--text'),
+                        borderColor: cssVar('--border'),
                         borderWidth: 1,
+                        titleFont: { size: 13 },
+                        bodyFont: { size: 12 },
+                        padding: 10,
                         callbacks: {
                             title: function(items) {
                                 return items[0].label;
@@ -668,7 +679,7 @@
                 scales: {
                     x: {
                         ticks: {
-                            color: 'var(--muted)',
+                            color: cssVar('--muted'),
                             maxRotation: 45,
                             autoSkip: true,
                             maxTicksLimit: 20,
@@ -681,7 +692,7 @@
                     },
                     y: {
                         ticks: {
-                            color: 'var(--muted)',
+                            color: cssVar('--muted'),
                             font: { size: 11 }
                         },
                         grid: {
@@ -701,9 +712,10 @@
         const basePrice = history[0].close;
         const returns = history.map(d => ((d.close - basePrice) / basePrice * 100).toFixed(2));
 
+        const primaryColor = cssVar('--primary');
         const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(0, 212, 255, 0.25)');
-        gradient.addColorStop(1, 'rgba(0, 212, 255, 0.01)');
+        gradient.addColorStop(0, 'rgba(0, 150, 255, 0.2)');
+        gradient.addColorStop(1, 'rgba(0, 150, 255, 0.01)');
 
         chartInstance = new Chart(ctx, {
             type: 'line',
@@ -712,12 +724,12 @@
                 datasets: [{
                     label: '累積報酬 %',
                     data: returns,
-                    borderColor: 'var(--primary)',
+                    borderColor: primaryColor,
                     backgroundColor: gradient,
                     borderWidth: 2,
                     pointRadius: 0,
                     pointHoverRadius: 5,
-                    pointHoverBackgroundColor: 'var(--primary)',
+                    pointHoverBackgroundColor: primaryColor,
                     pointHoverBorderColor: '#fff',
                     pointHoverBorderWidth: 2,
                     fill: true,
@@ -734,16 +746,19 @@
                 plugins: {
                     legend: {
                         labels: {
-                            color: 'var(--muted)',
+                            color: cssVar('--muted'),
                             font: { size: 12 }
                         }
                     },
                     tooltip: {
-                        backgroundColor: 'var(--surface)',
-                        titleColor: 'var(--text)',
-                        bodyColor: 'var(--text)',
-                        borderColor: 'var(--border)',
+                        backgroundColor: cssVar('--surface'),
+                        titleColor: cssVar('--text'),
+                        bodyColor: cssVar('--text'),
+                        borderColor: cssVar('--border'),
                         borderWidth: 1,
+                        titleFont: { size: 13 },
+                        bodyFont: { size: 12 },
+                        padding: 10,
                         callbacks: {
                             label: function(item) {
                                 return `報酬: ${item.raw}%`;
@@ -754,7 +769,7 @@
                 scales: {
                     x: {
                         ticks: {
-                            color: 'var(--muted)',
+                            color: cssVar('--muted'),
                             maxRotation: 45,
                             autoSkip: true,
                             maxTicksLimit: 20,
@@ -767,7 +782,7 @@
                     },
                     y: {
                         ticks: {
-                            color: 'var(--muted)',
+                            color: cssVar('--muted'),
                             font: { size: 11 },
                             callback: function(val) { return val + '%'; }
                         },
