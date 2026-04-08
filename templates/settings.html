@@ -12,10 +12,10 @@
         <div style="display: flex; align-items: center; gap: 20px;">
             <div id="profileAvatar" style="
                 width: 64px; height: 64px; border-radius: 50%;
-                background: linear-gradient(135deg, #00d4ff, #00ff88);
+                background: linear-gradient(135deg, var(--primary), var(--secondary));
                 display: flex; align-items: center; justify-content: center;
                 font-family: 'Syne', sans-serif; font-weight: 800;
-                font-size: 28px; color: #0a0f1e; flex-shrink: 0;
+                font-size: 28px; color: var(--bg); flex-shrink: 0;
             ">-</div>
             <div>
                 <div style="font-size: 18px; font-weight: 600; font-family: 'Syne', sans-serif;" id="profileUsername">-</div>
@@ -217,13 +217,13 @@
             roleEl.textContent = role;
             if (role === 'superadmin') {
                 roleEl.style.background = 'rgba(255,74,110,0.15)';
-                roleEl.style.color = '#ff4a6e';
+                roleEl.style.color = 'var(--danger)';
             } else if (role === 'admin') {
                 roleEl.style.background = 'rgba(255,184,0,0.15)';
-                roleEl.style.color = '#ffb800';
+                roleEl.style.color = 'var(--warning)';
             } else {
                 roleEl.style.background = 'rgba(0,212,255,0.15)';
-                roleEl.style.color = '#00d4ff';
+                roleEl.style.color = 'var(--primary)';
             }
 
             // Trading Preferences
@@ -255,15 +255,15 @@
         var us = document.getElementById('marketUS');
         if (m === 'TW') {
             tw.style.background = 'rgba(0,212,255,0.15)';
-            tw.style.color = '#00d4ff';
-            tw.style.borderColor = '#00d4ff';
+            tw.style.color = 'var(--primary)';
+            tw.style.borderColor = 'var(--primary)';
             us.style.background = 'var(--bg)';
             us.style.color = 'var(--muted)';
             us.style.borderColor = 'var(--border)';
         } else {
             us.style.background = 'rgba(0,212,255,0.15)';
-            us.style.color = '#00d4ff';
-            us.style.borderColor = '#00d4ff';
+            us.style.color = 'var(--primary)';
+            us.style.borderColor = 'var(--primary)';
             tw.style.background = 'var(--bg)';
             tw.style.color = 'var(--muted)';
             tw.style.borderColor = 'var(--border)';
@@ -363,7 +363,7 @@
 
         var bar = document.getElementById('strengthBar');
         var txt = document.getElementById('strengthText');
-        var colors = ['', '#ff4a6e', '#ff8c00', '#ffcc00', '#00ff88'];
+        var colors = ['', 'var(--danger)', '#ff8c00', '#ffcc00', 'var(--secondary)'];
         var labels = ['', '弱', '普通', '良好', '很強'];
 
         bar.style.width = (score * 25) + '%';

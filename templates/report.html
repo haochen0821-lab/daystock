@@ -156,8 +156,8 @@
     .trade-table tr:hover td {
         background: rgba(0, 212, 255, 0.03);
     }
-    .pnl-pos { color: #00ff88; }
-    .pnl-neg { color: #ff4a6e; }
+    .pnl-pos { color: var(--secondary); }
+    .pnl-neg { color: var(--danger); }
 
     .btn-edit {
         padding: 4px 10px;
@@ -647,7 +647,7 @@
 
         var labels = keys;
         var values = keys.map(function(y) { return groups[y].total; });
-        var colors = values.map(function(v) { return v >= 0 ? '#00ff88' : '#ff4a6e'; });
+        var colors = values.map(function(v) { return v >= 0 ? 'var(--secondary)' : 'var(--danger)'; });
 
         yearChartInstance = new Chart(canvas.getContext('2d'), {
             type: 'bar',
@@ -674,12 +674,12 @@
                 },
                 scales: {
                     x: {
-                        ticks: { color: '#4a5a7a', font: { family: 'DM Mono', size: 12 } },
+                        ticks: { color: 'var(--muted)', font: { family: 'DM Mono', size: 12 } },
                         grid: { color: 'rgba(30,45,74,0.4)' }
                     },
                     y: {
                         ticks: {
-                            color: '#4a5a7a',
+                            color: 'var(--muted)',
                             font: { family: 'DM Mono', size: 11 },
                             callback: function(v) { return v.toLocaleString(); }
                         },

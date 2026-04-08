@@ -236,7 +236,7 @@
             const ex = new Date(d.ex_date + 'T00:00:00');
             const diffDays = Math.ceil((ex - today) / (1000 * 60 * 60 * 24));
             const isToday = diffDays === 0;
-            const badgeBg = isToday ? '#ff4a6e' : 'rgba(255,255,255,0.2)';
+            const badgeBg = isToday ? 'var(--danger)' : 'rgba(255,255,255,0.2)';
             const label = isToday ? '今天！' : diffDays + ' 天';
             return '<div style="background:' + badgeBg + ';border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">' +
                 '<span>' + escHtml(d.symbol) + '</span>' +

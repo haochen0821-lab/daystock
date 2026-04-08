@@ -6,71 +6,71 @@
 
     <!-- Top Stats Cards -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;" id="stats-cards">
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;" data-i18n="trades.total_commission">手續費合計</div>
-            <div id="stat-commission" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;" data-i18n="trades.total_commission">手續費合計</div>
+            <div id="stat-commission" style="color:var(--text);font-size:22px;font-weight:700;">--</div>
         </div>
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;" data-i18n="trades.total_tax">交易稅合計</div>
-            <div id="stat-tax" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;" data-i18n="trades.total_tax">交易稅合計</div>
+            <div id="stat-tax" style="color:var(--text);font-size:22px;font-weight:700;">--</div>
         </div>
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;" data-i18n="trades.total_fees">費用合計</div>
-            <div id="stat-fees" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;" data-i18n="trades.total_fees">費用合計</div>
+            <div id="stat-fees" style="color:var(--text);font-size:22px;font-weight:700;">--</div>
         </div>
     </div>
 
     <!-- Filter Bar -->
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:14px 18px;">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;">
         <div style="display:flex;align-items:center;gap:6px;">
-            <label style="margin:0;color:#64748b;font-size:12px;white-space:nowrap;" data-i18n="trades.market">市場</label>
-            <select id="filter-market" style="width:auto;min-width:80px;padding:7px 10px;background:#0a0f1e;border:1px solid #1e2d4a;border-radius:6px;color:#e8eef7;font-size:13px;">
+            <label style="margin:0;color:var(--muted);font-size:12px;white-space:nowrap;" data-i18n="trades.market">市場</label>
+            <select id="filter-market" style="width:auto;min-width:80px;padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;">
                 <option value="" data-i18n="trades.all">全部</option>
                 <option value="TW">TW</option>
                 <option value="US">US</option>
             </select>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-            <label style="margin:0;color:#64748b;font-size:12px;white-space:nowrap;" data-i18n="trades.type">類型</label>
-            <select id="filter-type" style="width:auto;min-width:80px;padding:7px 10px;background:#0a0f1e;border:1px solid #1e2d4a;border-radius:6px;color:#e8eef7;font-size:13px;">
+            <label style="margin:0;color:var(--muted);font-size:12px;white-space:nowrap;" data-i18n="trades.type">類型</label>
+            <select id="filter-type" style="width:auto;min-width:80px;padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;">
                 <option value="" data-i18n="trades.all">全部</option>
                 <option value="buy" data-i18n="trades.buy">買入</option>
                 <option value="sell" data-i18n="trades.sell">賣出</option>
             </select>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-            <label style="margin:0;color:#64748b;font-size:12px;white-space:nowrap;" data-i18n="trades.symbol">代號</label>
-            <input type="text" id="filter-symbol" placeholder="例：AAPL" style="width:auto;min-width:100px;padding:7px 10px;background:#0a0f1e;border:1px solid #1e2d4a;border-radius:6px;color:#e8eef7;font-size:13px;">
+            <label style="margin:0;color:var(--muted);font-size:12px;white-space:nowrap;" data-i18n="trades.symbol">代號</label>
+            <input type="text" id="filter-symbol" placeholder="例：AAPL" style="width:auto;min-width:100px;padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;">
         </div>
-        <button onclick="loadTrades()" style="padding:8px 18px;background:#00d4ff;color:#0a0f1e;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;" data-i18n="trades.filter">篩選</button>
+        <button onclick="loadTrades()" style="padding:8px 18px;background:var(--primary);color:var(--bg);border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;" data-i18n="trades.filter">篩選</button>
     </div>
 
     <!-- Add Trade Button -->
     <div style="margin-bottom:20px;">
-        <button onclick="openModal('modal-add-trade')" style="padding:10px 22px;background:#00d4ff;color:#0a0f1e;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;" data-i18n="trades.add_trade">+ 新增交易</button>
+        <button onclick="openModal('modal-add-trade')" style="padding:10px 22px;background:var(--primary);color:var(--bg);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Mono',monospace;" data-i18n="trades.add_trade">+ 新增交易</button>
     </div>
 
     <!-- Trades Table -->
-    <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;overflow-x:auto;">
-        <h4 style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;" data-i18n="trades.history">交易歷史</h4>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;">
+        <h4 style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;" data-i18n="trades.history">交易歷史</h4>
         <table style="width:100%;border-collapse:collapse;font-size:13px;" id="trades-table">
             <thead>
-                <tr style="border-bottom:1px solid #1e2d4a;">
-                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.date">日期</th>
-                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.symbol">代號</th>
-                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.market">市場</th>
-                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.type">類型</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.price">價格</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.shares">股數</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;cursor:pointer;" title="點擊查看費用明細" data-i18n="trades.fees">費用</th>
-                    <th style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.net_amount">淨額</th>
-                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.reason">理由</th>
-                    <th style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.account">帳戶</th>
-                    <th style="text-align:center;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.actions">操作</th>
+                <tr style="border-bottom:1px solid var(--border);">
+                    <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.date">日期</th>
+                    <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.symbol">代號</th>
+                    <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.market">市場</th>
+                    <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.type">類型</th>
+                    <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.price">價格</th>
+                    <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.shares">股數</th>
+                    <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;cursor:pointer;" title="點擊查看費用明細" data-i18n="trades.fees">費用</th>
+                    <th style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.net_amount">淨額</th>
+                    <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.reason">理由</th>
+                    <th style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.account">帳戶</th>
+                    <th style="text-align:center;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;" data-i18n="trades.actions">操作</th>
                 </tr>
             </thead>
             <tbody id="trades-tbody">
-                <tr><td colspan="11" style="text-align:center;padding:40px;color:#4a5a7a;">載入中...</td></tr>
+                <tr><td colspan="11" style="text-align:center;padding:40px;color:var(--muted);">載入中...</td></tr>
             </tbody>
         </table>
     </div>
@@ -87,10 +87,10 @@
         <div class="form-group">
             <label data-i18n="trades.market">市場</label>
             <div style="display:flex;gap:16px;">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#e8eef7;font-size:13px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text);font-size:13px;">
                     <input type="radio" name="trade-market" value="TW" checked onchange="onMarketChange()"> TW
                 </label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#e8eef7;font-size:13px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text);font-size:13px;">
                     <input type="radio" name="trade-market" value="US" onchange="onMarketChange()"> US
                 </label>
             </div>
@@ -99,10 +99,10 @@
         <div class="form-group">
             <label data-i18n="trades.trade_type">交易類型</label>
             <div style="display:flex;gap:16px;">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#e8eef7;font-size:13px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text);font-size:13px;">
                     <input type="radio" name="trade-type" value="buy" checked> <span data-i18n="trades.buy">買入</span>
                 </label>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#e8eef7;font-size:13px;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--text);font-size:13px;">
                     <input type="radio" name="trade-type" value="sell"> <span data-i18n="trades.sell">賣出</span>
                 </label>
             </div>
@@ -159,9 +159,9 @@
         </div>
 
         <!-- Live Fee Preview -->
-        <div id="fee-preview" style="display:none;background:#0a0f1e;border:1px solid #1e2d4a;border-radius:8px;padding:14px;margin-bottom:16px;">
-            <div style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" data-i18n="trades.fee_preview">費用預估</div>
-            <div id="fee-preview-items" style="font-size:13px;color:#e8eef7;"></div>
+        <div id="fee-preview" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:16px;">
+            <div style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" data-i18n="trades.fee_preview">費用預估</div>
+            <div id="fee-preview-items" style="font-size:13px;color:var(--text);"></div>
         </div>
 
         <div class="modal-footer">
@@ -178,21 +178,21 @@
             <h3 data-i18n="trades.fee_breakdown">費用明細</h3>
             <button class="modal-close" onclick="closeModal('modal-fee-detail')">&times;</button>
         </div>
-        <div id="fee-detail-content" style="font-size:13px;color:#e8eef7;">
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2d4a;">
-                <span style="color:#8fa4c4;" data-i18n="trades.commission">手續費</span>
+        <div id="fee-detail-content" style="font-size:13px;color:var(--text);">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--muted);" data-i18n="trades.commission">手續費</span>
                 <span id="fd-commission">--</span>
             </div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2d4a;">
-                <span style="color:#8fa4c4;" data-i18n="trades.transaction_tax">交易稅</span>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--muted);" data-i18n="trades.transaction_tax">交易稅</span>
                 <span id="fd-tax">--</span>
             </div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2d4a;">
-                <span style="color:#8fa4c4;" data-i18n="trades.health_premium">健保補充保費</span>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--muted);" data-i18n="trades.health_premium">健保補充保費</span>
                 <span id="fd-health">--</span>
             </div>
-            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2d4a;">
-                <span style="color:#8fa4c4;" data-i18n="trades.sec_fee">SEC 費用</span>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--muted);" data-i18n="trades.sec_fee">SEC 費用</span>
                 <span id="fd-sec">--</span>
             </div>
             <div id="fd-health-badge" style="display:none;margin-top:10px;">
@@ -275,9 +275,9 @@
         type = type || 'success';
         var el = document.createElement('div');
         el.textContent = msg;
-        var borderColor = type === 'success' ? '#00ff88' : '#ff4a6e';
-        var textColor = type === 'success' ? '#00ff88' : '#ff4a6e';
-        el.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:#0f1629;border:1px solid ' + borderColor + ';color:' + textColor + ';padding:10px 20px;border-radius:8px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,0.4);font-family:DM Mono,monospace;';
+        var borderColor = type === 'success' ? 'var(--secondary)' : 'var(--danger)';
+        var textColor = type === 'success' ? 'var(--secondary)' : 'var(--danger)';
+        el.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--surface);border:1px solid ' + borderColor + ';color:' + textColor + ';padding:10px 20px;border-radius:8px;font-size:13px;box-shadow:0 8px 32px rgba(0,0,0,0.4);font-family:DM Mono,monospace;';
         document.body.appendChild(el);
         setTimeout(function() { el.remove(); }, 2500);
     }
@@ -305,7 +305,7 @@
             })
             .catch(function(err) {
                 console.error('載入交易失敗:', err);
-                document.getElementById('trades-tbody').innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:#ff4a6e;">載入交易失敗</td></tr>';
+                document.getElementById('trades-tbody').innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--danger);">載入交易失敗</td></tr>';
             });
     };
 
@@ -325,7 +325,7 @@
     function renderTable() {
         var tbody = document.getElementById('trades-tbody');
         if (!allTrades.length) {
-            tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:#4a5a7a;" data-i18n="trades.no_trades">查無交易紀錄</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--muted);" data-i18n="trades.no_trades">查無交易紀錄</td></tr>';
             return;
         }
         var html = '';
@@ -333,8 +333,8 @@
             var t = allTrades[i];
             var isBuy = (t.trade_type === 'buy');
             var typeBadge = isBuy
-                ? '<span style="display:inline-block;padding:2px 10px;background:rgba(0,255,136,0.15);color:#00ff88;border-radius:12px;font-size:11px;font-weight:600;" data-i18n="trades.buy">買入</span>'
-                : '<span style="display:inline-block;padding:2px 10px;background:rgba(255,74,110,0.15);color:#ff4a6e;border-radius:12px;font-size:11px;font-weight:600;" data-i18n="trades.sell">賣出</span>';
+                ? '<span style="display:inline-block;padding:2px 10px;background:rgba(0,255,136,0.15);color:var(--secondary);border-radius:12px;font-size:11px;font-weight:600;" data-i18n="trades.buy">買入</span>'
+                : '<span style="display:inline-block;padding:2px 10px;background:rgba(255,74,110,0.15);color:var(--danger);border-radius:12px;font-size:11px;font-weight:600;" data-i18n="trades.sell">賣出</span>';
 
             var fees = Number(t.total_fee || 0);
             var price = Number(t.price || 0);
@@ -347,23 +347,23 @@
                 healthBadge = ' <span style="display:inline-block;padding:1px 6px;background:#92400e;color:#fbbf24;border-radius:8px;font-size:10px;font-weight:600;">健保</span>';
             }
 
-            var reasonTag = t.reason_tag ? escHtml(t.reason_tag) : '<span style="color:#4a5a7a;">--</span>';
-            var account = t.account ? escHtml(t.account) : '<span style="color:#4a5a7a;">--</span>';
+            var reasonTag = t.reason_tag ? escHtml(t.reason_tag) : '<span style="color:var(--muted);">--</span>';
+            var account = t.account ? escHtml(t.account) : '<span style="color:var(--muted);">--</span>';
 
-            html += '<tr style="border-bottom:1px solid #1e2d4a;">'
-                + '<td style="padding:10px 8px;color:#e8eef7;">' + escHtml(t.date || '') + '</td>'
-                + '<td style="padding:10px 8px;color:#00d4ff;font-weight:600;">' + escHtml(t.symbol || '') + '</td>'
-                + '<td style="padding:10px 8px;color:#8fa4c4;">' + escHtml(t.market || '') + '</td>'
+            html += '<tr style="border-bottom:1px solid var(--border);">'
+                + '<td style="padding:10px 8px;color:var(--text);">' + escHtml(t.date || '') + '</td>'
+                + '<td style="padding:10px 8px;color:var(--primary);font-weight:600;">' + escHtml(t.symbol || '') + '</td>'
+                + '<td style="padding:10px 8px;color:var(--muted);">' + escHtml(t.market || '') + '</td>'
                 + '<td style="padding:10px 8px;">' + typeBadge + healthBadge + '</td>'
-                + '<td style="padding:10px 8px;text-align:right;color:#e8eef7;">' + fmt(price) + '</td>'
-                + '<td style="padding:10px 8px;text-align:right;color:#e8eef7;">' + fmt(shares) + '</td>'
-                + '<td style="padding:10px 8px;text-align:right;color:#ffb800;cursor:pointer;text-decoration:underline dotted;" onclick="showFeeDetail(' + i + ')">' + fmt(fees) + '</td>'
-                + '<td style="padding:10px 8px;text-align:right;font-weight:600;color:' + (isBuy ? '#ff4a6e' : '#00ff88') + ';">' + fmt(netAmount) + '</td>'
-                + '<td style="padding:10px 8px;color:#8fa4c4;">' + reasonTag + '</td>'
-                + '<td style="padding:10px 8px;color:#8fa4c4;">' + account + '</td>'
+                + '<td style="padding:10px 8px;text-align:right;color:var(--text);">' + fmt(price) + '</td>'
+                + '<td style="padding:10px 8px;text-align:right;color:var(--text);">' + fmt(shares) + '</td>'
+                + '<td style="padding:10px 8px;text-align:right;color:var(--warning);cursor:pointer;text-decoration:underline dotted;" onclick="showFeeDetail(' + i + ')">' + fmt(fees) + '</td>'
+                + '<td style="padding:10px 8px;text-align:right;font-weight:600;color:' + (isBuy ? 'var(--danger)' : 'var(--secondary)') + ';">' + fmt(netAmount) + '</td>'
+                + '<td style="padding:10px 8px;color:var(--muted);">' + reasonTag + '</td>'
+                + '<td style="padding:10px 8px;color:var(--muted);">' + account + '</td>'
                 + '<td style="padding:10px 8px;text-align:center;white-space:nowrap;">'
-                    + '<button onclick="openEditTrade(' + i + ')" style="background:none;border:1px solid #1e2d4a;color:#00d4ff;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;margin-right:4px;font-family:DM Mono,monospace;" data-i18n="trades.edit">編輯</button>'
-                    + '<button onclick="deleteTrade(' + t.id + ')" style="background:none;border:1px solid #1e2d4a;color:#ff4a6e;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:DM Mono,monospace;" data-i18n="trades.delete">刪除</button>'
+                    + '<button onclick="openEditTrade(' + i + ')" style="background:none;border:1px solid var(--border);color:var(--primary);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;margin-right:4px;font-family:DM Mono,monospace;" data-i18n="trades.edit">編輯</button>'
+                    + '<button onclick="deleteTrade(' + t.id + ')" style="background:none;border:1px solid var(--border);color:var(--danger);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:DM Mono,monospace;" data-i18n="trades.delete">刪除</button>'
                 + '</td>'
                 + '</tr>';
         }
@@ -440,28 +440,28 @@
             var html = '';
 
             if (data.commission != null) {
-                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;" data-i18n="trades.commission">手續費</span><span>' + fmt(data.commission) + '</span></div>';
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--muted);" data-i18n="trades.commission">手續費</span><span>' + fmt(data.commission) + '</span></div>';
             }
             if (data.discount != null) {
-                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;" data-i18n="trades.discount">手續費折扣</span><span>' + fmt(data.discount) + '</span></div>';
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--muted);" data-i18n="trades.discount">手續費折扣</span><span>' + fmt(data.discount) + '</span></div>';
             }
             if (data.transaction_tax != null) {
-                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;" data-i18n="trades.transaction_tax">交易稅</span><span>' + fmt(data.transaction_tax) + '</span></div>';
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--muted);" data-i18n="trades.transaction_tax">交易稅</span><span>' + fmt(data.transaction_tax) + '</span></div>';
             }
             if (data.health_premium != null) {
-                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;" data-i18n="trades.health_premium">健保補充保費</span><span>' + fmt(data.health_premium) + '</span></div>';
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--muted);" data-i18n="trades.health_premium">健保補充保費</span><span>' + fmt(data.health_premium) + '</span></div>';
             }
             if (data.sec_fee != null) {
-                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;" data-i18n="trades.sec_fee">SEC 費用</span><span>' + fmt(data.sec_fee) + '</span></div>';
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--muted);" data-i18n="trades.sec_fee">SEC 費用</span><span>' + fmt(data.sec_fee) + '</span></div>';
             }
             if (data.broker_fee != null) {
-                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:#8fa4c4;" data-i18n="trades.broker_fee">券商手續費</span><span>' + fmt(data.broker_fee) + '</span></div>';
+                html += '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--muted);" data-i18n="trades.broker_fee">券商手續費</span><span>' + fmt(data.broker_fee) + '</span></div>';
             }
             if (data.total_fee != null) {
-                html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid #1e2d4a;margin-top:4px;font-weight:600;"><span style="color:#ffb800;" data-i18n="trades.total_fees">費用合計</span><span style="color:#ffb800;">' + fmt(data.total_fee) + '</span></div>';
+                html += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);margin-top:4px;font-weight:600;"><span style="color:var(--warning);" data-i18n="trades.total_fees">費用合計</span><span style="color:var(--warning);">' + fmt(data.total_fee) + '</span></div>';
             }
             if (data.net_amount != null) {
-                var netColor = tradeType === 'buy' ? '#ff4a6e' : '#00ff88';
+                var netColor = tradeType === 'buy' ? 'var(--danger)' : 'var(--secondary)';
                 html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-weight:600;"><span style="color:' + netColor + ';" data-i18n="trades.net_amount">淨額</span><span style="color:' + netColor + ';">' + fmt(data.net_amount) + '</span></div>';
             }
 

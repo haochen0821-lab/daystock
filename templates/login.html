@@ -12,12 +12,39 @@
     <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #0a0f1e;
+            --surface: #0f1629;
+            --border: #1e2d4a;
+            --text: #e8eef7;
+            --muted: #4a5a7a;
+            --primary: #00d4ff;
+            --secondary: #00ff88;
+            --danger: #ff4a6e;
+            --warning: #ffb800;
+            --input-bg: rgba(10,15,30,0.6);
+            --placeholder: #2a3a5a;
+        }
+        body.theme-light {
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #1a202c;
+            --muted: #718096;
+            --primary: #0077cc;
+            --secondary: #00a854;
+            --danger: #e53e3e;
+            --warning: #d69e2e;
+            --input-bg: #f7fafc;
+            --placeholder: #a0aec0;
+        }
+
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Syne', sans-serif;
-            background: #0a0f1e;
-            color: #e8eef7;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -29,16 +56,16 @@
         .bg-grid {
             position: fixed; inset: 0; z-index: 0;
             background-image:
-                linear-gradient(rgba(30,45,74,0.25) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(30,45,74,0.25) 1px, transparent 1px);
+                linear-gradient(color-mix(in srgb, var(--border) 25%, transparent) 1px, transparent 1px),
+                linear-gradient(90deg, color-mix(in srgb, var(--border) 25%, transparent) 1px, transparent 1px);
             background-size: 48px 48px;
             pointer-events: none;
         }
 
         .card {
             position: relative; z-index: 1;
-            background: #0f1629;
-            border: 1px solid #1e2d4a;
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 20px;
             padding: 48px 40px 40px;
             width: 100%;
@@ -75,7 +102,7 @@
         }
 
         .logo p {
-            color: #4a5a7a;
+            color: var(--muted);
             font-size: 13px;
             margin-top: 4px;
             font-family: 'DM Mono', monospace;
@@ -89,7 +116,7 @@
             display: block;
             font-size: 12px;
             font-weight: 600;
-            color: #4a5a7a;
+            color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 8px;
@@ -99,10 +126,10 @@
         .form-group input {
             width: 100%;
             padding: 14px 16px;
-            background: rgba(10,15,30,0.6);
-            border: 1px solid #1e2d4a;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            color: #e8eef7;
+            color: var(--text);
             font-size: 15px;
             font-family: 'DM Mono', monospace;
             outline: none;
@@ -110,12 +137,12 @@
         }
 
         .form-group input:focus {
-            border-color: #00d4ff;
+            border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(0,212,255,0.12), 0 0 20px rgba(0,212,255,0.08);
         }
 
         .form-group input::placeholder {
-            color: #2a3a5a;
+            color: var(--placeholder);
         }
 
         .btn-submit {
@@ -152,7 +179,7 @@
         .error-msg {
             background: rgba(255,74,110,0.1);
             border: 1px solid rgba(255,74,110,0.25);
-            color: #ff4a6e;
+            color: var(--danger);
             padding: 12px 16px;
             border-radius: 10px;
             font-size: 13px;
@@ -169,65 +196,19 @@
             text-align: center;
             margin-top: 24px;
             font-size: 13px;
-            color: #4a5a7a;
+            color: var(--muted);
             font-family: 'DM Mono', monospace;
         }
 
         .footer-link a {
-            color: #00d4ff;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s;
         }
 
         .footer-link a:hover {
-            color: #00ff88;
-        }
-
-        body.theme-light {
-            background: #f5f7fa;
-            color: #1a202c;
-        }
-        body.theme-light .bg-grid {
-            background-image:
-                linear-gradient(rgba(226,232,240,0.5) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(226,232,240,0.5) 1px, transparent 1px);
-        }
-        body.theme-light .card {
-            background: #ffffff;
-            border-color: #e2e8f0;
-            box-shadow: 0 4px 32px rgba(0,0,0,0.08);
-        }
-        body.theme-light .form-group label {
-            color: #718096;
-        }
-        body.theme-light .form-group input {
-            background: #f7fafc;
-            border-color: #e2e8f0;
-            color: #1a202c;
-        }
-        body.theme-light .form-group input::placeholder {
-            color: #a0aec0;
-        }
-        body.theme-light .form-group input:focus {
-            border-color: #0077cc;
-            box-shadow: 0 0 0 3px rgba(0,119,204,0.12);
-        }
-        body.theme-light .footer-link {
-            color: #718096;
-        }
-        body.theme-light .footer-link a {
-            color: #0077cc;
-        }
-        body.theme-light .ticker-wrap {
-            background: rgba(255,255,255,0.95);
-            border-top-color: #e2e8f0;
-        }
-        body.theme-light .ticker-symbol {
-            color: #1a202c;
-        }
-        body.theme-light .logo p {
-            color: #718096;
+            color: var(--secondary);
         }
 
         /* Ticker */
@@ -235,8 +216,8 @@
             position: fixed;
             bottom: 0; left: 0; right: 0;
             z-index: 2;
-            background: rgba(15,22,41,0.9);
-            border-top: 1px solid #1e2d4a;
+            background: color-mix(in srgb, var(--surface) 90%, transparent);
+            border-top: 1px solid var(--border);
             overflow: hidden;
             height: 44px;
             display: flex;
@@ -261,7 +242,7 @@
         }
 
         .ticker-symbol {
-            color: #e8eef7;
+            color: var(--text);
             font-weight: 500;
         }
 
@@ -289,8 +270,8 @@
         </div>
 
         <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px;">
-            <button id="langToggle" onclick="toggleLang()" style="background:none;border:1px solid #1e2d4a;color:#4a5a7a;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;">EN</button>
-            <button id="themeToggle" onclick="toggleTheme()" style="background:none;border:1px solid #1e2d4a;color:#4a5a7a;padding:4px 10px;border-radius:6px;font-size:16px;cursor:pointer;line-height:1;">☾</button>
+            <button id="langToggle" onclick="toggleLang()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Mono',monospace;">EN</button>
+            <button id="themeToggle" onclick="toggleTheme()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-size:16px;cursor:pointer;line-height:1;">☾</button>
         </div>
 
         <div class="error-msg" id="errorMsg">

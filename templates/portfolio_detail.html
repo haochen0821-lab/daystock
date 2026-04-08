@@ -13,7 +13,7 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        color: #5a6a8a;
+        color: var(--muted);
         font-size: 13px;
         margin-bottom: 16px;
         cursor: pointer;
@@ -21,7 +21,7 @@
         text-decoration: none;
     }
     .pd-back-btn:hover {
-        color: #00d4ff;
+        color: var(--primary);
         text-decoration: none;
     }
 
@@ -43,7 +43,7 @@
     .pd-page-title {
         font-size: 24px;
         font-weight: 700;
-        color: #e0e6f0;
+        color: var(--text);
     }
 
     .pd-tag-dots {
@@ -63,7 +63,7 @@
     .pd-tabs {
         display: flex;
         gap: 0;
-        border-bottom: 2px solid #1e2d4a;
+        border-bottom: 2px solid var(--border);
         margin-bottom: 24px;
     }
 
@@ -71,7 +71,7 @@
         padding: 10px 20px;
         font-size: 14px;
         font-weight: 600;
-        color: #5a6a8a;
+        color: var(--muted);
         cursor: pointer;
         border-bottom: 2px solid transparent;
         margin-bottom: -2px;
@@ -83,11 +83,11 @@
         font-family: 'DM Mono', monospace;
     }
     .pd-tab:hover {
-        color: #c0ccee;
+        color: var(--text);
     }
     .pd-tab.active {
-        color: #00d4ff;
-        border-bottom-color: #00d4ff;
+        color: var(--primary);
+        border-bottom-color: var(--primary);
     }
 
     .pd-tab-panel {
@@ -106,18 +106,18 @@
     .pd-member-table th {
         text-align: left;
         padding: 8px 14px;
-        color: #5a6a8a;
+        color: var(--muted);
         font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        border-bottom: 1px solid #1e2d4a;
+        border-bottom: 1px solid var(--border);
     }
     .pd-member-table td {
         padding: 10px 14px;
         font-size: 13px;
         border-bottom: 1px solid rgba(30, 45, 74, 0.5);
-        color: #e0e6f0;
+        color: var(--text);
     }
     .pd-member-table tr:hover td {
         background: rgba(0, 212, 255, 0.03);
@@ -144,21 +144,21 @@
     }
     .pd-market-badge.us {
         background: rgba(0, 212, 255, 0.15);
-        color: #00d4ff;
+        color: var(--primary);
         border: 1px solid rgba(0, 212, 255, 0.25);
     }
 
     .pd-change-up { color: #22c55e; }
     .pd-change-down { color: #ef4444; }
-    .pd-change-flat { color: #6b7a9a; }
+    .pd-change-flat { color: var(--muted); }
 
     .pd-remove-btn {
         width: 26px;
         height: 26px;
         border-radius: 50%;
-        border: 1px solid #2a3a5c;
+        border: 1px solid var(--border);
         background: transparent;
-        color: #5a6a8a;
+        color: var(--muted);
         font-size: 14px;
         cursor: pointer;
         display: flex;
@@ -168,8 +168,8 @@
     }
     .pd-remove-btn:hover {
         background: rgba(255, 74, 110, 0.15);
-        color: #ff4a6e;
-        border-color: #ff4a6e;
+        color: var(--danger);
+        border-color: var(--danger);
     }
 
     /* Chart containers */
@@ -180,8 +180,8 @@
     }
 
     .pd-chart-box {
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 20px;
         flex: 1;
@@ -190,7 +190,7 @@
 
     .pd-chart-box h3 {
         font-size: 15px;
-        color: #e0e6f0;
+        color: var(--text);
         margin-bottom: 16px;
     }
 
@@ -215,37 +215,37 @@
         gap: 0;
         border-radius: 8px;
         overflow: hidden;
-        border: 1px solid #2a3a5c;
+        border: 1px solid var(--border);
     }
     .pd-btn-group button {
         padding: 7px 16px;
         border: none;
-        background: #1a2340;
-        color: #8a9abf;
+        background: var(--bg);
+        color: var(--muted);
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s;
-        border-right: 1px solid #2a3a5c;
+        border-right: 1px solid var(--border);
         font-family: 'DM Mono', monospace;
     }
     .pd-btn-group button:last-child {
         border-right: none;
     }
     .pd-btn-group button:hover {
-        background: #24305a;
-        color: #c0ccee;
+        background: var(--border);
+        color: var(--text);
     }
     .pd-btn-group button.active {
-        background: #00d4ff;
-        color: #0a0e1a;
+        background: var(--primary);
+        color: var(--bg);
     }
 
     .pd-trend-wrap {
         position: relative;
         width: 100%;
         height: 420px;
-        background: #0b1022;
+        background: var(--bg);
         border-radius: 8px;
         padding: 10px;
     }
@@ -262,10 +262,10 @@
         padding: 10px 16px;
         margin-bottom: 16px;
         font-size: 13px;
-        color: #ffb800;
+        color: var(--warning);
     }
     .pd-news-banner a {
-        color: #ffb800;
+        color: var(--warning);
         text-decoration: underline;
     }
 
@@ -275,9 +275,9 @@
     .pd-news-filter select {
         padding: 8px 14px;
         border-radius: 8px;
-        border: 1px solid #2a3a5c;
-        background: #1a2340;
-        color: #e0e6f0;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
         font-size: 13px;
         min-width: 160px;
     }
@@ -289,29 +289,29 @@
     }
 
     .pd-news-card {
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 10px;
         padding: 16px;
         transition: border-color 0.2s;
     }
     .pd-news-card:hover {
-        border-color: #2a3a5c;
+        border-color: var(--muted);
     }
 
     .pd-news-title {
         font-size: 14px;
         font-weight: 600;
-        color: #e0e6f0;
+        color: var(--text);
         margin-bottom: 6px;
         line-height: 1.5;
     }
     .pd-news-title a {
-        color: #e0e6f0;
+        color: var(--text);
         transition: color 0.2s;
     }
     .pd-news-title a:hover {
-        color: #00d4ff;
+        color: var(--primary);
         text-decoration: none;
     }
 
@@ -320,7 +320,7 @@
         gap: 12px;
         align-items: center;
         font-size: 12px;
-        color: #5a6a8a;
+        color: var(--muted);
         margin-bottom: 8px;
         flex-wrap: wrap;
     }
@@ -331,7 +331,7 @@
         font-size: 11px;
         font-weight: 700;
         background: rgba(0, 212, 255, 0.1);
-        color: #00d4ff;
+        color: var(--primary);
         border: 1px solid rgba(0, 212, 255, 0.2);
     }
 
@@ -340,7 +340,7 @@
         border-radius: 6px;
         border: 1px solid rgba(255, 184, 0, 0.3);
         background: rgba(255, 184, 0, 0.08);
-        color: #ffb800;
+        color: var(--warning);
         font-size: 12px;
         cursor: pointer;
         transition: all 0.2s;
@@ -348,7 +348,7 @@
     }
     .pd-news-trade-btn:hover {
         background: rgba(255, 184, 0, 0.18);
-        border-color: #ffb800;
+        border-color: var(--warning);
     }
 
     /* Add member modal items */
@@ -370,12 +370,12 @@
     .pd-wl-symbol {
         font-weight: 700;
         font-size: 14px;
-        color: #e0e6f0;
+        color: var(--text);
     }
 
     .pd-wl-market {
         font-size: 11px;
-        color: #5a6a8a;
+        color: var(--muted);
         margin-left: 8px;
     }
 
@@ -390,7 +390,7 @@
         font-family: 'DM Mono', monospace;
     }
     .pd-wl-add-btn.available {
-        background: linear-gradient(135deg, #00d4ff, #0090ff);
+        background: linear-gradient(135deg, var(--primary), #0090ff);
         color: #fff;
     }
     .pd-wl-add-btn.available:hover {
@@ -398,14 +398,14 @@
     }
     .pd-wl-add-btn.added {
         background: transparent;
-        border: 1px solid #2a3a5c;
-        color: #5a6a8a;
+        border: 1px solid var(--border);
+        color: var(--muted);
         cursor: default;
     }
 
     .pd-empty-msg {
         text-align: center;
-        color: #5a6a8a;
+        color: var(--muted);
         padding: 40px 20px;
         font-size: 14px;
     }
@@ -448,7 +448,7 @@
                 </tr>
             </thead>
             <tbody id="pd-member-tbody">
-                <tr><td colspan="5" style="text-align:center;color:#5a6a8a;padding:30px;" data-i18n="port.loading">載入中...</td></tr>
+                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px;" data-i18n="port.loading">載入中...</td></tr>
             </tbody>
         </table>
 
@@ -504,7 +504,7 @@
             <button class="modal-close" onclick="closeModal('addMemberModal')">&times;</button>
         </div>
         <div id="pd-wl-list" style="max-height:400px;overflow-y:auto;">
-            <div style="text-align:center;color:#5a6a8a;padding:30px;" data-i18n="port.loading_wl">載入自選股...</div>
+            <div style="text-align:center;color:var(--muted);padding:30px;" data-i18n="port.loading_wl">載入自選股...</div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeModal('addMemberModal')" data-i18n="port.close">關閉</button>
@@ -629,16 +629,16 @@
                     legend: {
                         position: 'bottom',
                         labels: {
-                            color: '#8a9abf',
+                            color: 'var(--muted)',
                             font: { size: 12, family: "'DM Mono', monospace" },
                             padding: 14
                         }
                     },
                     tooltip: {
-                        backgroundColor: '#1a2340',
-                        titleColor: '#e0e6f0',
-                        bodyColor: '#c0ccee',
-                        borderColor: '#2a3a5c',
+                        backgroundColor: 'var(--surface)',
+                        titleColor: 'var(--text)',
+                        bodyColor: 'var(--text)',
+                        borderColor: 'var(--border)',
                         borderWidth: 1
                     }
                 }
@@ -654,14 +654,14 @@
 
     function loadWatchlistForAdd() {
         var container = document.getElementById('pd-wl-list');
-        container.innerHTML = '<div style="text-align:center;color:#5a6a8a;padding:30px;">載入自選股...</div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px;">載入自選股...</div>';
 
         fetch('/api/watchlist')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var wl = data.watchlist || data || [];
                 if (!wl.length) {
-                    container.innerHTML = '<div style="text-align:center;color:#5a6a8a;padding:30px;">自選股為空，請先新增股票。</div>';
+                    container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px;">自選股為空，請先新增股票。</div>';
                     return;
                 }
 
@@ -688,7 +688,7 @@
             })
             .catch(function(err) {
                 console.error('Load watchlist error:', err);
-                container.innerHTML = '<div style="text-align:center;color:#ff4a6e;padding:30px;">載入自選股失敗。</div>';
+                container.innerHTML = '<div style="text-align:center;color:var(--danger);padding:30px;">載入自選股失敗。</div>';
             });
     }
 
@@ -803,16 +803,16 @@
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#8a9abf',
+                            color: 'var(--muted)',
                             font: { size: 12, family: "'DM Mono', monospace" },
                             padding: 14
                         }
                     },
                     tooltip: {
-                        backgroundColor: '#1a2340',
-                        titleColor: '#e0e6f0',
-                        bodyColor: '#c0ccee',
-                        borderColor: '#2a3a5c',
+                        backgroundColor: 'var(--surface)',
+                        titleColor: 'var(--text)',
+                        bodyColor: 'var(--text)',
+                        borderColor: 'var(--border)',
                         borderWidth: 1,
                         callbacks: {
                             label: function(item) {
@@ -824,7 +824,7 @@
                 scales: {
                     x: {
                         ticks: {
-                            color: '#5a6a8a',
+                            color: 'var(--muted)',
                             maxRotation: 45,
                             autoSkip: true,
                             maxTicksLimit: 20,
@@ -837,7 +837,7 @@
                     },
                     y: {
                         ticks: {
-                            color: '#5a6a8a',
+                            color: 'var(--muted)',
                             font: { size: 11 }
                         },
                         grid: {

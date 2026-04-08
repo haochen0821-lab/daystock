@@ -669,7 +669,7 @@
             datasets.push({
                 label: '市值',
                 data: data.market_values,
-                borderColor: '#00d4ff',
+                borderColor: 'var(--primary)',
                 backgroundColor: 'rgba(0, 212, 255, 0.06)',
                 borderWidth: 2,
                 pointRadius: 0,
@@ -684,7 +684,7 @@
             datasets.push({
                 label: '成本',
                 data: data.costs,
-                borderColor: '#ffb800',
+                borderColor: 'var(--warning)',
                 borderWidth: 1.5,
                 borderDash: [6, 4],
                 pointRadius: 0,
@@ -699,7 +699,7 @@
             datasets.push({
                 label: '基準',
                 data: data.benchmark_values,
-                borderColor: '#4a5a7a',
+                borderColor: 'var(--muted)',
                 borderWidth: 1.5,
                 pointRadius: 0,
                 pointHitRadius: 8,
@@ -736,7 +736,7 @@
             datasets.push({
                 label: '定期定額 + DRIP',
                 data: data.drip_values,
-                borderColor: '#00d4ff',
+                borderColor: 'var(--primary)',
                 backgroundColor: 'rgba(0, 212, 255, 0.08)',
                 borderWidth: 2,
                 pointRadius: 0,
@@ -751,7 +751,7 @@
             datasets.push({
                 label: '成本',
                 data: data.costs,
-                borderColor: '#ffb800',
+                borderColor: 'var(--warning)',
                 borderWidth: 1.5,
                 borderDash: [6, 4],
                 pointRadius: 0,
@@ -818,7 +818,7 @@
                         mode: 'index',
                         intersect: false,
                         backgroundColor: 'rgba(15, 22, 41, 0.95)',
-                        borderColor: '#1e2d4a',
+                        borderColor: 'var(--border)',
                         borderWidth: 1,
                         titleFont: { family: 'DM Mono', size: 12 },
                         bodyFont: { family: 'DM Mono', size: 12 },
@@ -834,7 +834,7 @@
                 scales: {
                     x: {
                         ticks: {
-                            color: '#4a5a7a',
+                            color: 'var(--muted)',
                             font: { family: 'DM Mono', size: 11 },
                             maxTicksLimit: 10
                         },
@@ -842,7 +842,7 @@
                     },
                     y: {
                         ticks: {
-                            color: '#4a5a7a',
+                            color: 'var(--muted)',
                             font: { family: 'DM Mono', size: 11 },
                             callback: function(v) { return v.toLocaleString(); }
                         },

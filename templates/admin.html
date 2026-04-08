@@ -10,8 +10,8 @@
         margin-bottom: 24px;
     }
     .stat-card {
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 20px;
         display: flex;
@@ -30,22 +30,22 @@
     }
     .stat-card:nth-child(1) .stat-icon {
         background: rgba(0, 212, 255, 0.1);
-        color: #00d4ff;
+        color: var(--primary);
     }
     .stat-card:nth-child(2) .stat-icon {
         background: rgba(0, 255, 136, 0.1);
-        color: #00ff88;
+        color: var(--secondary);
     }
     .stat-num {
         font-family: 'Syne', sans-serif;
         font-size: 28px;
         font-weight: 700;
-        color: #e8eef7;
+        color: var(--text);
         line-height: 1.2;
     }
     .stat-label {
         font-size: 12px;
-        color: #4a5a7a;
+        color: var(--muted);
         margin-top: 2px;
     }
 
@@ -55,36 +55,36 @@
     .search-bar input {
         width: 100%;
         padding: 12px 16px;
-        background: #0a0f1e;
-        border: 1px solid #1e2d4a;
+        background: var(--bg);
+        border: 1px solid var(--border);
         border-radius: 8px;
-        color: #e8eef7;
+        color: var(--text);
         font-family: 'DM Mono', monospace;
         font-size: 13px;
     }
     .search-bar input::placeholder {
-        color: #4a5a7a;
+        color: var(--muted);
     }
     .search-bar input:focus {
         outline: none;
-        border-color: #00d4ff;
+        border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
     }
 
     .users-card {
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         overflow: hidden;
     }
     .users-card .card-header {
         padding: 16px 20px;
         margin-bottom: 0;
-        border-bottom: 1px solid #1e2d4a;
+        border-bottom: 1px solid var(--border);
     }
     .users-card .card-header h3 {
         font-size: 16px;
-        color: #e8eef7;
+        color: var(--text);
     }
 
     .users-table {
@@ -95,18 +95,18 @@
         padding: 10px 16px;
         text-align: left;
         font-size: 11px;
-        color: #4a5a7a;
+        color: var(--muted);
         text-transform: uppercase;
         letter-spacing: 0.06em;
         font-weight: 500;
-        border-bottom: 1px solid #1e2d4a;
+        border-bottom: 1px solid var(--border);
         background: rgba(10, 15, 30, 0.4);
     }
     .users-table td {
         padding: 12px 16px;
         font-size: 13px;
-        color: #e8eef7;
-        border-bottom: 1px solid #1e2d4a;
+        color: var(--text);
+        border-bottom: 1px solid var(--border);
         vertical-align: middle;
     }
     .users-table tr:last-child td {
@@ -126,27 +126,27 @@
     }
     .badge-member {
         background: rgba(100, 116, 139, 0.2);
-        color: #94a3b8;
+        color: var(--muted);
         border: 1px solid rgba(100, 116, 139, 0.3);
     }
     .badge-admin {
         background: rgba(0, 212, 255, 0.12);
-        color: #00d4ff;
+        color: var(--primary);
         border: 1px solid rgba(0, 212, 255, 0.3);
     }
     .badge-superadmin {
         background: rgba(255, 184, 0, 0.12);
-        color: #ffb800;
+        color: var(--warning);
         border: 1px solid rgba(255, 184, 0, 0.3);
     }
     .badge-active {
         background: rgba(0, 255, 136, 0.12);
-        color: #00ff88;
+        color: var(--secondary);
         border: 1px solid rgba(0, 255, 136, 0.3);
     }
     .badge-disabled {
         background: rgba(255, 74, 110, 0.12);
-        color: #ff4a6e;
+        color: var(--danger);
         border: 1px solid rgba(255, 74, 110, 0.3);
     }
 
@@ -158,17 +158,17 @@
     }
     .role-select {
         padding: 5px 10px;
-        background: #0a0f1e;
-        border: 1px solid #1e2d4a;
+        background: var(--bg);
+        border: 1px solid var(--border);
         border-radius: 6px;
-        color: #e8eef7;
+        color: var(--text);
         font-family: 'DM Mono', monospace;
         font-size: 12px;
         cursor: pointer;
     }
     .role-select:focus {
         outline: none;
-        border-color: #00d4ff;
+        border-color: var(--primary);
     }
     .role-select:disabled {
         opacity: 0.4;
@@ -177,7 +177,7 @@
 
     .btn-toggle {
         padding: 5px 12px;
-        border: 1px solid #1e2d4a;
+        border: 1px solid var(--border);
         border-radius: 6px;
         font-family: 'DM Mono', monospace;
         font-size: 12px;
@@ -186,14 +186,14 @@
         background: transparent;
     }
     .btn-toggle-disable {
-        color: #ff4a6e;
+        color: var(--danger);
         border-color: rgba(255, 74, 110, 0.3);
     }
     .btn-toggle-disable:hover {
         background: rgba(255, 74, 110, 0.1);
     }
     .btn-toggle-enable {
-        color: #00ff88;
+        color: var(--secondary);
         border-color: rgba(0, 255, 136, 0.3);
     }
     .btn-toggle-enable:hover {
@@ -210,7 +210,7 @@
     .empty-state {
         text-align: center;
         padding: 40px 20px;
-        color: #4a5a7a;
+        color: var(--muted);
         font-size: 13px;
     }
 
@@ -227,14 +227,65 @@
         transition: opacity 0.3s ease;
     }
     .toast-success {
-        background: #0f1629;
+        background: var(--surface);
         border: 1px solid rgba(0, 255, 136, 0.3);
-        color: #00ff88;
+        color: var(--secondary);
     }
     .toast-error {
-        background: #0f1629;
+        background: var(--surface);
         border: 1px solid rgba(255, 74, 110, 0.3);
-        color: #ff4a6e;
+        color: var(--danger);
+    }
+
+    /* ===== Light theme overrides ===== */
+    body.theme-light .stat-card:nth-child(1) .stat-icon {
+        background: rgba(0, 119, 204, 0.1);
+    }
+    body.theme-light .stat-card:nth-child(2) .stat-icon {
+        background: rgba(0, 168, 84, 0.1);
+    }
+    body.theme-light .search-bar input:focus {
+        box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.1);
+    }
+    body.theme-light .users-table th {
+        background: rgba(0, 0, 0, 0.03);
+    }
+    body.theme-light .users-table tr:hover td {
+        background: rgba(0, 119, 204, 0.03);
+    }
+    body.theme-light .badge-admin {
+        background: rgba(0, 119, 204, 0.1);
+        border-color: rgba(0, 119, 204, 0.3);
+    }
+    body.theme-light .badge-superadmin {
+        background: rgba(214, 158, 46, 0.1);
+        border-color: rgba(214, 158, 46, 0.3);
+    }
+    body.theme-light .badge-active {
+        background: rgba(0, 168, 84, 0.1);
+        border-color: rgba(0, 168, 84, 0.3);
+    }
+    body.theme-light .badge-disabled {
+        background: rgba(229, 62, 62, 0.1);
+        border-color: rgba(229, 62, 62, 0.3);
+    }
+    body.theme-light .btn-toggle-disable {
+        border-color: rgba(229, 62, 62, 0.3);
+    }
+    body.theme-light .btn-toggle-disable:hover {
+        background: rgba(229, 62, 62, 0.1);
+    }
+    body.theme-light .btn-toggle-enable {
+        border-color: rgba(0, 168, 84, 0.3);
+    }
+    body.theme-light .btn-toggle-enable:hover {
+        background: rgba(0, 168, 84, 0.1);
+    }
+    body.theme-light .toast-success {
+        border-color: rgba(0, 168, 84, 0.3);
+    }
+    body.theme-light .toast-error {
+        border-color: rgba(229, 62, 62, 0.3);
     }
 
     @media (max-width: 768px) {

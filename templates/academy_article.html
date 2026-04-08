@@ -132,10 +132,10 @@
         font-size: 12px;
         font-weight: 500;
     }
-    .cat-badge.concept { background: rgba(0,212,255,0.15); color: #00d4ff; }
-    .cat-badge.glossary { background: rgba(0,255,136,0.15); color: #00ff88; }
-    .cat-badge.abbreviation { background: rgba(255,184,0,0.15); color: #ffb800; }
-    .cat-badge.practical { background: rgba(255,74,110,0.15); color: #ff4a6e; }
+    .cat-badge.concept { background: rgba(0,212,255,0.15); color: var(--primary); }
+    .cat-badge.glossary { background: rgba(0,255,136,0.15); color: var(--secondary); }
+    .cat-badge.abbreviation { background: rgba(255,184,0,0.15); color: var(--warning); }
+    .cat-badge.practical { background: rgba(255,74,110,0.15); color: var(--danger); }
     .article-tag {
         font-size: 11px;
         color: var(--primary);
@@ -164,7 +164,7 @@
         margin-bottom: 14px;
     }
     .article-body strong, .article-body b {
-        color: #fff;
+        color: var(--text);
     }
     .article-body ul, .article-body ol {
         margin: 12px 0;
@@ -182,7 +182,7 @@
         color: var(--muted);
     }
     .article-body pre {
-        background: #060a14;
+        background: var(--bg);
         border: 1px solid var(--border);
         border-radius: 8px;
         padding: 16px;

@@ -12,7 +12,7 @@
     .bk-page-title {
         font-size: 24px;
         font-weight: 700;
-        color: #e8eef7;
+        color: var(--text);
         margin-bottom: 20px;
     }
 
@@ -26,8 +26,8 @@
     .bk-folders {
         width: 80px;
         flex-shrink: 0;
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 16px 12px;
         display: flex;
@@ -57,7 +57,7 @@
     }
 
     .bk-folder-circle.selected {
-        border-color: #e8eef7;
+        border-color: var(--text);
         box-shadow: 0 0 16px rgba(255, 255, 255, 0.2);
     }
 
@@ -90,7 +90,7 @@
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: #ff4a6e;
+        background: var(--danger);
         color: #fff;
         font-size: 11px;
         font-weight: 700;
@@ -110,14 +110,14 @@
     .bk-folders-divider {
         width: 32px;
         height: 1px;
-        background: #1e2d4a;
+        background: var(--border);
     }
 
     .bk-folder-all {
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: #1e2d4a;
+        background: var(--border);
         border: 3px solid transparent;
         cursor: pointer;
         display: flex;
@@ -125,7 +125,7 @@
         justify-content: center;
         font-size: 11px;
         font-weight: 600;
-        color: #e8eef7;
+        color: var(--text);
         transition: all 0.2s ease;
     }
 
@@ -134,7 +134,7 @@
     }
 
     .bk-folder-all.selected {
-        border-color: #00d4ff;
+        border-color: var(--primary);
         box-shadow: 0 0 16px rgba(0, 212, 255, 0.3);
     }
 
@@ -151,8 +151,8 @@
     }
 
     .bk-card {
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 18px;
         transition: border-color 0.2s ease;
@@ -160,7 +160,7 @@
     }
 
     .bk-card:hover {
-        border-color: #2a3d5e;
+        border-color: var(--muted);
     }
 
     .bk-card-top {
@@ -185,7 +185,7 @@
     .bk-card-title {
         font-size: 15px;
         font-weight: 600;
-        color: #e8eef7;
+        color: var(--text);
         margin-bottom: 6px;
         cursor: pointer;
         transition: color 0.2s;
@@ -194,13 +194,13 @@
     }
 
     .bk-card-title:hover {
-        color: #00d4ff;
+        color: var(--primary);
         text-decoration: none;
     }
 
     .bk-card-summary {
         font-size: 13px;
-        color: #4a5a7a;
+        color: var(--muted);
         line-height: 1.5;
         margin-bottom: 10px;
     }
@@ -219,7 +219,7 @@
         font-size: 11px;
         font-weight: 600;
         background: rgba(0, 212, 255, 0.12);
-        color: #00d4ff;
+        color: var(--primary);
         border: 1px solid rgba(0, 212, 255, 0.2);
     }
 
@@ -230,7 +230,7 @@
         font-size: 11px;
         font-weight: 600;
         background: rgba(255, 184, 0, 0.12);
-        color: #ffb800;
+        color: var(--warning);
         border: 1px solid rgba(255, 184, 0, 0.2);
     }
 
@@ -245,9 +245,9 @@
     .bk-btn-note {
         padding: 5px 12px;
         border-radius: 6px;
-        border: 1px solid #1e2d4a;
+        border: 1px solid var(--border);
         background: transparent;
-        color: #4a5a7a;
+        color: var(--muted);
         font-size: 12px;
         cursor: pointer;
         transition: all 0.2s;
@@ -255,8 +255,8 @@
     }
 
     .bk-btn-note:hover {
-        border-color: #ffb800;
-        color: #ffb800;
+        border-color: var(--warning);
+        color: var(--warning);
         background: rgba(255, 184, 0, 0.08);
     }
 
@@ -264,9 +264,9 @@
         width: 28px;
         height: 28px;
         border-radius: 50%;
-        border: 1px solid #1e2d4a;
+        border: 1px solid var(--border);
         background: transparent;
-        color: #4a5a7a;
+        color: var(--muted);
         font-size: 15px;
         cursor: pointer;
         display: flex;
@@ -277,8 +277,8 @@
     }
 
     .bk-btn-remove:hover {
-        background: #ff4a6e;
-        border-color: #ff4a6e;
+        background: var(--danger);
+        border-color: var(--danger);
         color: #fff;
     }
 
@@ -289,7 +289,7 @@
         border: 1px solid rgba(255, 184, 0, 0.12);
         border-radius: 8px;
         font-size: 12px;
-        color: #8a9abf;
+        color: var(--text);
         line-height: 1.5;
         white-space: pre-wrap;
         word-break: break-word;
@@ -298,7 +298,7 @@
     /* ===== Empty State ===== */
     .bk-empty {
         text-align: center;
-        color: #4a5a7a;
+        color: var(--muted);
         padding: 60px 20px;
         font-size: 15px;
     }
@@ -323,8 +323,8 @@
     }
 
     .bk-note-modal {
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 16px;
         padding: 24px;
         width: 90%;
@@ -338,18 +338,18 @@
         justify-content: space-between;
         margin-bottom: 16px;
         padding-bottom: 12px;
-        border-bottom: 1px solid #1e2d4a;
+        border-bottom: 1px solid var(--border);
     }
 
     .bk-note-modal-header h3 {
         font-size: 16px;
-        color: #e8eef7;
+        color: var(--text);
     }
 
     .bk-note-modal-close {
         background: none;
         border: none;
-        color: #4a5a7a;
+        color: var(--muted);
         font-size: 22px;
         cursor: pointer;
         padding: 4px;
@@ -357,17 +357,17 @@
     }
 
     .bk-note-modal-close:hover {
-        color: #e8eef7;
+        color: var(--text);
     }
 
     .bk-note-textarea {
         width: 100%;
         min-height: 160px;
         padding: 12px 14px;
-        background: #0a0f1e;
-        border: 1px solid #1e2d4a;
+        background: var(--bg);
+        border: 1px solid var(--border);
         border-radius: 8px;
-        color: #e8eef7;
+        color: var(--text);
         font-family: 'DM Mono', monospace;
         font-size: 13px;
         line-height: 1.6;
@@ -376,7 +376,7 @@
 
     .bk-note-textarea:focus {
         outline: none;
-        border-color: #00d4ff;
+        border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
     }
 
@@ -386,7 +386,33 @@
         gap: 10px;
         margin-top: 16px;
         padding-top: 12px;
-        border-top: 1px solid #1e2d4a;
+        border-top: 1px solid var(--border);
+    }
+
+    /* ===== Light theme overrides ===== */
+    body.theme-light .bk-folder-all.selected {
+        box-shadow: 0 0 16px rgba(0, 119, 204, 0.3);
+    }
+    body.theme-light .bk-folder-circle.selected {
+        box-shadow: 0 0 16px rgba(0, 0, 0, 0.15);
+    }
+    body.theme-light .bk-category-badge {
+        background: rgba(0, 119, 204, 0.1);
+        border-color: rgba(0, 119, 204, 0.2);
+    }
+    body.theme-light .bk-note-badge {
+        background: rgba(214, 158, 46, 0.1);
+        border-color: rgba(214, 158, 46, 0.2);
+    }
+    body.theme-light .bk-btn-note:hover {
+        background: rgba(214, 158, 46, 0.08);
+    }
+    body.theme-light .bk-note-preview {
+        background: rgba(214, 158, 46, 0.05);
+        border-color: rgba(214, 158, 46, 0.12);
+    }
+    body.theme-light .bk-note-textarea:focus {
+        box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.1);
     }
 
     /* ===== Responsive ===== */

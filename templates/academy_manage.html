@@ -111,10 +111,10 @@
         border-radius: 6px;
         flex-shrink: 0;
     }
-    .item-cat-badge.concept { background: rgba(0,212,255,0.15); color: #00d4ff; }
-    .item-cat-badge.glossary { background: rgba(0,255,136,0.15); color: #00ff88; }
-    .item-cat-badge.abbreviation { background: rgba(255,184,0,0.15); color: #ffb800; }
-    .item-cat-badge.practical { background: rgba(255,74,110,0.15); color: #ff4a6e; }
+    .item-cat-badge.concept { background: rgba(0,212,255,0.15); color: var(--primary); }
+    .item-cat-badge.glossary { background: rgba(0,255,136,0.15); color: var(--secondary); }
+    .item-cat-badge.abbreviation { background: rgba(255,184,0,0.15); color: var(--warning); }
+    .item-cat-badge.practical { background: rgba(255,74,110,0.15); color: var(--danger); }
 
     /* Editor Panel */
     .editor-panel {
@@ -212,7 +212,7 @@
         color: var(--muted);
     }
     .ql-snow .ql-editor pre.ql-syntax {
-        background: #060a14;
+        background: var(--bg);
         color: var(--secondary);
         border-radius: 6px;
     }

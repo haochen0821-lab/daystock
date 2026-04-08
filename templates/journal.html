@@ -13,8 +13,8 @@
 
     /* ===== Calendar ===== */
     .calendar-panel {
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 20px;
     }
@@ -28,7 +28,7 @@
 
     .calendar-header h2 {
         font-size: 18px;
-        color: #e8eef7;
+        color: var(--text);
         min-width: 180px;
         text-align: center;
     }
@@ -40,9 +40,9 @@
     }
 
     .cal-btn {
-        background: #1e2d4a;
+        background: var(--border);
         border: none;
-        color: #e8eef7;
+        color: var(--text);
         width: 34px;
         height: 34px;
         border-radius: 8px;
@@ -55,7 +55,7 @@
     }
 
     .cal-btn:hover {
-        background: #2a3d5e;
+        background: var(--muted);
     }
 
     .cal-btn-today {
@@ -76,7 +76,7 @@
     .calendar-weekdays span {
         text-align: center;
         font-size: 11px;
-        color: #4a5a7a;
+        color: var(--muted);
         font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -100,7 +100,7 @@
         transition: all 0.15s;
         position: relative;
         font-size: 13px;
-        color: #8fa4c4;
+        color: var(--text);
         min-height: 44px;
     }
 
@@ -117,19 +117,19 @@
     }
 
     .cal-cell.today {
-        border: 2px solid #00d4ff;
-        color: #00d4ff;
+        border: 2px solid var(--primary);
+        color: var(--primary);
         font-weight: 700;
     }
 
     .cal-cell.selected {
         background: rgba(0, 212, 255, 0.15);
-        color: #00d4ff;
+        color: var(--primary);
         font-weight: 700;
     }
 
     .cal-cell.other-month {
-        color: #2a3552;
+        color: var(--muted);
     }
 
     .mood-dot {
@@ -143,8 +143,8 @@
     .editor-panel {
         position: sticky;
         top: 80px;
-        background: #0f1629;
-        border: 1px solid #1e2d4a;
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 12px;
         padding: 20px;
         height: fit-content;
@@ -157,7 +157,7 @@
     }
 
     .editor-panel::-webkit-scrollbar-thumb {
-        background: #1e2d4a;
+        background: var(--border);
         border-radius: 2px;
     }
 
@@ -165,14 +165,14 @@
         font-family: 'Syne', sans-serif;
         font-size: 16px;
         font-weight: 700;
-        color: #00d4ff;
+        color: var(--primary);
         margin-bottom: 18px;
         padding-bottom: 12px;
-        border-bottom: 1px solid #1e2d4a;
+        border-bottom: 1px solid var(--border);
     }
 
     .editor-empty {
-        color: #4a5a7a;
+        color: var(--muted);
         font-size: 14px;
         text-align: center;
         padding: 60px 20px;
@@ -186,7 +186,7 @@
         display: block;
         margin-bottom: 8px;
         font-size: 11px;
-        color: #4a5a7a;
+        color: var(--muted);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
@@ -205,20 +205,20 @@
         align-items: center;
         gap: 4px;
         padding: 10px 4px;
-        background: #0a0f1e;
-        border: 2px solid #1e2d4a;
+        background: var(--bg);
+        border: 2px solid var(--border);
         border-radius: 10px;
         cursor: pointer;
         transition: all 0.2s;
     }
 
     .mood-btn:hover {
-        border-color: #3a4d6a;
-        background: #111829;
+        border-color: var(--muted);
+        background: var(--surface);
     }
 
     .mood-btn.active {
-        border-color: var(--mood-color, #00d4ff);
+        border-color: var(--mood-color, var(--primary));
         background: rgba(0, 212, 255, 0.08);
         box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
     }
@@ -230,13 +230,13 @@
 
     .mood-btn .mood-label {
         font-size: 9px;
-        color: #4a5a7a;
+        color: var(--muted);
         font-family: 'DM Mono', monospace;
         white-space: nowrap;
     }
 
     .mood-btn.active .mood-label {
-        color: #8fa4c4;
+        color: var(--text);
     }
 
     /* Market view selector */
@@ -252,19 +252,19 @@
         justify-content: center;
         gap: 6px;
         padding: 10px 8px;
-        background: #0a0f1e;
-        border: 2px solid #1e2d4a;
+        background: var(--bg);
+        border: 2px solid var(--border);
         border-radius: 10px;
         cursor: pointer;
         font-family: 'DM Mono', monospace;
         font-size: 12px;
-        color: #8fa4c4;
+        color: var(--text);
         transition: all 0.2s;
     }
 
     .market-btn:hover {
-        border-color: #3a4d6a;
-        background: #111829;
+        border-color: var(--muted);
+        background: var(--surface);
     }
 
     .market-btn .market-icon {
@@ -272,31 +272,31 @@
     }
 
     .market-btn.active[data-value="bullish"] {
-        border-color: #00ff88;
+        border-color: var(--secondary);
         background: rgba(0, 255, 136, 0.08);
-        color: #00ff88;
+        color: var(--secondary);
     }
 
     .market-btn.active[data-value="neutral"] {
-        border-color: #ffb800;
+        border-color: var(--warning);
         background: rgba(255, 184, 0, 0.08);
-        color: #ffb800;
+        color: var(--warning);
     }
 
     .market-btn.active[data-value="bearish"] {
-        border-color: #ff4a6e;
+        border-color: var(--danger);
         background: rgba(255, 74, 110, 0.08);
-        color: #ff4a6e;
+        color: var(--danger);
     }
 
     .journal-textarea {
         width: 100%;
         min-height: 160px;
         padding: 12px 14px;
-        background: #0a0f1e;
-        border: 1px solid #1e2d4a;
+        background: var(--bg);
+        border: 1px solid var(--border);
         border-radius: 8px;
-        color: #e8eef7;
+        color: var(--text);
         font-family: 'DM Mono', monospace;
         font-size: 13px;
         line-height: 1.7;
@@ -306,7 +306,7 @@
 
     .journal-textarea:focus {
         outline: none;
-        border-color: #00d4ff;
+        border-color: var(--primary);
         box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
     }
 
@@ -318,6 +318,30 @@
 
     .editor-actions .btn {
         flex: 1;
+    }
+
+    /* ===== Light theme overrides ===== */
+    body.theme-light .cal-cell:hover {
+        background: rgba(0, 119, 204, 0.08);
+    }
+    body.theme-light .cal-cell.selected {
+        background: rgba(0, 119, 204, 0.15);
+    }
+    body.theme-light .mood-btn.active {
+        background: rgba(0, 119, 204, 0.08);
+        box-shadow: 0 0 12px rgba(0, 119, 204, 0.15);
+    }
+    body.theme-light .market-btn.active[data-value="bullish"] {
+        background: rgba(0, 168, 84, 0.08);
+    }
+    body.theme-light .market-btn.active[data-value="neutral"] {
+        background: rgba(214, 158, 46, 0.08);
+    }
+    body.theme-light .market-btn.active[data-value="bearish"] {
+        background: rgba(229, 62, 62, 0.08);
+    }
+    body.theme-light .journal-textarea:focus {
+        box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.1);
     }
 
     /* ===== Responsive ===== */
@@ -612,7 +636,7 @@
             if (journalMap[dateStr] && journalMap[dateStr].mood) {
                 var dot = document.createElement('div');
                 dot.className = 'mood-dot';
-                dot.style.background = MOOD_COLORS[journalMap[dateStr].mood] || '#4a5a7a';
+                dot.style.background = MOOD_COLORS[journalMap[dateStr].mood] || 'var(--muted)';
                 cell.appendChild(dot);
             }
 

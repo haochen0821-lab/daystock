@@ -6,23 +6,23 @@
 
     <!-- Section 1: Market Barometer -->
     <div style="margin-bottom:20px;">
-        <h3 data-i18n="dash.market_barometer" style="color:#8fa4c4;margin-bottom:10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">市場氣象台</h3>
+        <h3 data-i18n="dash.market_barometer" style="color:var(--muted);margin-bottom:10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;">市場氣象台</h3>
         <div id="market-bar" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;">
-            <div style="color:#556;font-size:13px;padding:16px;" data-i18n="dash.loading">載入中...</div>
+            <div style="color:var(--muted);font-size:13px;padding:16px;" data-i18n="dash.loading">載入中...</div>
         </div>
     </div>
 
     <!-- Section 2 & 3: Word of the Day + Anniversary Countdown (side by side) -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
         <!-- Word of the Day -->
-        <div id="word-of-day-card" style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:18px;min-height:100px;">
-            <h4 data-i18n="dash.word_of_day" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">今日一詞</h4>
-            <div id="word-of-day-content" style="color:#94a3b8;font-size:13px;" data-i18n="dash.loading">載入中...</div>
+        <div id="word-of-day-card" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;min-height:100px;">
+            <h4 data-i18n="dash.word_of_day" style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">今日一詞</h4>
+            <div id="word-of-day-content" style="color:var(--muted);font-size:13px;" data-i18n="dash.loading">載入中...</div>
         </div>
         <!-- US Stock Anniversary Countdown -->
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:18px;min-height:100px;">
-            <h4 data-i18n="dash.anniversary" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">週年倒數提醒</h4>
-            <div id="anniversary-list" style="color:#94a3b8;font-size:13px;" data-i18n="dash.loading">載入中...</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;min-height:100px;">
+            <h4 data-i18n="dash.anniversary" style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px 0;">週年倒數提醒</h4>
+            <div id="anniversary-list" style="color:var(--muted);font-size:13px;" data-i18n="dash.loading">載入中...</div>
         </div>
     </div>
 
@@ -31,35 +31,35 @@
 
     <!-- Section 5: Stats Cards -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="stats-cards">
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div data-i18n="dash.total_market_value" style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">總市值</div>
-            <div id="stat-market-value" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div data-i18n="dash.total_market_value" style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">總市值</div>
+            <div id="stat-market-value" style="color:var(--text);font-size:22px;font-weight:700;">--</div>
         </div>
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div data-i18n="dash.total_cost" style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">總成本</div>
-            <div id="stat-total-cost" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div data-i18n="dash.total_cost" style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">總成本</div>
+            <div id="stat-total-cost" style="color:var(--text);font-size:22px;font-weight:700;">--</div>
         </div>
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div data-i18n="dash.unrealized_pl" style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">未實現損益</div>
-            <div id="stat-pnl" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div data-i18n="dash.unrealized_pl" style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">未實現損益</div>
+            <div id="stat-pnl" style="color:var(--text);font-size:22px;font-weight:700;">--</div>
             <div id="stat-pnl-pct" style="font-size:12px;margin-top:2px;">--</div>
         </div>
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <div data-i18n="dash.holdings_count" style="color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">持股數量</div>
-            <div id="stat-holdings" style="color:#e2e8f0;font-size:22px;font-weight:700;">--</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div data-i18n="dash.holdings_count" style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">持股數量</div>
+            <div id="stat-holdings" style="color:var(--text);font-size:22px;font-weight:700;">--</div>
         </div>
     </div>
 
     <!-- Section 6: Charts -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <h4 data-i18n="dash.allocation" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">市值分配</h4>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <h4 data-i18n="dash.allocation" style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">市值分配</h4>
             <div style="position:relative;height:280px;display:flex;align-items:center;justify-content:center;">
                 <canvas id="chart-allocation"></canvas>
             </div>
         </div>
-        <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;">
-            <h4 data-i18n="dash.pl_ranked" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">損益排行 %</h4>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <h4 data-i18n="dash.pl_ranked" style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">損益排行 %</h4>
             <div style="position:relative;height:280px;">
                 <canvas id="chart-pnl"></canvas>
             </div>
@@ -67,24 +67,24 @@
     </div>
 
     <!-- Section 7: Holdings Detail Table -->
-    <div style="background:#0f1629;border:1px solid #1e2d4a;border-radius:10px;padding:20px;overflow-x:auto;">
-        <h4 data-i18n="dash.holdings_detail" style="color:#8fa4c4;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">持股明細</h4>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;">
+        <h4 data-i18n="dash.holdings_detail" style="color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px 0;">持股明細</h4>
         <table style="width:100%;border-collapse:collapse;font-size:13px;" id="holdings-table">
             <thead>
-                <tr style="border-bottom:1px solid #1e2d4a;">
-                    <th data-i18n="dash.symbol" style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">代號</th>
-                    <th data-i18n="dash.market" style="text-align:left;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">市場</th>
-                    <th data-i18n="dash.shares" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">股數</th>
-                    <th data-i18n="dash.avg_cost" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">均價</th>
-                    <th data-i18n="dash.current_price" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">現價</th>
-                    <th data-i18n="dash.market_value" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">市值</th>
-                    <th data-i18n="dash.pl_net" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">損益</th>
-                    <th data-i18n="dash.pl_pct" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">損益%</th>
-                    <th data-i18n="dash.div_yield" style="text-align:right;padding:10px 8px;color:#64748b;font-weight:600;font-size:11px;text-transform:uppercase;">殖利率</th>
+                <tr style="border-bottom:1px solid var(--border);">
+                    <th data-i18n="dash.symbol" style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">代號</th>
+                    <th data-i18n="dash.market" style="text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">市場</th>
+                    <th data-i18n="dash.shares" style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">股數</th>
+                    <th data-i18n="dash.avg_cost" style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">均價</th>
+                    <th data-i18n="dash.current_price" style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">現價</th>
+                    <th data-i18n="dash.market_value" style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">市值</th>
+                    <th data-i18n="dash.pl_net" style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">損益</th>
+                    <th data-i18n="dash.pl_pct" style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">損益%</th>
+                    <th data-i18n="dash.div_yield" style="text-align:right;padding:10px 8px;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;">殖利率</th>
                 </tr>
             </thead>
             <tbody id="holdings-body">
-                <tr><td colspan="9" style="padding:20px;color:#556;text-align:center;" data-i18n="dash.loading">載入中...</td></tr>
+                <tr><td colspan="9" style="padding:20px;color:var(--muted);text-align:center;" data-i18n="dash.loading">載入中...</td></tr>
             </tbody>
         </table>
     </div>
@@ -103,7 +103,7 @@
         div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
     }
     #market-bar::-webkit-scrollbar { height: 4px; }
-    #market-bar::-webkit-scrollbar-thumb { background: #1e2d4a; border-radius: 2px; }
+    #market-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 </style>
 {% endblock %}
 
@@ -144,7 +144,7 @@
     function pnlColor(v) {
         if (v > 0) return GREEN;
         if (v < 0) return RED;
-        return '#94a3b8';
+        return 'var(--muted)';
     }
 
     // ---- 1. Market Barometer ----
@@ -166,20 +166,20 @@
                 }
                 const sign = change >= 0 ? '+' : '';
                 const card = document.createElement('div');
-                card.style.cssText = 'background:#0f1629;border:1px solid #1e2d4a;border-radius:8px;padding:14px 18px;min-width:140px;flex-shrink:0;';
+                card.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 18px;min-width:140px;flex-shrink:0;';
                 card.innerHTML = `
-                    <div style="color:#94a3b8;font-size:11px;font-weight:600;margin-bottom:4px;">${symbol}</div>
-                    <div style="color:#e2e8f0;font-size:18px;font-weight:700;">${fmt(price, 2)}</div>
+                    <div style="color:var(--muted);font-size:11px;font-weight:600;margin-bottom:4px;">${symbol}</div>
+                    <div style="color:var(--text);font-size:18px;font-weight:700;">${fmt(price, 2)}</div>
                     <div style="color:${color};font-size:13px;font-weight:600;">${sign}${change.toFixed(2)}%</div>
                 `;
                 bar.appendChild(card);
             });
             if (bar.children.length === 0) {
-                bar.innerHTML = '<div style="color:#556;font-size:13px;padding:16px;" data-i18n="dash.no_market_data">' + t('dash.no_market_data') + '</div>';
+                bar.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:16px;" data-i18n="dash.no_market_data">' + t('dash.no_market_data') + '</div>';
             }
         })
         .catch(() => {
-            document.getElementById('market-bar').innerHTML = '<div style="color:#ef4444;font-size:13px;padding:16px;" data-i18n="dash.fail_market">' + t('dash.fail_market') + '</div>';
+            document.getElementById('market-bar').innerHTML = '<div style="color:var(--danger);font-size:13px;padding:16px;" data-i18n="dash.fail_market">' + t('dash.fail_market') + '</div>';
         });
 
     // ---- 2. Word of the Day ----
@@ -191,8 +191,8 @@
                 const link = data.id ? `/academy/${data.id}` : '#';
                 el.removeAttribute('data-i18n');
                 el.innerHTML = `
-                    <a href="${link}" style="color:#a5b4fc;text-decoration:none;font-weight:600;font-size:15px;">${data.title}</a>
-                    <div style="color:#94a3b8;font-size:12px;margin-top:6px;line-height:1.5;">${data.summary || ''}</div>
+                    <a href="${link}" style="color:var(--primary);text-decoration:none;font-weight:600;font-size:15px;">${data.title}</a>
+                    <div style="color:var(--muted);font-size:12px;margin-top:6px;line-height:1.5;">${data.summary || ''}</div>
                 `;
             } else {
                 el.setAttribute('data-i18n', 'dash.no_word');
@@ -229,12 +229,12 @@
                     badge = `<span style="color:#f59e0b;font-weight:700;">${days}d</span>`;
                     color = '#f59e0b';
                 } else {
-                    badge = `<span style="color:#94a3b8;">${days}d</span>`;
-                    color = '#94a3b8';
+                    badge = `<span style="color:var(--muted);">${days}d</span>`;
+                    color = 'var(--muted)';
                 }
                 const row = document.createElement('div');
-                row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #1e2d4a;';
-                row.innerHTML = `<span style="color:#e2e8f0;font-weight:600;font-size:13px;">${symbol}</span>${badge}`;
+                row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);';
+                row.innerHTML = `<span style="color:var(--text);font-weight:600;font-size:13px;">${symbol}</span>${badge}`;
                 el.appendChild(row);
             });
         })
@@ -303,7 +303,7 @@
                 datasets: [{
                     data: values,
                     backgroundColor: ACCENT_COLORS.slice(0, labels.length),
-                    borderColor: '#0f1629',
+                    borderColor: getComputedStyle(document.documentElement).getPropertyValue('--surface').trim(),
                     borderWidth: 2
                 }]
             },
@@ -313,7 +313,7 @@
                 plugins: {
                     legend: {
                         position: 'right',
-                        labels: { color: '#94a3b8', font: { size: 11 }, padding: 8 }
+                        labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim(), font: { size: 11 }, padding: 8 }
                     }
                 }
             }
@@ -345,11 +345,11 @@
                 },
                 scales: {
                     x: {
-                        ticks: { color: '#64748b', callback: v => v + '%' },
-                        grid: { color: '#1e2d4a' }
+                        ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim(), callback: v => v + '%' },
+                        grid: { color: getComputedStyle(document.documentElement).getPropertyValue('--border').trim() }
                     },
                     y: {
-                        ticks: { color: '#94a3b8', font: { size: 11 } },
+                        ticks: { color: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim(), font: { size: 11 } },
                         grid: { display: false }
                     }
                 }
@@ -361,7 +361,7 @@
     function renderTable(holdings) {
         const tbody = document.getElementById('holdings-body');
         if (!holdings.length) {
-            tbody.innerHTML = '<tr><td colspan="9" style="padding:20px;color:#556;text-align:center;" data-i18n="dash.no_holdings">' + t('dash.no_holdings') + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="padding:20px;color:var(--muted);text-align:center;" data-i18n="dash.no_holdings">' + t('dash.no_holdings') + '</td></tr>';
             return;
         }
         tbody.innerHTML = '';
@@ -373,20 +373,20 @@
 
             const divYield = h.dividend_yield || 0;
             const divAnnual = h.estimated_annual_dividend || 0;
-            const divDisplay = divYield ? `${divYield.toFixed(2)}%` + (divAnnual ? `<br><span style="font-size:11px;color:#64748b;">$${fmt(divAnnual, 2)}/yr</span>` : '') : '--';
+            const divDisplay = divYield ? `${divYield.toFixed(2)}%` + (divAnnual ? `<br><span style="font-size:11px;color:var(--muted);">$${fmt(divAnnual, 2)}/yr</span>` : '') : '--';
 
             const tr = document.createElement('tr');
-            tr.style.cssText = 'border-bottom:1px solid #1e2d4a;';
+            tr.style.cssText = 'border-bottom:1px solid var(--border);';
             tr.innerHTML = `
-                <td style="padding:10px 8px;color:#e2e8f0;font-weight:600;">${h.symbol}</td>
-                <td style="padding:10px 8px;color:#94a3b8;">${h.market || '--'}</td>
-                <td style="padding:10px 8px;color:#e2e8f0;text-align:right;">${fmt(h.shares)}</td>
-                <td style="padding:10px 8px;color:#94a3b8;text-align:right;">${fmt(h.avg_cost, 2)}</td>
-                <td style="padding:10px 8px;color:#e2e8f0;text-align:right;">${fmt(h.current_price, 2)}</td>
-                <td style="padding:10px 8px;color:#e2e8f0;text-align:right;">${fmt(h.market_value, 2)}</td>
+                <td style="padding:10px 8px;color:var(--text);font-weight:600;">${h.symbol}</td>
+                <td style="padding:10px 8px;color:var(--muted);">${h.market || '--'}</td>
+                <td style="padding:10px 8px;color:var(--text);text-align:right;">${fmt(h.shares)}</td>
+                <td style="padding:10px 8px;color:var(--muted);text-align:right;">${fmt(h.avg_cost, 2)}</td>
+                <td style="padding:10px 8px;color:var(--text);text-align:right;">${fmt(h.current_price, 2)}</td>
+                <td style="padding:10px 8px;color:var(--text);text-align:right;">${fmt(h.market_value, 2)}</td>
                 <td style="padding:10px 8px;text-align:right;color:${color};font-weight:600;">${sign}${fmt(Math.abs(pnl), 2)}</td>
                 <td style="padding:10px 8px;text-align:right;color:${color};font-weight:600;">${sign}${pnlPct.toFixed(2)}%</td>
-                <td style="padding:10px 8px;text-align:right;color:#94a3b8;">${divDisplay}</td>
+                <td style="padding:10px 8px;text-align:right;color:var(--muted);">${divDisplay}</td>
             `;
             tbody.appendChild(tr);
         });
